@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>QueenCosy MRP & Order-to-BOM Planning System • ระบบวางแผนการผลิตและสั่งซื้อวัสดุตามสูตร BOM</title>
+
+  <!-- Google Fonts: Prompt & Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS via CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- SweetAlert2 -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+  <!-- Local & CDN Fallback for Chart.js -->
+  <script src="chart.min.js"></script>
+  <script>
+    if (typeof Chart === 'undefined') {
+      document.write('<script src="https://cdn.jsdelivr.net/npm/chart.js"><\/script>');
+    }
+  </script>
+
+  <!-- Local & CDN Fallback for SheetJS (XLSX) -->
+  <script src="xlsx.full.min.js"></script>
+  <script>
+    if (typeof XLSX === 'undefined') {
+      document.write('<script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"><\/script>');
+    }
+  </script>
+
+  <!-- Local Supabase JS SDK -->
+  <script src="supabase.min.js"></script>
+
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col">
+
+  <!-- ===================================================================== -->
+  <!-- TOP EXECUTIVE HEADER -->
+  <!-- ===================================================================== -->
+  <header class="bg-slate-900 text-white border-b border-slate-800 sticky top-0 z-40 shadow-md no-print">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3">
+      <!-- Brand & Title -->
+      <div class="flex items-center gap-3">
+        <div class="w-11 h-11 rounded-2xl bg-gradient-to-br from-indigo-500 via-purple-600 to-rose-500 flex items-center justify-center font-black text-xl text-white shadow-lg shadow-indigo-500/20">
+          MRP
+        </div>
+        <div>
+          <div class="flex flex-wrap items-center gap-2">
+            <h1 class="text-base sm:text-lg font-bold tracking-tight text-white">QueenCosy MRP & Order-to-BOM Engine</h1>
+            <span class="px-2 py-0.5 text-[11px] font-semibold bg-indigo-500/20 text-indigo-300 border border-indigo-400/30 rounded-full">
+              Order ➔ FG Netting ➔ BOM ➔ Stock Movement ➔ Supplier PO
+            </span>
+          </div>
+          <p class="text-xs text-slate-400 mt-0.5">
+            ระบบวางแผนการผลิต ตัดสต็อกสินค้าสำเร็จรูป (FG) แตกสูตร BOM และเช็กสต็อกวัตถุดิบจริงจาก <code class="text-emerald-300">QC_STOCK_MOVEMENT_DATA_V4</code>
+          </p>
+        </div>
+      </div>
+
+      <!-- Right Action Bar -->
+      <div class="flex flex-wrap items-center gap-2">
+        <!-- Live Cloud Status Badge -->
+        <div id="cloudStatusBadge" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-slate-800 text-slate-300 border border-slate-700">
+          <span id="cloudStatusDot" class="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
+          <span id="cloudStatusText">กำลังเชื่อมต่อ Supabase...</span>
+        </div>
+
+        <!-- Refresh Live Stock Movement Button -->
+        <button id="btnRefreshStock" class="px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold transition flex items-center gap-1.5 cursor-pointer shadow-sm" title="ดึงยอดสต็อกคงเหลือจริงล่าสุดจาก Supabase (QC_STOCK_MOVEMENT_DATA_V4)">
+          <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
+          <span>ดึงสต็อกจริง (Live)</span>
+        </button>
+
+        <!-- Push to P&L Button -->
+        <button id="btnSyncToPnl" class="px-3 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-bold transition flex items-center gap-1.5 cursor-pointer shadow-sm" title="ส่งยอดออเดอร์ค้าง, สต็อก FG และงบซื้อวัสดุไปที่ระบบงบกำไรขาดทุน (QueenCosy P&L)">
+          <i data-lucide="send" class="w-3.5 h-3.5"></i>
+          <span>ส่งตัวเลขเข้า P&L</span>
+        </button>
+
+        <!-- Links to Sister Apps -->
+        <a id="linkStockMovement" href="https://stock-movement-app.vercel.app/" target="_blank" class="px-2.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs font-medium text-slate-200 transition flex items-center gap-1">
+          <span>📦 Stock Movement</span>
+        </a>
+        <a id="linkPnlApp" href="../queencosy-pnl/index.html" target="_blank" class="px-2.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs font-medium text-slate-200 transition flex items-center gap-1">
+          <span>📈 ระบบ P&L</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- 5 MODULE NAVIGATION TABS -->
+    <div class="bg-white text-slate-700 border-t border-slate-200">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <nav class="flex space-x-1 sm:space-x-2 overflow-x-auto" id="mrpTabNav">
+          <button data-tab="tab-dashboard" class="mrp-tab-btn active px-3.5 py-3 text-xs sm:text-sm font-semibold flex items-center gap-2 whitespace-nowrap cursor-pointer">
+            <span>📊 1. แดชบอร์ดแผนผลิต & งบสั่งซื้อรวม</span>
+          </button>
+          <button data-tab="tab-backlog" class="mrp-tab-btn px-3.5 py-3 text-xs sm:text-sm font-semibold flex items-center gap-2 whitespace-nowrap cursor-pointer">
+            <span>🛋️ 2. ออเดอร์ค้างผลิต & ตัดสต็อก FG</span>
+            <span id="badgeBacklogCount" class="px-2 py-0.5 text-[11px] rounded-full bg-indigo-100 text-indigo-700 font-mono">0</span>
+          </button>
+          <button data-tab="tab-bom-builder" class="mrp-tab-btn px-3.5 py-3 text-xs sm:text-sm font-semibold flex items-center gap-2 whitespace-nowrap cursor-pointer">
+            <span>🧩 3. ผูกสูตร BOM & รหัสวัสดุ Stock Movement</span>
+            <span id="badgeBomCount" class="px-2 py-0.5 text-[11px] rounded-full bg-slate-100 text-slate-700 font-mono">439</span>
+          </button>
+          <button data-tab="tab-shortage" class="mrp-tab-btn px-3.5 py-3 text-xs sm:text-sm font-semibold flex items-center gap-2 whitespace-nowrap cursor-pointer">
+            <span>🔍 4. เช็กสต็อกวัตถุดิบจริง & รายการขาด</span>
+            <span id="badgeShortageCount" class="px-2 py-0.5 text-[11px] rounded-full bg-rose-100 text-rose-700 font-mono">0</span>
+          </button>
+          <button data-tab="tab-supplier-po" class="mrp-tab-btn px-3.5 py-3 text-xs sm:text-sm font-semibold flex items-center gap-2 whitespace-nowrap cursor-pointer">
+            <span>🛒 5. ใบแผนสั่งซื้อแยกซัพพลายเออร์ (Auto PO)</span>
+            <span id="badgeSupplierPoCount" class="px-2 py-0.5 text-[11px] rounded-full bg-emerald-100 text-emerald-800 font-mono">0</span>
+          </button>
+        </nav>
+      </div>
+    </div>
+  </header>
+
+  <!-- ===================================================================== -->
+  <!-- PERSISTENT MRP PIPELINE SUMMARY RIBBON (6 STEPS) -->
+  <!-- ===================================================================== -->
+  <section class="max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 pt-5 no-print">
+    <div class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-3">
+      <!-- Step 1: Total Backlog Orders -->
+      <div class="bg-white rounded-2xl p-3.5 border border-slate-200 shadow-xs">
+        <div class="flex items-center justify-between text-xs font-semibold text-slate-500">
+          <span>1️⃣ ออเดอร์ค้างส่งรวม</span>
+          <span class="text-indigo-600 font-mono text-[11px]" id="kpiPlatformSplit">TT 0 | SP 0</span>
+        </div>
+        <div class="mt-1.5 flex items-baseline gap-1.5">
+          <span id="kpiTotalBacklog" class="text-2xl font-black text-slate-900 font-mono">0</span>
+          <span class="text-xs text-slate-500">ตัว</span>
+        </div>
+        <div class="mt-1 text-[11px] text-slate-400">TikTok Shop + Shopee</div>
+      </div>
+
+      <!-- Step 2: FG Stock Deduction -->
+      <div class="bg-white rounded-2xl p-3.5 border border-emerald-200 bg-gradient-to-br from-white to-emerald-50/40 shadow-xs">
+        <div class="flex items-center justify-between text-xs font-semibold text-emerald-700">
+          <span>2️⃣ หักสต็อก FG พร้อมส่ง</span>
+          <span class="px-1.5 py-0.5 text-[10px] bg-emerald-100 text-emerald-800 rounded font-semibold">พร้อมแพ็คส่ง</span>
+        </div>
+        <div class="mt-1.5 flex items-baseline gap-1.5">
+          <span id="kpiFgDeducted" class="text-2xl font-black text-emerald-700 font-mono">-0</span>
+          <span class="text-xs text-emerald-600">ตัว</span>
+        </div>
+        <div class="mt-1 text-[11px] text-emerald-600" id="kpiFgTotalSub">มีในคลัง FG ทั้งหมด 0 ตัว</div>
+      </div>
+
+      <!-- Step 3: Net Production Needed -->
+      <div class="bg-white rounded-2xl p-3.5 border border-indigo-200 bg-gradient-to-br from-white to-indigo-50/40 shadow-xs">
+        <div class="flex items-center justify-between text-xs font-bold text-indigo-700">
+          <span>3️⃣ ต้องสั่งผลิตจริง (Net)</span>
+          <span class="px-1.5 py-0.5 text-[10px] bg-indigo-100 text-indigo-800 rounded font-semibold">เข้าไลน์ผลิต</span>
+        </div>
+        <div class="mt-1.5 flex items-baseline gap-1.5">
+          <span id="kpiNetProduce" class="text-2xl font-black text-indigo-800 font-mono">0</span>
+          <span class="text-xs text-indigo-600 font-bold">ตัว</span>
+        </div>
+        <div class="mt-1 text-[11px] text-indigo-600" id="kpiAvgMatPerSofa">วัสดุเฉลี่ย ฿0/ตัว</div>
+      </div>
+
+      <!-- Step 4: Gross BOM Material Cost -->
+      <div class="bg-white rounded-2xl p-3.5 border border-slate-200 shadow-xs">
+        <div class="flex items-center justify-between text-xs font-semibold text-slate-500">
+          <span>4️⃣ มูลค่าวัสดุตาม BOM</span>
+          <span class="text-[11px] text-slate-400" id="kpiActiveMatCount">0 ชนิดวัสดุ</span>
+        </div>
+        <div class="mt-1.5 flex items-baseline gap-1">
+          <span id="kpiGrossBomCost" class="text-xl sm:text-2xl font-black text-slate-900 font-mono">฿0</span>
+        </div>
+        <div class="mt-1 text-[11px] text-slate-400">ก่อนหักสต็อกวัตถุดิบที่มี</div>
+      </div>
+
+      <!-- Step 5: Deduct Live Stock Movement -->
+      <div class="bg-white rounded-2xl p-3.5 border border-teal-200 bg-gradient-to-br from-white to-teal-50/40 shadow-xs">
+        <div class="flex items-center justify-between text-xs font-semibold text-teal-700">
+          <span>5️⃣ หักสต็อกวัตถุดิบที่มี</span>
+          <span class="px-1.5 py-0.5 text-[10px] bg-teal-100 text-teal-800 rounded font-semibold" id="kpiEnoughCountBadge">🟢 พอ 0</span>
+        </div>
+        <div class="mt-1.5 flex items-baseline gap-1">
+          <span id="kpiStockSavedValue" class="text-xl sm:text-2xl font-black text-teal-700 font-mono">-฿0</span>
+        </div>
+        <div class="mt-1 text-[11px] text-teal-600" id="kpiWarehouseTotalSub">คลังรวม ฿0 (Stock Movement)</div>
+      </div>
+
+      <!-- Step 6: Net Purchase Budget Needed -->
+      <div class="bg-white rounded-2xl p-3.5 border-2 border-rose-300 bg-gradient-to-br from-white to-rose-50/60 shadow-sm">
+        <div class="flex items-center justify-between text-xs font-bold text-rose-700">
+          <span>6️⃣ งบต้องสั่งซื้อวัสดุเพิ่ม</span>
+          <span class="px-1.5 py-0.5 text-[10px] bg-rose-100 text-rose-800 rounded font-bold" id="kpiShortageBadge">🔴 ขาด 0</span>
+        </div>
+        <div class="mt-1.5 flex items-baseline gap-1">
+          <span id="kpiNetPurchaseBudget" class="text-xl sm:text-2xl font-black text-rose-700 font-mono">฿0</span>
+        </div>
+        <div class="mt-1 text-[11px] text-rose-600 font-medium" id="kpiPaymentTermSplit">สด ฿0 | เครดิต ฿0</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================================================================== -->
+  <!-- MAIN CONTENT CONTAINER -->
+  <!-- ===================================================================== -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+
+    <!-- =================================================================== -->
+    <!-- TAB 1: MRP EXECUTIVE DASHBOARD -->
+    <!-- =================================================================== -->
+    <section id="tab-dashboard" class="mrp-tab-pane space-y-6">
+      <!-- Visual Pipeline Flow Card -->
+      <div class="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 rounded-2xl p-5 text-white shadow-lg">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-3 pb-4 border-b border-white/10">
+          <div>
+            <span class="px-2.5 py-0.5 text-[11px] font-semibold bg-amber-400/20 text-amber-300 border border-amber-400/30 rounded-full">
+              QueenCosy End-to-End MRP Flow
+            </span>
+            <h2 class="text-lg sm:text-xl font-bold mt-1">สรุปวงจรแปลงออเดอร์ค้างผลิต ➔ ตัดสต็อก ➔ งบสั่งซื้อวัสดุแยกตามซัพพลายเออร์</h2>
+          </div>
+          <div class="flex flex-wrap gap-2">
+            <button onclick="switchMrpTab('tab-backlog')" class="px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-xs font-semibold text-white border border-white/15 cursor-pointer transition">
+              ✏️ แก้ไขออเดอร์ / สต็อก FG
+            </button>
+            <button onclick="switchMrpTab('tab-supplier-po')" class="px-3 py-1.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-xs font-bold text-slate-950 cursor-pointer transition shadow">
+              🛒 ดูใบสั่งซื้อแยกซัพพลายเออร์
+            </button>
+          </div>
+        </div>
+
+        <!-- 5 Category Breakdown Cards -->
+        <div id="dashboardCategoryGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3.5 mt-4">
+          <!-- Populated by app.js -->
+        </div>
+      </div>
+
+      <!-- Charts & Supplier Cashflow Summary Row -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <!-- Left 7 Cols: Supplier Purchase Summary Table -->
+        <div class="lg:col-span-7 bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden flex flex-col">
+          <div class="p-4 sm:p-5 border-b border-slate-100 flex flex-wrap items-center justify-between gap-2">
+            <div>
+              <h3 class="text-base font-bold text-slate-900 flex items-center gap-2">
+                <span>🏭 สรุปยอดต้องสั่งซื้อเพิ่ม แยกตามซัพพลายเออร์จริง</span>
+              </h3>
+              <p class="text-xs text-slate-500 mt-0.5">คำนวณเฉพาะส่วนที่สต็อกใน <code class="text-indigo-600">stock-movement-app</code> ไม่พอผลิต</p>
+            </div>
+            <button id="btnExportAllPoExcelDash" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-semibold flex items-center gap-1.5 cursor-pointer shadow-xs">
+              <i data-lucide="file-spreadsheet" class="w-4 h-4"></i>
+              <span>ส่งออกแผนสั่งซื้อ Excel</span>
+            </button>
+          </div>
+          <div class="overflow-x-auto flex-1">
+            <table class="w-full text-left text-xs">
+              <thead class="bg-slate-50 border-b border-slate-200 text-slate-600 font-semibold">
+                <tr>
+                  <th class="py-3 px-4">ซัพพลายเออร์โรงงาน</th>
+                  <th class="py-3 px-3">หมวดวัสดุ</th>
+                  <th class="py-3 px-3">เงื่อนไขการจ่าย</th>
+                  <th class="py-3 px-3 text-center">รายการที่ขาด</th>
+                  <th class="py-3 px-4 text-right">งบที่ต้องสั่งซื้อเพิ่ม (บาท)</th>
+                </tr>
+              </thead>
+              <tbody id="dashboardSupplierTableBody" class="divide-y divide-slate-100">
+                <!-- Populated by app.js -->
+              </tbody>
+              <tfoot class="bg-slate-50 border-t-2 border-slate-200 font-bold text-slate-900">
+                <tr>
+                  <td colspan="3" class="py-3 px-4">รวมงบประมาณสั่งซื้อวัสดุที่ขาดทั้งหมด</td>
+                  <td id="dashSupFootItems" class="py-3 px-3 text-center font-mono text-rose-600">0 รายการ</td>
+                  <td id="dashSupFootCost" class="py-3 px-4 text-right font-mono text-base text-rose-700">฿0.00</td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+        </div>
+
+        <!-- Right 5 Cols: Chart & Cashflow Impact -->
+        <div class="lg:col-span-5 space-y-5">
+          <!-- Cashflow Term Breakdown Card -->
+          <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-xs space-y-4">
+            <div class="flex items-center justify-between">
+              <h3 class="text-sm font-bold text-slate-900">💳 แผนเตรียมเงินสดจ่ายค่าวัสดุ (Cash vs Credit)</h3>
+              <span class="text-[11px] text-slate-400">ตามเครดิตซัพพลายเออร์จริง</span>
+            </div>
+            <div class="grid grid-cols-2 gap-3">
+              <div class="p-3.5 rounded-xl bg-amber-50 border border-amber-200">
+                <span class="text-[11px] font-semibold text-amber-800 block">⚡ จ่ายสด / รายสัปดาห์</span>
+                <span id="dashCashWeeklyAmount" class="text-lg font-black font-mono text-amber-900 mt-1 block">฿0</span>
+                <span class="text-[10px] text-amber-700 mt-0.5 block">ลุนนี(ไม้), สมไกร, ปรีชา, ลูกแม็ก</span>
+              </div>
+              <div class="p-3.5 rounded-xl bg-indigo-50 border border-indigo-200">
+                <span class="text-[11px] font-semibold text-indigo-800 block">🗓️ เครดิตรอบสิ้นเดือน</span>
+                <span id="dashCreditEomAmount" class="text-lg font-black font-mono text-indigo-900 mt-1 block">฿0</span>
+                <span class="text-[10px] text-indigo-700 mt-0.5 block">MJ-ไม้, MJ-วัตถุดิบ, PDK, พรีเมียม, ดูราโฟม</span>
+              </div>
+            </div>
+
+            <!-- Chart Canvas -->
+            <div class="h-52 relative pt-2">
+              <canvas id="mrpCategoryChart"></canvas>
+            </div>
+          </div>
+
+          <!-- Top 5 Critical Shortages Quick Alert -->
+          <div class="bg-white rounded-2xl border border-rose-200 p-4 shadow-xs">
+            <div class="flex items-center justify-between mb-2.5">
+              <h4 class="text-xs font-bold text-rose-700 uppercase tracking-wider flex items-center gap-1.5">
+                <span>🚨 5 อันดับวัตถุดิบที่ต้องใช้งบสั่งซื้อสูงสุดในรอบนี้</span>
+              </h4>
+              <button onclick="switchMrpTab('tab-shortage')" class="text-[11px] text-indigo-600 hover:underline font-medium cursor-pointer">ดูทั้งหมด →</button>
+            </div>
+            <div id="dashTopShortagesList" class="space-y-2 text-xs">
+              <!-- Populated by app.js -->
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =================================================================== -->
+    <!-- TAB 2: ORDER BACKLOG & FINISHED GOODS (FG) STOCK NETTING -->
+    <!-- =================================================================== -->
+    <section id="tab-backlog" class="mrp-tab-pane hidden space-y-6">
+      <!-- Top 3 Input Boxes: Upload E-Com Order / Add SKU Manually / Batch FG Tools -->
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        <!-- Box 1: Upload TikTok / Shopee Order Export -->
+        <div class="bg-white rounded-2xl p-4 border border-slate-200 shadow-xs flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between mb-1.5">
+              <span class="px-2 py-0.5 text-[10px] font-bold bg-purple-100 text-purple-700 rounded">นำเข้าไฟล์ออเดอร์</span>
+              <span class="text-[11px] text-slate-400">TikTok / Shopee (.xlsx, .csv)</span>
+            </div>
+            <h3 class="text-sm font-bold text-slate-900">อัปโหลดไฟล์ Order Export เพื่อแปลงเป็นรุ่นโซฟา</h3>
+            <p class="text-xs text-slate-500 mt-1 mb-3">ใช้ระบบ <b>SkuMapper</b> ถอดชื่อสินค้าและสีเป็นรหัส Master SKU อัตโนมัติ</p>
+          </div>
+          <div>
+            <div class="flex items-center gap-2 mb-2">
+              <label class="text-[11px] font-semibold text-slate-600">ช่องทางไฟล์:</label>
+              <select id="importOrderChannelSelect" class="px-2.5 py-1 text-xs border border-slate-300 rounded-lg bg-white font-semibold text-slate-700">
+                <option value="AUTO">🔍 ตรวจจับอัตโนมัติ (TikTok / Shopee)</option>
+                <option value="TIKTOK">📱 บันทึกเป็นยอด TikTok Shop</option>
+                <option value="SHOPEE">🛍️ บันทึกเป็นยอด Shopee</option>
+              </select>
+              <label class="inline-flex items-center gap-1 text-[11px] text-slate-600 ml-auto cursor-pointer">
+                <input type="checkbox" id="importReplaceMode" class="rounded text-indigo-600" />
+                <span>ล้างรายการเดิมก่อนนำเข้า</span>
+              </label>
+            </div>
+            <div id="dropzoneOrderFile" class="dropzone-box p-3.5 text-center">
+              <input type="file" id="inputOrderFile" class="hidden" accept=".xlsx,.xls,.csv" />
+              <div class="text-xs font-semibold text-indigo-700">📂 คลิกหรือลากไฟล์ออเดอร์ TikTok / Shopee มาวางที่นี่</div>
+              <div class="text-[11px] text-slate-400 mt-0.5">รองรับทั้งไฟล์ Order All และไฟล์ Template แผนผลิต</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Box 2: Manual Add Sofa SKU & FG Stock -->
+        <div class="bg-white rounded-2xl p-4 border border-slate-200 shadow-xs flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between mb-1.5">
+              <span class="px-2 py-0.5 text-[10px] font-bold bg-indigo-100 text-indigo-700 rounded">คีย์เพิ่มรุ่นโซฟา</span>
+              <span class="text-[11px] text-slate-400">439 รุ่นตาม Master BOM</span>
+            </div>
+            <h3 class="text-sm font-bold text-slate-900">เพิ่มรายการออเดอร์ค้างผลิต & สต็อก FG รายรุ่น</h3>
+            <div class="space-y-2.5 mt-2.5">
+              <div class="relative">
+                <label class="block text-[11px] font-semibold text-slate-600 mb-1">ค้นหารุ่นโซฟา (SKU / โมเดล / สีผ้า):</label>
+                <input type="text" id="manualSkuInput" placeholder="พิมพ์ เช่น rc ดำ, rs เทา, mncf ครีม, bs3, ln3..." class="w-full px-3 py-1.5 text-xs border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none" autocomplete="off" />
+                <div id="manualSkuAutocomplete" class="autocomplete-list hidden"></div>
+              </div>
+              <div class="grid grid-cols-3 gap-2">
+                <div>
+                  <label class="block text-[10px] font-semibold text-slate-600 mb-0.5">TikTok (ตัว)</label>
+                  <input type="number" id="manualTiktokQty" min="0" value="10" class="w-full px-2.5 py-1.5 text-xs font-mono font-bold border border-slate-300 rounded-lg" />
+                </div>
+                <div>
+                  <label class="block text-[10px] font-semibold text-slate-600 mb-0.5">Shopee (ตัว)</label>
+                  <input type="number" id="manualShopeeQty" min="0" value="0" class="w-full px-2.5 py-1.5 text-xs font-mono font-bold border border-slate-300 rounded-lg" />
+                </div>
+                <div>
+                  <label class="block text-[10px] font-semibold text-emerald-700 mb-0.5">สต็อก FG พร้อมส่ง</label>
+                  <input type="number" id="manualFgQty" min="0" value="0" class="w-full px-2.5 py-1.5 text-xs font-mono font-bold border border-emerald-300 bg-emerald-50/40 text-emerald-800 rounded-lg" />
+                </div>
+              </div>
+            </div>
+          </div>
+          <button id="btnAddBacklogSku" class="w-full mt-3 py-2 px-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-xl transition cursor-pointer shadow-xs">
+            ＋ เพิ่มเข้าตารางวางแผนผลิต
+          </button>
+        </div>
+
+        <!-- Box 3: Quick Actions & presets -->
+        <div class="bg-white rounded-2xl p-4 border border-slate-200 shadow-xs flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between mb-1.5">
+              <span class="px-2 py-0.5 text-[10px] font-bold bg-emerald-100 text-emerald-800 rounded">เครื่องมือจัดการด่วน</span>
+              <span class="text-[11px] text-slate-400">Order & FG Netting</span>
+            </div>
+            <h3 class="text-sm font-bold text-slate-900">จัดการข้อมูลออเดอร์ค้างส่ง & สต็อกสินค้าสำเร็จรูป</h3>
+            <p class="text-xs text-slate-500 mt-1">ระบบจะนำ <b>(ยอด TikTok + Shopee) - สต็อก FG พร้อมส่ง = ยอดสั่งผลิตจริง</b> ไปคำนวณ BOM อัตโนมัติ</p>
+
+            <div class="grid grid-cols-2 gap-2 mt-3">
+              <button id="btnLoadDefaultBacklog" class="py-2 px-2.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 rounded-xl text-xs font-semibold cursor-pointer transition">
+                🔄 โหลดออเดอร์จริง 1,322 ตัว
+              </button>
+              <button id="btnClearFgZero" class="py-2 px-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 rounded-xl text-xs font-semibold cursor-pointer transition">
+                🧹 เซ็ตสต็อก FG เป็น 0 ทั้งหมด
+              </button>
+              <button id="btnDownloadOrderTemplate" class="py-2 px-2.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 rounded-xl text-xs font-semibold cursor-pointer transition">
+                📥 โหลดฟอร์ม Excel แผนผลิต
+              </button>
+              <button id="btnClearAllBacklog" class="py-2 px-2.5 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 rounded-xl text-xs font-semibold cursor-pointer transition">
+                🗑️ ล้างตารางออเดอร์ทั้งหมด
+              </button>
+            </div>
+          </div>
+          <div class="mt-3 pt-2.5 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-500">
+            <span>แก้ตัวเลขในตารางด้านล่างได้ทันที</span>
+            <span class="text-emerald-600 font-semibold">● คำนวณ BOM อัตโนมัติ</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Backlog & FG Netting Table -->
+      <div class="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
+        <div class="p-4 sm:p-5 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div>
+            <h3 class="text-base font-bold text-slate-900">🛋️ ตารางออเดอร์ค้างผลิต & ตัดสต็อกสินค้าสำเร็จรูป (FG Netting Table)</h3>
+            <p class="text-xs text-slate-500 mt-0.5">แก้ไขจำนวนออเดอร์ TikTok, Shopee และจำนวนสต็อก FG ที่มีพร้อมส่งในคลังได้โดยตรง</p>
+          </div>
+          <div class="flex items-center gap-2">
+            <input type="text" id="backlogSearchInput" placeholder="ค้นหารุ่นในตาราง..." class="px-3 py-1.5 text-xs border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 w-56" />
+          </div>
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs">
+            <thead class="bg-slate-50 border-b border-slate-200 text-slate-600 font-semibold">
+              <tr>
+                <th class="py-3 px-3 w-10 text-center">#</th>
+                <th class="py-3 px-4">รหัสรุ่นโซฟา (Master SKU)</th>
+                <th class="py-3 px-3 text-center bg-slate-100/70">📱 TikTok (ตัว)</th>
+                <th class="py-3 px-3 text-center bg-amber-50/60">🛍️ Shopee (ตัว)</th>
+                <th class="py-3 px-3 text-center font-bold">รวมออเดอร์ค้าง</th>
+                <th class="py-3 px-3 text-center bg-emerald-50/70 text-emerald-800">📦 สต็อก FG พร้อมส่ง</th>
+                <th class="py-3 px-3 text-center bg-indigo-50/80 text-indigo-900 font-bold">🏭 ต้องสั่งผลิตจริง (Net)</th>
+                <th class="py-3 px-3 text-right">ต้นทุนวัสดุ BOM/ตัว</th>
+                <th class="py-3 px-4 text-right">รวมมูลค่าวัสดุตาม BOM</th>
+                <th class="py-3 px-3 text-center">จัดการ</th>
+              </tr>
+            </thead>
+            <tbody id="backlogTableBody" class="divide-y divide-slate-100">
+              <!-- Populated by app.js -->
+            </tbody>
+            <tfoot class="bg-slate-900 text-white font-bold text-xs">
+              <tr>
+                <td colspan="2" class="py-3.5 px-4">รวมยอดแผนการผลิตทั้งสิ้น</td>
+                <td id="footTiktokQty" class="py-3.5 px-3 text-center font-mono">0</td>
+                <td id="footShopeeQty" class="py-3.5 px-3 text-center font-mono text-amber-300">0</td>
+                <td id="footGrossOrderQty" class="py-3.5 px-3 text-center font-mono text-base">0</td>
+                <td id="footFgStockQty" class="py-3.5 px-3 text-center font-mono text-emerald-300">-0</td>
+                <td id="footNetProduceQty" class="py-3.5 px-3 text-center font-mono text-base text-indigo-300">0 ตัว</td>
+                <td id="footAvgBomUnit" class="py-3.5 px-3 text-right font-mono text-slate-300">฿0</td>
+                <td id="footTotalBomValue" class="py-3.5 px-4 text-right font-mono text-base text-amber-300">฿0.00</td>
+                <td></td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- =================================================================== -->
+    <!-- TAB 3: MASTER BOM BUILDER & STOCK MOVEMENT PRODUCT ID LINKER -->
+    <!-- =================================================================== -->
+    <section id="tab-bom-builder" class="mrp-tab-pane hidden space-y-6">
+      <!-- Sub-Section A: BOM Material -> Stock Movement Product ID Mapping -->
+      <div class="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
+        <div class="p-4 sm:p-5 border-b border-slate-100 flex flex-col md:flex-row md:items-center justify-between gap-3">
+          <div>
+            <div class="flex items-center gap-2">
+              <h3 class="text-base font-bold text-slate-900">🔗 ตารางผูกรหัสวัตถุดิบในสูตร BOM ➔ รหัสสินค้าจริงใน Stock Movement (119 รหัส)</h3>
+              <span class="px-2 py-0.5 text-[11px] font-semibold bg-emerald-100 text-emerald-800 rounded-full">ผูกตรงกับ Supabase 100%</span>
+            </div>
+            <p class="text-xs text-slate-500 mt-0.5">
+              กำหนดว่าวัสดุแต่ละตัวในสูตร BOM ดึงยอดคงเหลือจากรหัส <code class="text-indigo-600">PROD-xxx</code> ตัวไหนในระบบ Stock Movement และสั่งซื้อจากซัพพลายเออร์เจ้าใด
+            </p>
+          </div>
+          <div class="flex flex-wrap items-center gap-2">
+            <select id="bomMapCategoryFilter" class="px-3 py-1.5 text-xs border border-slate-300 rounded-xl bg-white font-semibold">
+              <option value="ALL">ทุกหมวดวัสดุ (43 BOM + 6 ฮาร์ดแวร์)</option>
+              <option value="WOOD">🪵 หมวดไม้ (WOOD)</option>
+              <option value="FOAM">🧽 หมวดฟองน้ำ (FOAM)</option>
+              <option value="FABRIC">🧵 หมวดผ้าและหนัง (FABRIC)</option>
+              <option value="HARDWARE">🔩 หมวดฮาร์ดแวร์ (HARDWARE)</option>
+              <option value="PACKAGING">📦 หมวดบรรจุภัณฑ์ (PACKAGING)</option>
+            </select>
+            <input type="text" id="bomMapSearchInput" placeholder="ค้นหาชื่อวัสดุ หรือ PROD-xxx..." class="px-3 py-1.5 text-xs border border-slate-300 rounded-xl w-52" />
+          </div>
+        </div>
+
+        <div class="overflow-x-auto max-h-[540px]">
+          <table class="w-full text-left text-xs">
+            <thead class="bg-slate-50 border-b border-slate-200 text-slate-600 font-semibold sticky top-0 z-10">
+              <tr>
+                <th class="py-3 px-4">ชื่อวัสดุในสูตร BOM</th>
+                <th class="py-3 px-3">หมวด</th>
+                <th class="py-3 px-4">รหัสวัตถุดิบจริงที่ผูกใน Stock Movement (PROD-xxx)</th>
+                <th class="py-3 px-3 text-right">สต็อกคงเหลือจริง</th>
+                <th class="py-3 px-3 text-right">ราคา/หน่วยสต็อก</th>
+                <th class="py-3 px-4">ซัพพลายเออร์หลัก (เปลี่ยนได้)</th>
+                <th class="py-3 px-3 text-center">ตั้งค่าผูก PROD</th>
+              </tr>
+            </thead>
+            <tbody id="bomMappingTableBody" class="divide-y divide-slate-100">
+              <!-- Populated by app.js -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Sub-Section B: Sofa SKU Recipe Inspector & Editor (439 SKUs) -->
+      <div class="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
+        <div class="p-4 sm:p-5 border-b border-slate-100 flex flex-col md:flex-row md:items-center justify-between gap-3">
+          <div>
+            <h3 class="text-base font-bold text-slate-900">🛋️ สูตรการผลิตมาตรฐานรายรุ่นโซฟา (Master BOM 439 SKUs)</h3>
+            <p class="text-xs text-slate-500 mt-0.5">ตรวจสอบและแก้ไขปริมาณการใช้วัสดุต่อโซฟา 1 ตัว (อัปเดตสูตรผ้าล่าสุด 6 พ.ย. 2026)</p>
+          </div>
+          <div class="flex items-center gap-2">
+            <input type="text" id="skuRecipeSearchInput" placeholder="ค้นหารุ่นโซฟา เช่น cs2, bs3, rc, ln3..." class="px-3 py-1.5 text-xs border border-slate-300 rounded-xl w-64" />
+          </div>
+        </div>
+        <div id="skuRecipeListContainer" class="p-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5 max-h-[500px] overflow-y-auto">
+          <!-- Populated by app.js -->
+        </div>
+      </div>
+    </section>
+
+    <!-- =================================================================== -->
+    <!-- TAB 4: LIVE MATERIAL SHORTAGE & STOCK MOVEMENT CHECK -->
+    <!-- =================================================================== -->
+    <section id="tab-shortage" class="mrp-tab-pane hidden space-y-6">
+      <!-- Filter & Summary Bar -->
+      <div class="bg-white rounded-2xl p-4 border border-slate-200 shadow-xs flex flex-col lg:flex-row lg:items-center justify-between gap-3">
+        <div class="flex flex-wrap items-center gap-2">
+          <button data-shortage-cat="ALL" class="shortage-cat-btn px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-900 text-white cursor-pointer">
+            ทั้งหมด
+          </button>
+          <button data-shortage-cat="WOOD" class="shortage-cat-btn px-3 py-1.5 rounded-xl text-xs font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200 cursor-pointer">
+            🪵 ไม้โครงสร้าง
+          </button>
+          <button data-shortage-cat="FOAM" class="shortage-cat-btn px-3 py-1.5 rounded-xl text-xs font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200 cursor-pointer">
+            🧽 ฟองน้ำ
+          </button>
+          <button data-shortage-cat="FABRIC" class="shortage-cat-btn px-3 py-1.5 rounded-xl text-xs font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200 cursor-pointer">
+            🧵 ผ้า & หนัง
+          </button>
+          <button data-shortage-cat="HARDWARE" class="shortage-cat-btn px-3 py-1.5 rounded-xl text-xs font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200 cursor-pointer">
+            🔩 ฮาร์ดแวร์/สกรู/กาว
+          </button>
+          <button data-shortage-cat="PACKAGING" class="shortage-cat-btn px-3 py-1.5 rounded-xl text-xs font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200 cursor-pointer">
+            📦 บรรจุภัณฑ์
+          </button>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-3">
+          <label class="inline-flex items-center gap-1.5 text-xs font-semibold text-rose-700 bg-rose-50 px-3 py-1.5 rounded-xl border border-rose-200 cursor-pointer">
+            <input type="checkbox" id="filterShortageOnly" class="rounded text-rose-600" />
+            <span>แสดงเฉพาะรายการที่ขาดสต็อก (🔴)</span>
+          </label>
+          <label class="inline-flex items-center gap-1.5 text-xs font-medium text-slate-600 cursor-pointer">
+            <input type="checkbox" id="filterActiveBomOnly" checked class="rounded text-indigo-600" />
+            <span>ซ่อนวัสดุที่ไม่ได้ใช้ในรอบนี้</span>
+          </label>
+          <input type="text" id="shortageSearchInput" placeholder="ค้นหาวัสดุ / ซัพพลายเออร์..." class="px-3 py-1.5 text-xs border border-slate-300 rounded-xl w-48" />
+        </div>
+      </div>
+
+      <!-- Detailed Material Netting Table -->
+      <div class="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs">
+            <thead class="bg-slate-50 border-b border-slate-200 text-slate-600 font-semibold">
+              <tr>
+                <th class="py-3 px-4">วัตถุดิบ (BOM Material)</th>
+                <th class="py-3 px-3">รหัส Stock Movement ที่ผูก</th>
+                <th class="py-3 px-3 text-right bg-indigo-50/50">ต้องใช้ผลิตจริง</th>
+                <th class="py-3 px-3 text-right bg-teal-50/60 text-teal-900">สต็อกคงเหลือจริง (On-Hand)</th>
+                <th class="py-3 px-3 text-center">สถานะสต็อก</th>
+                <th class="py-3 px-3 text-right bg-rose-50/60 text-rose-800 font-bold">ต้องสั่งซื้อเพิ่ม (Shortage)</th>
+                <th class="py-3 px-3 text-right">ราคา/หน่วย</th>
+                <th class="py-3 px-4 text-right bg-rose-50/60 text-rose-900 font-bold">งบสั่งซื้อเพิ่ม (บาท)</th>
+                <th class="py-3 px-3">ซัพพลายเออร์</th>
+              </tr>
+            </thead>
+            <tbody id="shortageTableBody" class="divide-y divide-slate-100">
+              <!-- Populated by app.js -->
+            </tbody>
+            <tfoot class="bg-slate-900 text-white font-bold text-xs">
+              <tr>
+                <td colspan="3" class="py-3.5 px-4">รวมผลตรวจสอบสต็อกวัตถุดิบตามแผนผลิต</td>
+                <td id="shortageFootSaved" class="py-3.5 px-3 text-right font-mono text-teal-300">ประหยัดจากสต็อก ฿0</td>
+                <td id="shortageFootStatus" class="py-3.5 px-3 text-center font-mono">ขาด 0 รายการ</td>
+                <td colspan="2" class="py-3.5 px-3 text-right">รวมงบต้องสั่งซื้อเพิ่มสุทธิ:</td>
+                <td id="shortageFootTotalPo" class="py-3.5 px-4 text-right font-mono text-base text-rose-300">฿0.00</td>
+                <td></td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- =================================================================== -->
+    <!-- TAB 5: AUTO PURCHASE REQUISITION BY SUPPLIER & CASHFLOW FORECAST -->
+    <!-- =================================================================== -->
+    <section id="tab-supplier-po" class="mrp-tab-pane hidden space-y-6">
+      <!-- Top Action Banner -->
+      <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <div class="flex items-center gap-2">
+            <h2 class="text-base sm:text-lg font-bold text-slate-900">🛒 ใบแผนสั่งซื้อวัสดุที่ขาด แยกตามซัพพลายเออร์โรงงาน (Supplier Purchase Orders)</h2>
+            <span class="px-2.5 py-0.5 text-xs font-bold bg-rose-100 text-rose-700 rounded-full" id="poHeaderTotalBadge">รวมงบสั่งซื้อ ฿0</span>
+          </div>
+          <p class="text-xs text-slate-500 mt-1">
+            รวบรวมเฉพาะวัตถุดิบที่ <b>สต็อกคงเหลือจริงไม่พอผลิต</b> แยกใบสั่งซื้อตามซัพพลายเออร์จริงของโรงงาน พร้อมส่งออกเป็นไฟล์ Excel แยกชีตตามร้านค้า หรือพิมพ์ใบ PO ได้ทันที
+          </p>
+        </div>
+        <div class="flex flex-wrap items-center gap-2">
+          <select id="poTermFilterSelect" class="px-3 py-2 text-xs border border-slate-300 rounded-xl bg-white font-semibold">
+            <option value="ALL">ซัพพลายเออร์ทั้งหมดที่มีรายการสั่งซื้อ</option>
+            <option value="CASH_WEEKLY">⚡ เฉพาะกลุ่มจ่ายสด / รายสัปดาห์</option>
+            <option value="CREDIT_EOM">🗓️ เฉพาะกลุ่มเครดิตรอบสิ้นเดือน</option>
+          </select>
+          <button id="btnExportSupplierPoExcel" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 cursor-pointer shadow-sm">
+            <i data-lucide="download" class="w-4 h-4"></i>
+            <span>ดาวน์โหลดใบสั่งซื้อแยกซัพพลายเออร์ (.xlsx)</span>
+          </button>
+          <button onclick="window.print()" class="px-3.5 py-2 bg-slate-800 hover:bg-slate-900 text-white rounded-xl text-xs font-semibold flex items-center gap-1.5 cursor-pointer">
+            <i data-lucide="printer" class="w-4 h-4"></i>
+            <span>พิมพ์ใบแผนสั่งซื้อ</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Supplier PO Cards Container -->
+      <div id="supplierPoCardsContainer" class="space-y-5">
+        <!-- Populated by app.js -->
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ===================================================================== -->
+  <!-- FOOTER -->
+  <!-- ===================================================================== -->
+  <footer class="bg-white border-t border-slate-200 py-4 mt-8 text-xs text-slate-500 no-print">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-wrap items-center justify-between gap-2">
+      <div>
+        👑 <b>QueenCosy MRP & Order-to-BOM Planning System</b> • เชื่อมต่อฐานข้อมูลจริง <code class="text-indigo-600">QC_STOCK_MOVEMENT_DATA_V4</code> บน Supabase
+      </div>
+      <div class="flex items-center gap-3">
+        <span id="footerSyncTimestamp">อัปเดตสต็อกล่าสุด: -</span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="master-bom-data.js"></script>
+  <script src="sku-mapper.js"></script>
+  <script src="seed.js"></script>
+  <script src="mrp-store.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
