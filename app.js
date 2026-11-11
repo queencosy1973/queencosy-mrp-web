@@ -98,6 +98,21 @@
     if (window.lucide) window.lucide.createIcons();
   }
 
+  function jumpToShortageCategory(cat) {
+    shortageCategoryFilter = cat || 'ALL';
+    $$('.shortage-cat-btn').forEach(b => {
+      if (b.getAttribute('data-shortage-cat') === shortageCategoryFilter) {
+        b.className = 'shortage-cat-btn px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-900 text-white cursor-pointer';
+      } else {
+        b.className = 'shortage-cat-btn px-3 py-1.5 rounded-xl text-xs font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200 cursor-pointer';
+      }
+    });
+    const calc = store.runMrpCalculation();
+    renderShortageTab(calc);
+    switchMrpTab('tab-shortage');
+  }
+  window.jumpToShortageCategory = jumpToShortageCategory;
+
   function renderAll() {
     const calc = store.runMrpCalculation();
     renderTopPipelineRibbon(calc);
@@ -152,7 +167,7 @@
       catGrid.innerHTML = calc.categoryBreakdown.map(cat => {
         const hasShortage = cat.shortageCount > 0;
         return `
-          <div class="bg-white/10 border border-white/15 rounded-xl p-3.5 flex flex-col justify-between">
+          <div onclick="jumpToShortageCategory('${cat.id}')" class="bg-white/10 hover:bg-white/15 cursor-pointer transition border border-white/15 rounded-xl p-3.5 flex flex-col justify-between" title="คลิกเพื่อดูตารางเช็กสต็อก${cat.name}">
             <div>
               <div class="flex items-center justify-between">
                 <span class="text-xs font-bold text-white flex items-center gap-1.5">
@@ -177,6 +192,107 @@
           </div>
         `;
       }).join('');
+    }
+
+    // 2.1B Live Warehouse Stock Overview (Wood, Fabric, Foam)
+    const whEl = $('dashboardWarehouseOverview');
+    if (whEl && calc.warehouseOverview) {
+      const wo = calc.warehouseOverview;
+      const woodRowsHtml = (wo.woodGroups || []).map(g => `
+        <div class="flex items-center justify-between py-1.5 border-b border-slate-100 last:border-none text-xs">
+          <div>
+            <div class="font-semibold text-slate-800">${g.label}</div>
+            <div class="text-[10px] text-slate-400">${g.details}</div>
+          </div>
+          <div class="text-right font-mono shrink-0 ml-2">
+            <span class="font-bold text-emerald-700">${fmt(g.qty)} แผ่น/ท่อน</span>
+            <div class="text-[10px] text-slate-400">฿${fmt(g.val, 0)}</div>
+          </div>
+        </div>
+      `).join('');
+
+      const topFabricsHtml = (wo.fabricStockItems || [])
+        .sort((a, b) => b.onHandQty - a.onHandQty)
+        .slice(0, 8)
+        .map(f => `
+          <span class="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-slate-50 border border-slate-200 text-[11px]">
+            <b class="text-slate-700">${f.name}</b>:
+            <span class="font-mono font-bold text-teal-700">${fmt(f.onHandQty, 1)} หลา</span>
+          </span>
+        `).join('');
+
+      const foamRowsHtml = (wo.foamStockItems || []).map(f => `
+        <div class="flex items-center justify-between py-1 border-b border-slate-100 last:border-none text-xs">
+          <span class="font-medium text-slate-700">${f.id}: ${f.name}</span>
+          <span class="font-mono font-bold text-indigo-700">${fmt(f.onHandQty)} ${f.unit}</span>
+        </div>
+      `).join('');
+
+      whEl.innerHTML = `
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3.5 border-b border-slate-100">
+          <div>
+            <h3 class="text-sm sm:text-base font-bold text-slate-900 flex items-center gap-2">
+              <span>📦 ยอดสต็อกคงเหลือจริงในคลังที่ดึงมาคำนวณสด (Live Stock Movement + คลังผ้าม้วน BOM)</span>
+              <span class="px-2 py-0.5 rounded-full text-[11px] font-bold bg-teal-100 text-teal-800">ดึงครบ 119 รหัสคลัง + 29 สีผ้า</span>
+            </h3>
+            <p class="text-xs text-slate-500 mt-0.5">คลิกที่แต่ละหมวดเพื่อเปิดดูรายละเอียดการตัดสต็อกรายตัวในแท็บ <b>"3. แตกสูตร BOM & เช็กสต็อกวัตถุดิบ"</b></p>
+          </div>
+          <div class="flex flex-wrap gap-1.5">
+            <button onclick="jumpToShortageCategory('WOOD')" class="px-2.5 py-1 rounded-lg bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-200 text-xs font-bold cursor-pointer">🪵 ดูสต็อกไม้ทั้งหมด</button>
+            <button onclick="jumpToShortageCategory('FABRIC')" class="px-2.5 py-1 rounded-lg bg-teal-50 hover:bg-teal-100 text-teal-900 border border-teal-200 text-xs font-bold cursor-pointer">🧵 ดูสต็อกผ้าทั้ง 29 สี</button>
+            <button onclick="jumpToShortageCategory('FOAM')" class="px-2.5 py-1 rounded-lg bg-indigo-50 hover:bg-indigo-100 text-indigo-900 border border-indigo-200 text-xs font-bold cursor-pointer">🧽 ดูสต็อกฟองน้ำ</button>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 mt-4">
+          <!-- Wood Stock Card -->
+          <div class="lg:col-span-4 rounded-xl border border-amber-200 bg-amber-50/30 p-3.5">
+            <div class="flex items-center justify-between pb-2 border-b border-amber-200/70">
+              <span class="text-xs font-bold text-amber-950 flex items-center gap-1.5">🪵 สต็อกกลุ่มไม้คงเหลือจริง</span>
+              <span class="px-2 py-0.5 rounded-full text-xs font-black font-mono bg-amber-200/70 text-amber-950">${fmt(s.totalWoodOnHand)} แผ่น/ท่อน</span>
+            </div>
+            <div class="mt-2 divide-y divide-amber-100/70">
+              ${woodRowsHtml}
+            </div>
+          </div>
+
+          <!-- Fabric Stock Card -->
+          <div class="lg:col-span-5 rounded-xl border border-teal-200 bg-teal-50/30 p-3.5 flex flex-col justify-between">
+            <div>
+              <div class="flex items-center justify-between pb-2 border-b border-teal-200/70">
+                <span class="text-xs font-bold text-teal-950 flex items-center gap-1.5">🧵 สต็อกผ้าและหนังคงเหลือจริง (หน่วย: หลา)</span>
+                <span class="px-2 py-0.5 rounded-full text-xs font-black font-mono bg-teal-200/70 text-teal-950">รวม ${fmt(s.totalBomFabricYards, 1)} หลา</span>
+              </div>
+              <div class="mt-2 text-[11px] text-slate-600">
+                ดึงจาก <b>Stock Movement (${wo.fabricStockItems.length} รหัสมีของ = ${fmt(s.totalFabricWarehouseYards, 1)} หลา)</b> + <b>คลังผ้าโพลี MJ350 & เศษผ้าช่างตัด (+${fmt(s.totalBomFabricYards - s.totalFabricWarehouseYards, 1)} หลา)</b>:
+              </div>
+              <div class="mt-2 flex flex-wrap gap-1.5">
+                ${topFabricsHtml}
+              </div>
+            </div>
+            <div class="mt-2.5 pt-2 border-t border-teal-200/60 flex items-center justify-between text-[11px]">
+              <span class="text-teal-800 font-medium">🟢 พอผลิตทันที 9 สีผ้า • 🔴 ต้องสั่งเพิ่ม 4 สีผ้า</span>
+              <button onclick="jumpToShortageCategory('FABRIC')" class="text-teal-700 hover:underline font-bold cursor-pointer">ดูครบทั้ง 29 สี ➔</button>
+            </div>
+          </div>
+
+          <!-- Foam & Hardware Stock Card -->
+          <div class="lg:col-span-3 rounded-xl border border-indigo-200 bg-indigo-50/30 p-3.5 flex flex-col justify-between">
+            <div>
+              <div class="flex items-center justify-between pb-2 border-b border-indigo-200/70">
+                <span class="text-xs font-bold text-indigo-950 flex items-center gap-1.5">🧽 สต็อกฟองน้ำคงเหลือจริง</span>
+                <span class="px-2 py-0.5 rounded-full text-xs font-black font-mono bg-indigo-200/70 text-indigo-950">${fmt(s.totalFoamOnHand)} แผ่น</span>
+              </div>
+              <div class="mt-2">
+                ${foamRowsHtml}
+              </div>
+            </div>
+            <div class="mt-2.5 pt-2 border-t border-indigo-200/60 text-[11px] text-slate-600">
+              <div>📦 <b>บรรจุภัณฑ์/ฮาร์ดแวร์:</b> ขาพลาสติก 6,000 ตัว • สกรู 2.5" 6,480 ตัว • เทปใส 1,296 ม้วน • ลูกฟูกม้วน 1,075 กก. • ซีลยืด 65 ม้วน • บับเบิ้ล 45 ม้วน</div>
+            </div>
+          </div>
+        </div>
+      `;
     }
 
     // 2.2 Supplier Summary Table

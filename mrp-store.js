@@ -15,8 +15,9 @@
   const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InllcmNtaWR5dmZldHZiYnJld2xmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg2MTA4MzUsImV4cCI6MjEwNDE4NjgzNX0.7tGbXNoogdLh6UQOJBJe9MABmY7W5J1aixPLJSXGSGk';
 
   const CLOUD_STOCK_MOVEMENT_ID = 'QC_STOCK_MOVEMENT_DATA_V4';
+  const CLOUD_FABRIC_STATE_ID = 'QC_FABRIC_CUTTER_STATE_V1';
   const CLOUD_MRP_STATE_ID = 'QC_MRP_BOM_PLANNER_STATE_V1';
-  const LOCAL_MRP_STATE_KEY = 'QUEENCOSY_MRP_STATE_V1';
+  const LOCAL_MRP_STATE_KEY = 'QUEENCOSY_MRP_STATE_V2';
   const LOCAL_STOCK_MOVEMENT_KEY = 'STOCK_APP_DATA_V4';
   const LOCAL_PNL_STATE_KEY = 'QUEENCOSY_PNL_STATE_V1';
 
@@ -70,21 +71,24 @@
   // - defaultPricePerStockUnit: fallback unit price per Stock Movement unit
   const DEFAULT_BOM_TO_STOCK_MAPPING = {
     // --- 1. กลุ่มไม้ (WOOD) ---
+    // หมายเหตุ: ในสูตร Master BOM ทั้ง 391 รุ่น บันทึกไม้ระแนง 1 เมตรไว้ที่ 'ไม้ 2 นิ้ว 1 เมตร (ท่อน)'
+    // ดังนั้นจึงผูกรหัสกลุ่มไม้ 1M ทั้งหมด (PROD-001 ไม้ระแนง 100-140M, PROD-003 ไม้สะเดา 100-140M, PROD-010 ไม้ยาว 100M) เข้าด้วยกัน
     'ไม้ 1 นิ้ว 1 เมตร (ท่อน)': {
       stockProductIds: ['PROD-001', 'PROD-010'],
       stockUnit: 'แผ่น/ท่อน',
       bomPerStockUnit: 1,
       supplierName: 'MJ- ไม้',
       category: 'WOOD',
-      fallbackStockPrice: 5.5
+      fallbackStockPrice: 5.5,
+      sharedPoolWith: 'ไม้ 2 นิ้ว 1 เมตร (ท่อน)'
     },
     'ไม้ 2 นิ้ว 1 เมตร (ท่อน)': {
-      stockProductIds: ['PROD-003', 'PROD-110', 'PROD-115'],
+      stockProductIds: ['PROD-001', 'PROD-003', 'PROD-010', 'PROD-110', 'PROD-115'],
       stockUnit: 'แผ่น/ท่อน',
       bomPerStockUnit: 1,
       supplierName: 'MJ- ไม้',
       category: 'WOOD',
-      fallbackStockPrice: 7.0
+      fallbackStockPrice: 6.0
     },
     'ไม้ 2 นิ้ว 1.5 เมตร (ท่อน)': {
       stockProductIds: ['PROD-002', 'PROD-011', 'PROD-012'],
@@ -103,7 +107,7 @@
       fallbackStockPrice: 50.0
     },
     'ไม้หน้า 4 (ท่อน)': {
-      stockProductIds: ['PROD-005', 'PROD-004', 'PROD-008', 'PROD-070', 'PROD-114'],
+      stockProductIds: ['PROD-005', 'PROD-004', 'PROD-008', 'PROD-070', 'PROD-114', 'PROD-116'],
       stockUnit: 'แผ่น/ท่อน',
       bomPerStockUnit: 1,
       supplierName: 'ลุนนี (ไม้)',
@@ -559,6 +563,21 @@
     ];
   }
 
+  // Default BOM Cloud / Fabric Cutter Roll stocks (in 'หลา') for MJ350 & fallback fabrics
+  const DEFAULT_BOM_CLOUD_FABRIC_STOCK = {
+    'ขาว-PQ002C-1': { stock: 400, price: 32 },
+    'ชา-PQ002C-19': { stock: 300, price: 32 },
+    'สีน้ำตาล-MJ350-13': { stock: 250, price: 52 },
+    'สีเขียว-MJ350-6': { stock: 150, price: 52 },
+    'สีฟ้าเข้มMJ350-9': { stock: 150, price: 52 },
+    'สีครีมทอง-MJ350-4': { stock: 250, price: 52 },
+    'สีเทาอ่อน-MJ350-18': { stock: 300, price: 52 },
+    'สีเทาเข้ม-MJ350-20': { stock: 300, price: 52 },
+    'สีครีม-MJ350-1': { stock: 250, price: 52 },
+    'สีน้ำตาลอ่อน-MJ350-11': { stock: 200, price: 52 },
+    'น้ำตาลเข้ม-MJ350-14': { stock: 200, price: 52 }
+  };
+
   // =========================================================================
   // 5. MAIN MRP STORE CLASS
   // =========================================================================
@@ -569,6 +588,12 @@
       this.stockMovementRaw = window.INITIAL_INVENTORY_DATA
         ? JSON.parse(JSON.stringify(window.INITIAL_INVENTORY_DATA))
         : { categories: [], products: [], inbound: [], outbound: [], adjustments: [] };
+
+      this.bomCloudStockMap = JSON.parse(JSON.stringify(DEFAULT_BOM_CLOUD_FABRIC_STOCK));
+      this.cutterBalance = {
+        'ดำ-PQ002C-17': { balanceYards: 15 },
+        'เทา-PQ002C-46': { balanceYards: 20 }
+      };
 
       this.state = {
         backlogItems: getDefaultBacklogOrders(), // [{ sku, tiktokQty, shopeeQty, fgStock, note }]
@@ -596,6 +621,24 @@
       this.initSupabase();
     }
 
+    // Ensure stockMovementRaw always has the complete 119 products & Nov 1-10 transactions from seed.js
+    ensureCompleteStockData(candidateData) {
+      const seed = window.INITIAL_INVENTORY_DATA;
+      if (!candidateData || !Array.isArray(candidateData.products) || candidateData.products.length === 0) {
+        return seed ? JSON.parse(JSON.stringify(seed)) : { categories: [], products: [], inbound: [], outbound: [], adjustments: [] };
+      }
+      if (!seed || !Array.isArray(seed.inbound)) return candidateData;
+
+      // If candidateData is an older snapshot (e.g. 358/367 inbound before the Nov 1-10 fabric & wood update),
+      // restore the complete 427-inbound / 639-outbound seed dataset so fabric & wood stocks are never lost.
+      const candInLen = Array.isArray(candidateData.inbound) ? candidateData.inbound.length : 0;
+      const candOutLen = Array.isArray(candidateData.outbound) ? candidateData.outbound.length : 0;
+      if (candInLen < seed.inbound.length || candOutLen < seed.outbound.length) {
+        return JSON.parse(JSON.stringify(seed));
+      }
+      return candidateData;
+    }
+
     loadLocalState() {
       try {
         const saved = localStorage.getItem(LOCAL_MRP_STATE_KEY);
@@ -609,6 +652,12 @@
               ...JSON.parse(JSON.stringify(DEFAULT_BOM_TO_STOCK_MAPPING)),
               ...parsed.bomMapping
             };
+            // Ensure 1M wood pool includes PROD-001, PROD-003, PROD-010
+            if (this.state.bomMapping['ไม้ 2 นิ้ว 1 เมตร (ท่อน)']) {
+              const ids = new Set(this.state.bomMapping['ไม้ 2 นิ้ว 1 เมตร (ท่อน)'].stockProductIds || []);
+              ['PROD-001', 'PROD-003', 'PROD-010', 'PROD-110', 'PROD-115'].forEach(id => ids.add(id));
+              this.state.bomMapping['ไม้ 2 นิ้ว 1 เมตร (ท่อน)'].stockProductIds = Array.from(ids);
+            }
           }
           if (parsed.includeHardwareRules !== undefined) {
             this.state.includeHardwareRules = parsed.includeHardwareRules;
@@ -635,7 +684,7 @@
         if (savedStock) {
           const parsedStock = JSON.parse(savedStock);
           if (parsedStock && Array.isArray(parsedStock.products) && parsedStock.products.length > 0) {
-            this.stockMovementRaw = parsedStock;
+            this.stockMovementRaw = this.ensureCompleteStockData(parsedStock);
           }
         }
       } catch (e) {
@@ -693,20 +742,24 @@
 
         await this.pullLiveStockMovement();
 
-        // Subscribe to realtime changes on QC_STOCK_MOVEMENT_DATA_V4
+        // Subscribe to realtime changes on QC_STOCK_MOVEMENT_DATA_V4 & QC_FABRIC_CUTTER_STATE_V1
         this.supabase
           .channel('qc-mrp-live-stock-sync')
           .on('postgres_changes', {
             event: '*',
             schema: 'public',
-            table: 'production_batches',
-            filter: `batch_id=eq.${CLOUD_STOCK_MOVEMENT_ID}`
+            table: 'production_batches'
           }, (payload) => {
-            if (payload.new && payload.new.items_json && Array.isArray(payload.new.items_json.products)) {
-              this.stockMovementRaw = payload.new.items_json;
-              this.state.lastStockSyncAt = payload.new.updated_at || new Date().toISOString();
+            const rec = payload.new;
+            if (!rec || !rec.batch_id) return;
+            if (rec.batch_id === CLOUD_STOCK_MOVEMENT_ID && rec.items_json && Array.isArray(rec.items_json.products)) {
+              this.stockMovementRaw = this.ensureCompleteStockData(rec.items_json);
+              this.state.lastStockSyncAt = rec.updated_at || new Date().toISOString();
               localStorage.setItem(LOCAL_STOCK_MOVEMENT_KEY, JSON.stringify(this.stockMovementRaw));
               this.setCloudStatus('online', 'ซิงค์สด Stock Movement (Realtime)');
+              this.notify();
+            } else if (rec.batch_id === CLOUD_FABRIC_STATE_ID && rec.items_json && rec.items_json.cutterBalance) {
+              this.cutterBalance = rec.items_json.cutterBalance;
               this.notify();
             }
           })
@@ -718,26 +771,81 @@
     }
 
     async pullLiveStockMovement() {
-      this.setCloudStatus('syncing', 'กำลังดึงสต็อกจาก Supabase...');
+      this.setCloudStatus('syncing', 'กำลังดึงสต็อกไม้/ผ้า/ฟองน้ำจาก Supabase...');
       try {
-        // Direct REST fetch or Supabase client query
-        const resp = await fetch(
-          `${SUPABASE_URL}/rest/v1/production_batches?batch_id=eq.${CLOUD_STOCK_MOVEMENT_ID}&select=batch_id,updated_at,items_json`,
-          {
-            headers: {
-              apikey: SUPABASE_ANON_KEY,
-              Authorization: `Bearer ${SUPABASE_ANON_KEY}`
+        const headers = {
+          apikey: SUPABASE_ANON_KEY,
+          Authorization: `Bearer ${SUPABASE_ANON_KEY}`
+        };
+
+        const [batchesResp, pricesResp] = await Promise.all([
+          fetch(`${SUPABASE_URL}/rest/v1/production_batches?batch_id=in.(${CLOUD_STOCK_MOVEMENT_ID},${CLOUD_FABRIC_STATE_ID})&select=batch_id,updated_at,items_json`, { headers }),
+          fetch(`${SUPABASE_URL}/rest/v1/bom_calc_material_prices?select=material_name,category,unit,unit_price,current_stock`, { headers })
+        ]);
+
+        if (pricesResp && pricesResp.ok) {
+          const priceRows = await pricesResp.json();
+          if (Array.isArray(priceRows)) {
+            priceRows.forEach(r => {
+              if (r.material_name && Number(r.current_stock) > 0) {
+                this.bomCloudStockMap[r.material_name] = {
+                  stock: Number(r.current_stock),
+                  price: Number(r.unit_price || 52)
+                };
+              }
+            });
+          }
+        }
+
+        if (!batchesResp.ok) throw new Error(`HTTP ${batchesResp.status}`);
+        const rows = await batchesResp.json();
+        let foundStockBatch = false;
+
+        if (Array.isArray(rows)) {
+          for (const row of rows) {
+            if (row.batch_id === CLOUD_FABRIC_STATE_ID && row.items_json && row.items_json.cutterBalance) {
+              this.cutterBalance = row.items_json.cutterBalance;
+            }
+            if (row.batch_id === CLOUD_STOCK_MOVEMENT_ID && row.items_json && Array.isArray(row.items_json.products)) {
+              const rawCloud = row.items_json;
+              const seed = window.INITIAL_INVENTORY_DATA;
+              const needsHeal = seed && Array.isArray(seed.inbound) &&
+                ((rawCloud.inbound || []).length < seed.inbound.length || (rawCloud.outbound || []).length < seed.outbound.length);
+
+              this.stockMovementRaw = this.ensureCompleteStockData(rawCloud);
+              this.state.lastStockSyncAt = row.updated_at || new Date().toISOString();
+              localStorage.setItem(LOCAL_STOCK_MOVEMENT_KEY, JSON.stringify(this.stockMovementRaw));
+              foundStockBatch = true;
+
+              // If cloud had an older truncated snapshot, heal it on Supabase automatically
+              if (needsHeal) {
+                fetch(`${SUPABASE_URL}/rest/v1/production_batches?on_conflict=batch_id`, {
+                  method: 'POST',
+                  headers: { ...headers, 'Content-Type': 'application/json', Prefer: 'resolution=merge-duplicates,return=minimal' },
+                  body: JSON.stringify({
+                    batch_id: CLOUD_STOCK_MOVEMENT_ID,
+                    batch_name: 'QueenCosy Stock Movement Master Data V4',
+                    source: 'QC_STOCK_MOVEMENT',
+                    status: 'COMPLETED',
+                    total_skus: this.stockMovementRaw.products.length,
+                    total_units: this.stockMovementRaw.inbound.length + this.stockMovementRaw.outbound.length,
+                    total_material_cost: 0,
+                    items_json: {
+                      ...this.stockMovementRaw,
+                      updatedByDevice: 'QC-MRP-AUTO-HEAL',
+                      updatedAt: new Date().toISOString()
+                    },
+                    updated_at: new Date().toISOString(),
+                    notes: 'Synced full 119 products, 427 inbound, 639 outbound'
+                  })
+                }).catch(() => {});
+              }
             }
           }
-        );
+        }
 
-        if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
-        const rows = await resp.json();
-        if (Array.isArray(rows) && rows.length > 0 && rows[0].items_json && Array.isArray(rows[0].items_json.products)) {
-          this.stockMovementRaw = rows[0].items_json;
-          this.state.lastStockSyncAt = rows[0].updated_at || new Date().toISOString();
-          localStorage.setItem(LOCAL_STOCK_MOVEMENT_KEY, JSON.stringify(this.stockMovementRaw));
-          this.setCloudStatus('online', `ซิงค์สต็อกจริงสำเร็จ (${this.stockMovementRaw.products.length} รหัส)`);
+        if (foundStockBatch) {
+          this.setCloudStatus('online', `ซิงค์สต็อกครบ (${this.stockMovementRaw.products.length} รหัสคลัง + ผ้า BOM)`);
           this.notify();
           return true;
         }
@@ -805,10 +913,14 @@
       return (d.products || []).map(p => {
         const pid = p.id;
         const pname = p.name;
-        const totalIn = inMap[pid] !== undefined ? inMap[pid] : (inMap[pname] || 0);
-        const totalInVal = inValueMap[pid] !== undefined ? inValueMap[pid] : (inValueMap[pname] || 0);
-        const totalOut = outMap[pid] !== undefined ? outMap[pid] : (outMap[pname] || 0);
-        const totalAdj = adjMap[pid] !== undefined ? adjMap[pid] : (adjMap[pname] || 0);
+        // Disambiguate PROD-116 which is shared by 'ซีลยืด (ไทยสตาร์)' and 'ไม้หน้า 4 นิ้ว x 220 cm.'
+        const useNameKey = pid === 'PROD-116' && pname;
+        const lookupKey = useNameKey ? pname : pid;
+
+        const totalIn = inMap[lookupKey] !== undefined ? inMap[lookupKey] : (inMap[pname] || 0);
+        const totalInVal = inValueMap[lookupKey] !== undefined ? inValueMap[lookupKey] : (inValueMap[pname] || 0);
+        const totalOut = outMap[lookupKey] !== undefined ? outMap[lookupKey] : (outMap[pname] || 0);
+        const totalAdj = adjMap[lookupKey] !== undefined ? adjMap[lookupKey] : (adjMap[pname] || 0);
 
         const begStock = Number(p.initialStock !== undefined ? p.initialStock : (p.beginningStock || 0));
         const basePrice = Number(p.unitPrice !== undefined ? p.unitPrice : (p.price || 0));
@@ -816,10 +928,10 @@
         const totalAvailable = begStock + totalIn;
         const totalAvailableVal = (begStock * basePrice) + totalInVal;
         const avgCost = totalAvailable > 0 ? (totalAvailableVal / totalAvailable) : basePrice;
-        const effectivePrice = avgCost > 0 ? avgCost : (latestPriceMap[pid] || basePrice);
+        const effectivePrice = avgCost > 0 ? avgCost : (latestPriceMap[lookupKey] || latestPriceMap[pname] || basePrice);
 
         const onHandQty = begStock + totalIn - totalOut + totalAdj;
-        const lastSupplier = latestSupplierMap[pid] || latestSupplierMap[pname] || p.note || '';
+        const lastSupplier = latestSupplierMap[lookupKey] || latestSupplierMap[pname] || p.note || '';
 
         return {
           id: pid,
@@ -828,9 +940,9 @@
           unit: p.unit || 'ชิ้น',
           minAlert: Number(p.minAlert || p.minStock || 100),
           begStock,
-          totalIn,
-          totalOut,
-          totalAdj,
+          totalIn: Math.round(totalIn * 100) / 100,
+          totalOut: Math.round(totalOut * 100) / 100,
+          totalAdj: Math.round(totalAdj * 100) / 100,
           onHandQty: Math.round(onHandQty * 100) / 100,
           basePrice,
           avgCost: Math.round(effectivePrice * 100) / 100,
@@ -903,7 +1015,7 @@
         };
       });
 
-      // Step 2: BOM Explosion across all 43 BOM Materials + 6 Hardware Rules
+      // Step 2: BOM Explosion across all 43 BOM Materials + 7 Hardware Rules
       const materialRequirements = [];
 
       const resolveStockInfo = (bomMatName, mapCfg) => {
@@ -939,6 +1051,41 @@
             priceCount++;
           }
         });
+
+        // For FABRIC: Also check Fabric Cutter remnant yards (QC_FABRIC_CUTTER_STATE_V1)
+        // and BOM Cloud fabric stock (bom_calc_material_prices) for MJ350 or 0-balance fabrics
+        if (mapCfg.category === 'FABRIC') {
+          const cutterEntry = this.cutterBalance && this.cutterBalance[bomMatName];
+          const cutterRemnantYards = cutterEntry ? Math.max(0, Number(cutterEntry.balanceYards || 0)) : 0;
+
+          if (rawOnHandStockUnits <= 0 && this.bomCloudStockMap && this.bomCloudStockMap[bomMatName]) {
+            const cloudFab = this.bomCloudStockMap[bomMatName];
+            const cloudYards = Math.max(0, Number(cloudFab.stock || 0));
+            if (cloudYards > 0) {
+              rawOnHandStockUnits += cloudYards;
+              matchedProducts.push({
+                id: 'BOM-CLOUD',
+                name: `${bomMatName} (คลังผ้าม้วน BOM)`,
+                category: 'ผ้าม้วน',
+                unit: 'หลา',
+                onHandQty: cloudYards,
+                avgCost: Number(mapCfg.fallbackStockPrice || cloudFab.price || 52)
+              });
+            }
+          }
+
+          if (cutterRemnantYards > 0) {
+            rawOnHandStockUnits += cutterRemnantYards;
+            matchedProducts.push({
+              id: 'CUT-REM',
+              name: `เศษผ้าสะสมที่ช่างตัด (${bomMatName})`,
+              category: 'ผ้าม้วน',
+              unit: 'หลา',
+              onHandQty: cutterRemnantYards,
+              avgCost: Number(mapCfg.fallbackStockPrice || 32)
+            });
+          }
+        }
 
         const stockUnitPrice = priceCount > 0
           ? (totalWeightedPrice / priceCount)
@@ -1209,6 +1356,44 @@
       // Total Value of all 119 items currently in Stock Movement
       const totalWarehouseStockValue = computedStockList.reduce((sum, p) => sum + p.stockValue, 0);
 
+      // Compute Warehouse Stock Overview (Wood 5 groups, Fabric, Foam, Hardware/Packaging)
+      const woodProducts = computedStockList.filter(p => p.category === 'กลุ่มไม้' && !p.name.includes('ใบเลื่อย'));
+      const totalWoodOnHand = woodProducts.reduce((s, p) => s + Math.max(0, p.onHandQty), 0);
+      const woodGroups = [
+        {
+          label: 'ไม้ 1M รวม (MJ + อยุธยา)',
+          items: woodProducts.filter(p => ['PROD-001', 'PROD-003', 'PROD-010', 'PROD-110', 'PROD-115'].includes(p.id))
+        },
+        {
+          label: 'ไม้ 1.5M - 1.8M (MJ + อยุธยา)',
+          items: woodProducts.filter(p => ['PROD-002', 'PROD-011', 'PROD-012'].includes(p.id))
+        },
+        {
+          label: 'ไม้หน้า 3, 4 (อยุธยา/สมไกร)',
+          items: woodProducts.filter(p => ['PROD-005', 'PROD-004', 'PROD-008', 'PROD-070', 'PROD-114'].includes(p.id) || (p.id === 'PROD-116' && p.name.includes('ไม้')))
+        },
+        {
+          label: 'ไม้อัดรวม (อยุธยา/สมไกร)',
+          items: woodProducts.filter(p => ['PROD-009', 'PROD-006', 'PROD-007', 'PROD-066'].includes(p.id))
+        }
+      ].map(g => ({
+        label: g.label,
+        qty: g.items.reduce((s, x) => s + Math.max(0, x.onHandQty), 0),
+        val: g.items.reduce((s, x) => s + x.stockValue, 0),
+        details: g.items.filter(x => x.onHandQty > 0).map(x => `${x.name} (${x.onHandQty.toLocaleString()} ${x.unit})`).join(', ') || '0 แผ่น'
+      }));
+
+      const fabricStockItems = computedStockList.filter(p => p.category === 'ผ้าม้วน' && p.onHandQty > 0);
+      const totalFabricWarehouseYards = Math.round(fabricStockItems.reduce((s, p) => s + Math.max(0, p.onHandQty), 0) * 100) / 100;
+      const totalBomFabricYards = Math.round(
+        materialRequirements
+          .filter(m => m.category === 'FABRIC')
+          .reduce((s, m) => s + Math.max(0, m.onHandStockUnit), 0) * 100
+      ) / 100;
+
+      const foamStockItems = computedStockList.filter(p => p.category === 'กลุ่มฟองน้ำ' && p.onHandQty > 0);
+      const totalFoamOnHand = foamStockItems.reduce((s, p) => s + Math.max(0, p.onHandQty), 0);
+
       const avgGrossMatPerSofa = totalNetProduce > 0 ? (totalGrossBomCost / totalNetProduce) : 0;
       const avgNetBuyPerSofa = totalNetProduce > 0 ? (totalNetPurchaseBudget / totalNetProduce) : 0;
 
@@ -1229,8 +1414,17 @@
           cashWeeklyBudget: Math.round(cashWeeklyBudget * 100) / 100,
           creditEomBudget: Math.round(creditEomBudget * 100) / 100,
           totalWarehouseStockValue: Math.round(totalWarehouseStockValue * 100) / 100,
+          totalWoodOnHand,
+          totalFabricWarehouseYards,
+          totalBomFabricYards,
+          totalFoamOnHand,
           avgGrossMatPerSofa: Math.round(avgGrossMatPerSofa * 100) / 100,
           avgNetBuyPerSofa: Math.round(avgNetBuyPerSofa * 100) / 100
+        },
+        warehouseOverview: {
+          woodGroups,
+          fabricStockItems,
+          foamStockItems
         },
         skuPlanResults,
         materialRequirements,

@@ -239,6 +239,11 @@
         </div>
       </div>
 
+      <!-- Live Warehouse Stock Summary (Wood, Fabric, Foam) -->
+      <div id="dashboardWarehouseOverview" class="bg-white rounded-2xl border border-slate-200 shadow-xs p-4 sm:p-5">
+        <!-- Populated by app.js -->
+      </div>
+
       <!-- Charts & Supplier Cashflow Summary Row -->
       <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
         <!-- Left 7 Cols: Supplier Purchase Summary Table -->
@@ -575,7 +580,7 @@
             <span>แสดงเฉพาะรายการที่ขาดสต็อก (🔴)</span>
           </label>
           <label class="inline-flex items-center gap-1.5 text-xs font-medium text-slate-600 cursor-pointer">
-            <input type="checkbox" id="filterActiveBomOnly" checked class="rounded text-indigo-600" />
+            <input type="checkbox" id="filterActiveBomOnly" class="rounded text-indigo-600" />
             <span>ซ่อนวัสดุที่ไม่ได้ใช้ในรอบนี้</span>
           </label>
           <input type="text" id="shortageSearchInput" placeholder="ค้นหาวัสดุ / ซัพพลายเออร์..." class="px-3 py-1.5 text-xs border border-slate-300 rounded-xl w-48" />
