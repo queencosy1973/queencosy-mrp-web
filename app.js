@@ -17,6 +17,9 @@
   let backlogSearchQuery = '';
   let shortageSearchQuery = '';
   let poTermFilter = 'ALL';
+  let fgTxMode = 'IN';
+  let fgFamilyFilter = 'ALL';
+  let fgTableSearchQuery = '';
   let categoryChartInstance = null;
 
   function fmt(num, dec = 0) {
@@ -118,6 +121,7 @@
     renderTopPipelineRibbon(calc);
     renderDashboardTab(calc);
     renderBacklogTab(calc);
+    renderFgWarehouseTab(calc);
     renderBomBuilderTab(calc);
     renderShortageTab(calc);
     renderSupplierPoTab(calc);
@@ -132,7 +136,7 @@
     $('kpiPlatformSplit').textContent = `TT ${fmt(s.totalTiktokOrders)} | SP ${fmt(s.totalShopeeOrders)}`;
     $('kpiTotalBacklog').textContent = fmt(s.totalGrossBacklog);
     $('kpiFgDeducted').textContent = `-${fmt(s.totalFgUsed)}`;
-    $('kpiFgTotalSub').textContent = `คลัง FG พร้อมส่งรวม ${fmt(s.totalFgReady)} ตัว`;
+    $('kpiFgTotalSub').textContent = `คลัง FG พร้อมส่งรวม ${fmt(s.totalFgWarehouseUnits || s.totalFgReady)} ตัว (${fmt(s.activeFgSkusCount || 0)} รุ่น)`;
     $('kpiNetProduce').textContent = fmt(s.totalNetProduce);
     $('kpiAvgMatPerSofa').textContent = `วัสดุตาม BOM เฉลี่ย ฿${fmt(s.avgGrossMatPerSofa, 0)}/ตัว`;
 
@@ -149,6 +153,9 @@
 
     // Tab Badges
     $('badgeBacklogCount').textContent = `${fmt(s.totalNetProduce)} ตัว`;
+    if ($('badgeFgStockCount')) {
+      $('badgeFgStockCount').textContent = `${fmt(s.totalFgWarehouseUnits || s.totalFgReady)} ตัว`;
+    }
     $('badgeBomCount').textContent = (store.masterBom.skus || []).length;
     $('badgeShortageCount').textContent = s.shortageMaterialsCount;
     const activePoSuppliers = calc.supplierPurchasePlans.filter(sp => sp.totalPurchaseCost > 0).length;
@@ -238,6 +245,7 @@
             <p class="text-xs text-slate-500 mt-0.5">คลิกที่แต่ละหมวดเพื่อเปิดดูรายละเอียดการตัดสต็อกรายตัวในแท็บ <b>"3. แตกสูตร BOM & เช็กสต็อกวัตถุดิบ"</b></p>
           </div>
           <div class="flex flex-wrap gap-1.5">
+            <button onclick="switchMrpTab('tab-fg-warehouse')" class="px-2.5 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold cursor-pointer shadow-xs">📦 คลังโซฟา FG (${fmt(s.totalFgWarehouseUnits || s.totalFgReady)} ตัว)</button>
             <button onclick="jumpToShortageCategory('WOOD')" class="px-2.5 py-1 rounded-lg bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-200 text-xs font-bold cursor-pointer">🪵 ดูสต็อกไม้ทั้งหมด</button>
             <button onclick="jumpToShortageCategory('FABRIC')" class="px-2.5 py-1 rounded-lg bg-teal-50 hover:bg-teal-100 text-teal-900 border border-teal-200 text-xs font-bold cursor-pointer">🧵 ดูสต็อกผ้าทั้ง 29 สี</button>
             <button onclick="jumpToShortageCategory('FOAM')" class="px-2.5 py-1 rounded-lg bg-indigo-50 hover:bg-indigo-100 text-indigo-900 border border-indigo-200 text-xs font-bold cursor-pointer">🧽 ดูสต็อกฟองน้ำ</button>
@@ -485,6 +493,166 @@
     $('footNetProduceQty').textContent = `${fmt(s.totalNetProduce)} ตัว`;
     $('footAvgBomUnit').textContent = `เฉลี่ย ฿${fmt(s.avgGrossMatPerSofa, 0)}/ตัว`;
     $('footTotalBomValue').textContent = `฿${fmt(s.totalGrossBomCost, 2)}`;
+  }
+
+  // =========================================================================
+  // 3B. RENDER TAB 3 (NEW): FINISHED GOODS (FG / สินค้าสำเร็จรูป) STOCK WAREHOUSE
+  // =========================================================================
+  function renderFgWarehouseTab(calc) {
+    const s = calc.summary;
+    if ($('fgKpiActiveSkus')) $('fgKpiActiveSkus').textContent = `${fmt(s.activeFgSkusCount || 0)} รุ่นพร้อมส่ง`;
+    if ($('fgKpiTotalOnHand')) $('fgKpiTotalOnHand').textContent = fmt(s.totalFgWarehouseUnits || 0);
+    if ($('fgKpiAllocated')) $('fgKpiAllocated').textContent = `-${fmt(s.totalFgUsed || 0)}`;
+    if ($('fgKpiFreeSub')) $('fgKpiFreeSub').textContent = `เหลือว่างพร้อมขายทันที ${fmt(s.totalFgFreeAvailable || 0)} ตัว`;
+    if ($('fgKpiTotalIn')) $('fgKpiTotalIn').textContent = `+${fmt(s.totalFgWarehouseIn || 0)} รับเข้า`;
+    if ($('fgKpiTotalOut')) $('fgKpiTotalOut').textContent = `-${fmt(s.totalFgWarehouseOut || 0)} ส่งออก`;
+    if ($('fgKpiTotalValue')) $('fgKpiTotalValue').textContent = `฿${fmt(s.totalFgWarehouseValue || 0, 0)}`;
+
+    // Default date input
+    const dtInput = $('fgTxDateInput');
+    if (dtInput && !dtInput.value) {
+      dtInput.value = new Date().toISOString().slice(0, 10);
+    }
+
+    // Recent FG Transactions Log
+    const txListEl = $('fgRecentTransactionsList');
+    if (txListEl) {
+      const fgRaw = store.fgInventoryRaw || { inbound: [], outbound: [], adjustments: [] };
+      const combined = [];
+      (fgRaw.inbound || []).forEach(tx => combined.push({ ...tx, txType: 'IN' }));
+      (fgRaw.outbound || []).forEach(tx => combined.push({ ...tx, txType: 'OUT' }));
+      (fgRaw.adjustments || []).forEach(tx => combined.push({ ...tx, txType: 'ADJ' }));
+
+      combined.sort((a, b) => String(b.createdAt || b.date || '').localeCompare(String(a.createdAt || a.date || '')));
+      const topRecent = combined.slice(0, 15);
+
+      if (topRecent.length === 0) {
+        txListEl.innerHTML = `<div class="py-6 text-center text-slate-400">ยังไม่มีประวัติเคลื่อนไหวเพิ่มเติม</div>`;
+      } else {
+        txListEl.innerHTML = topRecent.map(tx => {
+          let badge = '';
+          let qtyHtml = '';
+          if (tx.txType === 'IN') {
+            badge = `<span class="px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800 text-[10px] font-bold">📥 รับเข้า</span>`;
+            qtyHtml = `<span class="font-mono font-bold text-emerald-700">+${fmt(tx.quantity)} ตัว</span>`;
+          } else if (tx.txType === 'OUT') {
+            badge = `<span class="px-1.5 py-0.5 rounded bg-rose-100 text-rose-800 text-[10px] font-bold">📤 ส่งออก</span>`;
+            qtyHtml = `<span class="font-mono font-bold text-rose-600">-${fmt(tx.quantity)} ตัว</span>`;
+          } else {
+            badge = `<span class="px-1.5 py-0.5 rounded bg-amber-100 text-amber-800 text-[10px] font-bold">⚖️ ปรับยอด</span>`;
+            qtyHtml = `<span class="font-mono font-bold text-amber-700">${tx.quantity >= 0 ? '+' : ''}${fmt(tx.quantity)} ตัว</span>`;
+          }
+          const subInfo = tx.team || tx.channel || tx.reason || '';
+          return `
+            <div class="flex items-center justify-between p-2 rounded-xl bg-slate-50 border border-slate-100 hover:bg-slate-100/70 transition">
+              <div class="min-w-0 pr-2">
+                <div class="flex items-center gap-1.5">
+                  ${badge}
+                  <span class="font-bold text-slate-800 truncate">${tx.sku}</span>
+                </div>
+                <div class="text-[10px] text-slate-400 mt-0.5 truncate">${tx.date || ''} • ${subInfo} ${tx.note ? `(${tx.note})` : ''}</div>
+              </div>
+              <div class="flex items-center gap-2 shrink-0">
+                ${qtyHtml}
+                <button data-del-fg-tx="${tx.id}" data-del-fg-type="${tx.txType}" class="text-slate-400 hover:text-rose-600 font-bold px-1 cursor-pointer" title="ลบรายการนี้">✕</button>
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
+    }
+
+    // FG Master Inventory Table
+    const tbody = $('fgInventoryTableBody');
+    if (!tbody) return;
+
+    const activeOnly = $('filterFgActiveOnly') && $('filterFgActiveOnly').checked;
+    const q = fgTableSearchQuery.trim().toLowerCase();
+
+    const list = (calc.fgInventoryList || []).filter(item => {
+      if (fgFamilyFilter !== 'ALL' && item.familyId !== fgFamilyFilter) return false;
+      if (activeOnly && item.onHandQty <= 0 && item.orderQty <= 0 && item.totalIn <= 0 && item.totalOut <= 0) return false;
+      if (q && !item.sku.toLowerCase().includes(q) && !item.familyLabel.toLowerCase().includes(q)) return false;
+      return true;
+    });
+
+    let sumBeg = 0;
+    let sumIn = 0;
+    let sumOut = 0;
+    let sumOnHand = 0;
+    let sumOrder = 0;
+    let sumAllocated = 0;
+    let sumFree = 0;
+    let sumVal = 0;
+
+    list.forEach(it => {
+      sumBeg += it.begStock;
+      sumIn += it.totalIn;
+      sumOut += it.totalOut;
+      sumOnHand += it.onHandQty;
+      sumOrder += it.orderQty;
+      sumAllocated += it.allocatedQty;
+      sumFree += it.freeQty;
+      sumVal += it.fgStockValue;
+    });
+
+    const displayRows = list.slice(0, 150);
+
+    if (displayRows.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="13" class="py-10 text-center text-slate-400">ไม่พบรุ่นโซฟาตามตัวกรอง (เอาติ๊ก "แสดงเฉพาะรุ่นที่มีสต็อก FG" ออกเพื่อดูครบทั้ง 439 รุ่น)</td></tr>`;
+    } else {
+      tbody.innerHTML = displayRows.map((item, idx) => {
+        return `
+          <tr class="hover:bg-slate-50 transition ${item.onHandQty > 0 ? 'bg-emerald-50/15' : ''}">
+            <td class="py-2.5 px-3 text-center font-mono text-slate-400">${idx + 1}</td>
+            <td class="py-2.5 px-4">
+              <div class="font-bold text-slate-900">${item.sku}</div>
+              ${item.inBacklog ? `<span class="inline-block mt-0.5 px-1.5 py-0.2 text-[10px] rounded bg-indigo-50 text-indigo-700 font-semibold">อยู่ในแผนผลิต</span>` : ''}
+            </td>
+            <td class="py-2.5 px-3 text-[11px] font-medium text-slate-600 whitespace-nowrap">
+              ${item.familyIcon} ${item.familyLabel}
+            </td>
+            <td class="py-2.5 px-2.5 text-center font-mono text-slate-600">${fmt(item.begStock)}</td>
+            <td class="py-2.5 px-2.5 text-center font-mono font-semibold ${item.totalIn > 0 ? 'text-teal-700' : 'text-slate-300'}">
+              ${item.totalIn > 0 ? `+${fmt(item.totalIn)}` : '0'}
+            </td>
+            <td class="py-2.5 px-2.5 text-center font-mono font-semibold ${item.totalOut > 0 ? 'text-rose-600' : 'text-slate-300'}">
+              ${item.totalOut > 0 ? `-${fmt(item.totalOut)}` : '0'}
+            </td>
+            <td class="py-2.5 px-3 text-center bg-emerald-50/50">
+              <input type="number" min="0" value="${item.onHandQty}" data-fg-set-sku="${item.sku}"
+                class="fg-quick-set-input w-20 px-2 py-1 text-center font-mono font-black bg-white border-2 ${item.onHandQty > 0 ? 'border-emerald-500 text-emerald-800' : 'border-slate-200 text-slate-500'} rounded-lg focus:ring-2 focus:ring-emerald-600" />
+            </td>
+            <td class="py-2.5 px-3 text-center font-mono font-bold ${item.orderQty > 0 ? 'text-slate-900 bg-slate-100/60' : 'text-slate-300'}">
+              ${fmt(item.orderQty)}
+            </td>
+            <td class="py-2.5 px-3 text-center font-mono font-bold ${item.allocatedQty > 0 ? 'text-indigo-700 bg-indigo-50/50' : 'text-slate-300'}">
+              ${item.allocatedQty > 0 ? `-${fmt(item.allocatedQty)}` : '0'}
+            </td>
+            <td class="py-2.5 px-3 text-center font-mono font-bold ${item.freeQty > 0 ? 'text-teal-700' : 'text-slate-400'}">
+              ${fmt(item.freeQty)} ตัว
+            </td>
+            <td class="py-2.5 px-3 text-right font-mono text-slate-600">฿${fmt(item.unitBomCost, 0)}</td>
+            <td class="py-2.5 px-3 text-right font-mono font-bold ${item.fgStockValue > 0 ? 'text-amber-800' : 'text-slate-300'}">
+              ฿${fmt(item.fgStockValue, 0)}
+            </td>
+            <td class="py-2.5 px-3 text-center whitespace-nowrap">
+              <button data-fg-quick-in="${item.sku}" class="px-2 py-1 rounded bg-emerald-100 hover:bg-emerald-200 text-emerald-800 font-bold text-[11px] cursor-pointer mr-1" title="รับเข้าผลิตเสร็จ +1 ตัว">+1</button>
+              <button data-fg-quick-out="${item.sku}" class="px-2 py-1 rounded bg-rose-100 hover:bg-rose-200 text-rose-800 font-bold text-[11px] cursor-pointer" title="จ่ายออกส่งลูกค้า -1 ตัว">-1</button>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    if ($('fgFootBeg')) $('fgFootBeg').textContent = fmt(sumBeg);
+    if ($('fgFootIn')) $('fgFootIn').textContent = `+${fmt(sumIn)}`;
+    if ($('fgFootOut')) $('fgFootOut').textContent = `-${fmt(sumOut)}`;
+    if ($('fgFootOnHand')) $('fgFootOnHand').textContent = `${fmt(sumOnHand)} ตัว`;
+    if ($('fgFootOrder')) $('fgFootOrder').textContent = fmt(sumOrder);
+    if ($('fgFootAllocated')) $('fgFootAllocated').textContent = `-${fmt(sumAllocated)}`;
+    if ($('fgFootFree')) $('fgFootFree').textContent = `${fmt(sumFree)} ตัว`;
+    if ($('fgFootValue')) $('fgFootValue').textContent = `฿${fmt(sumVal, 0)}`;
   }
 
   // =========================================================================
@@ -1028,6 +1196,110 @@
     XLSX.writeFile(wb, 'QueenCosy_Order_FG_Template.xlsx');
   }
 
+  function downloadFgTemplateExcel() {
+    if (typeof XLSX === 'undefined') return;
+    const wb = XLSX.utils.book_new();
+    const rows = [
+      ['รหัสสินค้าสำเร็จรูป (SKU)', 'จำนวนสต็อก FG (ตัว)', 'ทีมผลิต/หมายเหตุ'],
+      ['Qs-โซฟาเบดปรับนอน-rc-ดำ-PQ002C-17', 12, 'ตรวจนับคลัง FG'],
+      ['Qs-โซฟาเบดปรับนอน-rc-น้ำตาล-PQ002C-12', 8, 'ตรวจนับคลัง FG'],
+      ['Qs-โซฟาตัวแอลมินิมอล-Mncf(R)-ครีม-MJ356-1a', 5, 'ผลิตเสร็จพร้อมส่ง'],
+      ['Qs-เก้าอี้สตูล-cu-ดำ-PQ002C-17', 15, 'สตูลพร้อมส่ง']
+    ];
+    const ws = XLSX.utils.aoa_to_sheet(rows);
+    XLSX.utils.book_append_sheet(wb, ws, 'FG_Stock_Template');
+    XLSX.writeFile(wb, 'QueenCosy_FG_Stock_Template.xlsx');
+  }
+
+  function exportFgStockWorkbook() {
+    if (typeof XLSX === 'undefined') return;
+    const calc = store.runMrpCalculation();
+    const wb = XLSX.utils.book_new();
+    const rows = [
+      ['รหัสสินค้าสำเร็จรูป (Master SKU)', 'หมวดโซฟา', 'ยอดยกมา', 'รับเข้าผลิตเสร็จ (+In)', 'จ่ายออกส่งลูกค้า (-Out)', 'คงเหลือพร้อมส่งจริง (FG On-Hand)', 'ออเดอร์ค้างส่งรอบนี้', 'ตัดจ่ายให้ออเดอร์', 'เหลือว่างสุทธิ (Free FG)', 'ต้นทุนวัสดุ BOM/ตัว (บาท)', 'มูลค่าสต็อก FG รวม (บาท)']
+    ];
+    (calc.fgInventoryList || []).forEach(it => {
+      if (it.onHandQty <= 0 && it.orderQty <= 0 && it.totalIn <= 0 && it.totalOut <= 0) return;
+      rows.push([
+        it.sku,
+        it.familyLabel,
+        it.begStock,
+        it.totalIn,
+        it.totalOut,
+        it.onHandQty,
+        it.orderQty,
+        it.allocatedQty,
+        it.freeQty,
+        it.unitBomCost,
+        it.fgStockValue
+      ]);
+    });
+    const ws = XLSX.utils.aoa_to_sheet(rows);
+    XLSX.utils.book_append_sheet(wb, ws, 'รายงานสต็อกสินค้าสำเร็จรูป_FG');
+    XLSX.writeFile(wb, `QueenCosy_FG_Inventory_${new Date().toISOString().slice(0, 10)}.xlsx`);
+  }
+
+  function handleFgFileUpload(file) {
+    if (!file || typeof XLSX === 'undefined') return;
+    const mode = $('fgImportModeSelect') ? $('fgImportModeSelect').value : 'SET_ONHAND';
+    const reader = new FileReader();
+    reader.onload = e => {
+      try {
+        const data = new Uint8Array(e.target.result);
+        const wb = XLSX.read(data, { type: 'array' });
+        const sheet = wb.Sheets[wb.SheetNames[0]];
+        const rows = XLSX.utils.sheet_to_json(sheet, { defval: '' });
+
+        if (!rows || rows.length === 0) {
+          Swal.fire('ไม่พบข้อมูล', 'ไฟล์ที่อัปโหลดไม่มีข้อมูลรายการ', 'warning');
+          return;
+        }
+
+        const parsed = window.SkuMapper ? window.SkuMapper.parseProductionOrOrderRows(rows) : { plannedItems: [] };
+        let count = 0;
+        let units = 0;
+
+        if (parsed.plannedItems && parsed.plannedItems.length > 0) {
+          parsed.plannedItems.forEach(it => {
+            if (it.quantity < 0) return;
+            if (mode === 'ADD_INBOUND') {
+              store.recordFgInbound({ sku: it.sku, quantity: it.quantity, team: 'นำเข้าจากไฟล์ Excel', note: file.name });
+            } else {
+              store.setFgPhysicalStock(it.sku, it.quantity, `นำเข้ายอด FG จาก ${file.name}`);
+            }
+            count++;
+            units += it.quantity;
+          });
+        } else {
+          rows.forEach(r => {
+            const sku = String(r['รหัสสินค้าสำเร็จรูป (SKU)'] || r['รหัสสินค้า (SKU)'] || r['SKU'] || r['รุ่น'] || '').trim();
+            const qty = parseInt(r['จำนวนสต็อก FG (ตัว)'] || r['สต็อก FG พร้อมส่ง'] || r['จำนวน'] || r['คงเหลือ'] || 0, 10) || 0;
+            if (!sku) return;
+            if (mode === 'ADD_INBOUND') {
+              store.recordFgInbound({ sku, quantity: qty, team: 'นำเข้าจากไฟล์ Excel', note: file.name });
+            } else {
+              store.setFgPhysicalStock(sku, qty, `นำเข้ายอด FG จาก ${file.name}`);
+            }
+            count++;
+            units += qty;
+          });
+        }
+
+        Swal.fire({
+          icon: 'success',
+          title: 'อัปเดตคลังสินค้าสำเร็จรูป (FG) สำเร็จ!',
+          text: `อัปเดต ${count} รุ่นโซฟา (รวม ${fmt(units)} ตัว) และซิงค์ตัดออเดอร์ใน Tab 2 เรียบร้อยแล้ว`,
+          timer: 2000,
+          showConfirmButton: false
+        });
+      } catch (err) {
+        console.error(err);
+        Swal.fire('เกิดข้อผิดพลาด', err.message || 'ไม่สามารถอ่านไฟล์ Excel ได้', 'error');
+      }
+    };
+    reader.readAsArrayBuffer(file);
+  }
+
   // =========================================================================
   // 9. EVENT LISTENERS
   // =========================================================================
@@ -1087,7 +1359,7 @@
       });
     }
 
-    // Backlog Table Inputs Delegation
+    // Backlog & FG Table Inputs Delegation
     document.addEventListener('change', e => {
       if (e.target.classList.contains('backlog-input')) {
         const idx = parseInt(e.target.getAttribute('data-backlog-idx'), 10);
@@ -1096,10 +1368,14 @@
       } else if (e.target.classList.contains('bom-sup-select')) {
         const bomName = e.target.getAttribute('data-map-bom-sup');
         store.updateBomMapping(bomName, { supplierName: e.target.value });
+      } else if (e.target.classList.contains('fg-quick-set-input')) {
+        const sku = e.target.getAttribute('data-fg-set-sku');
+        const val = parseInt(e.target.value, 10) || 0;
+        store.setFgPhysicalStock(sku, val, 'แก้ไขยอดคงเหลือพร้อมส่งในตารางคลัง FG');
       }
     });
 
-    // Click Delegation for Remove Backlog, Open BOM Link Modal, Quick Add SKU
+    // Click Delegation for Remove Backlog, Open BOM Link Modal, Quick Add SKU, FG Quick In/Out/Delete
     document.addEventListener('click', e => {
       const rmBtn = e.target.closest('[data-remove-backlog]');
       if (rmBtn) {
@@ -1117,7 +1393,7 @@
       const quickSkuBtn = e.target.closest('[data-quick-add-sku]');
       if (quickSkuBtn) {
         const sku = quickSkuBtn.getAttribute('data-quick-add-sku');
-        store.addBacklogItem(sku, 10, 0, 0, 'เพิ่มจากหน้าสูตร BOM');
+        store.addBacklogItem(sku, 10, 0, null, 'เพิ่มจากหน้าสูตร BOM');
         Swal.fire({
           icon: 'success',
           title: 'เพิ่มเข้าแผนผลิตแล้ว',
@@ -1125,6 +1401,29 @@
           timer: 1200,
           showConfirmButton: false
         });
+        return;
+      }
+
+      const fgQuickInBtn = e.target.closest('[data-fg-quick-in]');
+      if (fgQuickInBtn) {
+        const sku = fgQuickInBtn.getAttribute('data-fg-quick-in');
+        store.recordFgInbound({ sku, quantity: 1, team: 'รับเข้าด่วน (+1)', note: 'กดปุ่ม +1 หน้าตารางคลัง FG' });
+        return;
+      }
+
+      const fgQuickOutBtn = e.target.closest('[data-fg-quick-out]');
+      if (fgQuickOutBtn) {
+        const sku = fgQuickOutBtn.getAttribute('data-fg-quick-out');
+        store.recordFgOutbound({ sku, quantity: 1, channel: 'จ่ายออกด่วน (-1)', note: 'กดปุ่ม -1 หน้าตารางคลัง FG' });
+        return;
+      }
+
+      const delFgTxBtn = e.target.closest('[data-del-fg-tx]');
+      if (delFgTxBtn) {
+        const txId = delFgTxBtn.getAttribute('data-del-fg-tx');
+        const txType = delFgTxBtn.getAttribute('data-del-fg-type');
+        store.deleteFgTransaction(txType, txId);
+        return;
       }
     });
 
@@ -1191,8 +1490,7 @@
     }
     if ($('btnClearFgZero')) {
       $('btnClearFgZero').addEventListener('click', () => {
-        store.state.backlogItems.forEach(it => { it.fgStock = 0; });
-        store.saveLocalState();
+        store.clearAllFgZero();
       });
     }
     if ($('btnClearAllBacklog')) {
@@ -1202,6 +1500,163 @@
     }
     if ($('btnDownloadOrderTemplate')) {
       $('btnDownloadOrderTemplate').addEventListener('click', downloadOrderTemplateExcel);
+    }
+
+    // --- FG WAREHOUSE TAB EVENT LISTENERS ---
+    $$('.fg-tx-mode-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        fgTxMode = btn.getAttribute('data-fg-tx-mode');
+        $$('.fg-tx-mode-btn').forEach(b => {
+          if (b === btn) {
+            if (fgTxMode === 'IN') b.className = 'fg-tx-mode-btn py-1.5 px-2 rounded-lg bg-emerald-600 text-white shadow-xs cursor-pointer transition';
+            else if (fgTxMode === 'OUT') b.className = 'fg-tx-mode-btn py-1.5 px-2 rounded-lg bg-rose-600 text-white shadow-xs cursor-pointer transition';
+            else b.className = 'fg-tx-mode-btn py-1.5 px-2 rounded-lg bg-indigo-600 text-white shadow-xs cursor-pointer transition';
+          } else {
+            b.className = 'fg-tx-mode-btn py-1.5 px-2 rounded-lg text-slate-600 hover:bg-white cursor-pointer transition';
+          }
+        });
+
+        const qtyLbl = $('fgTxQtyLabel');
+        const teamLbl = $('fgTxTeamLabel');
+        const submitBtn = $('btnSubmitFgTransaction');
+        if (fgTxMode === 'IN') {
+          if (qtyLbl) qtyLbl.textContent = 'จำนวนรับเข้า (ตัว)';
+          if (teamLbl) teamLbl.textContent = 'ทีมผลิต';
+          if (submitBtn) {
+            submitBtn.textContent = '📥 บันทึกรับเข้าคลังสินค้าสำเร็จรูป (FG Stock)';
+            submitBtn.className = 'w-full mt-3 py-2.5 px-4 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl transition cursor-pointer shadow-sm';
+          }
+        } else if (fgTxMode === 'OUT') {
+          if (qtyLbl) qtyLbl.textContent = 'จำนวนจ่ายออก (ตัว)';
+          if (teamLbl) teamLbl.textContent = 'ช่องทางจัดส่ง';
+          if (submitBtn) {
+            submitBtn.textContent = '📤 บันทึกเบิกจ่ายแพ็คส่งลูกค้า (FG Outbound)';
+            submitBtn.className = 'w-full mt-3 py-2.5 px-4 bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs rounded-xl transition cursor-pointer shadow-sm';
+          }
+        } else {
+          if (qtyLbl) qtyLbl.textContent = 'ยอดคงเหลือจริง (ตัว)';
+          if (teamLbl) teamLbl.textContent = 'ผู้ตรวจนับ';
+          if (submitBtn) {
+            submitBtn.textContent = '⚖️ บันทึกปรับยอดตรวจนับจริง (Set Physical FG)';
+            submitBtn.className = 'w-full mt-3 py-2.5 px-4 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-xl transition cursor-pointer shadow-sm';
+          }
+        }
+      });
+    });
+
+    // FG SKU Autocomplete
+    const fgSkuInput = $('fgTxSkuInput');
+    const fgAutoList = $('fgTxSkuAutocomplete');
+    if (fgSkuInput && fgAutoList) {
+      fgSkuInput.addEventListener('input', e => {
+        const q = e.target.value.trim().toLowerCase();
+        if (!q) {
+          fgAutoList.classList.add('hidden');
+          return;
+        }
+        const allSkus = (store.masterBom && store.masterBom.skus) ? store.masterBom.skus.map(s => s.sku) : [];
+        const matches = allSkus.filter(s => s.toLowerCase().includes(q)).slice(0, 20);
+        if (matches.length === 0) {
+          fgAutoList.classList.add('hidden');
+          return;
+        }
+        fgAutoList.innerHTML = matches.map(sku => `
+          <div data-pick-fg-sku="${sku}" class="px-3 py-2 text-xs hover:bg-emerald-50 cursor-pointer border-b border-slate-100 last:border-none font-medium text-slate-800">
+            ${sku}
+          </div>
+        `).join('');
+        fgAutoList.classList.remove('hidden');
+      });
+
+      fgAutoList.addEventListener('click', e => {
+        const item = e.target.closest('[data-pick-fg-sku]');
+        if (!item) return;
+        fgSkuInput.value = item.getAttribute('data-pick-fg-sku');
+        fgAutoList.classList.add('hidden');
+      });
+
+      document.addEventListener('click', e => {
+        if (!fgSkuInput.contains(e.target) && !fgAutoList.contains(e.target)) {
+          fgAutoList.classList.add('hidden');
+        }
+      });
+    }
+
+    if ($('btnSubmitFgTransaction')) {
+      $('btnSubmitFgTransaction').addEventListener('click', () => {
+        const sku = ($('fgTxSkuInput').value || '').trim();
+        if (!sku) {
+          Swal.fire('กรุณาเลือกรุ่นโซฟา', 'พิมพ์ค้นหารุ่นโซฟาในช่องเลือกรุ่นก่อนกดบันทึก', 'info');
+          return;
+        }
+        const qty = parseInt($('fgTxQtyInput').value, 10) || 0;
+        const date = $('fgTxDateInput').value || new Date().toISOString().slice(0, 10);
+        const team = ($('fgTxTeamInput').value || '').trim();
+        const note = ($('fgTxNoteInput').value || '').trim();
+
+        if (fgTxMode === 'IN') {
+          store.recordFgInbound({ sku, quantity: qty, date, team, note });
+          Swal.fire({ icon: 'success', title: 'รับเข้าคลัง FG สำเร็จ!', text: `${sku} (+${qty} ตัว)`, timer: 1400, showConfirmButton: false });
+        } else if (fgTxMode === 'OUT') {
+          store.recordFgOutbound({ sku, quantity: qty, date, channel: team, note });
+          Swal.fire({ icon: 'success', title: 'เบิกจ่าย FG สำเร็จ!', text: `${sku} (-${qty} ตัว)`, timer: 1400, showConfirmButton: false });
+        } else {
+          store.setFgPhysicalStock(sku, qty, note || `ตรวจนับโดย ${team || 'แอดมิน'}`);
+          Swal.fire({ icon: 'success', title: 'อัปเดตยอด FG จริงสำเร็จ!', text: `${sku} = ${qty} ตัว`, timer: 1400, showConfirmButton: false });
+        }
+        $('fgTxSkuInput').value = '';
+        $('fgTxNoteInput').value = '';
+      });
+    }
+
+    const dzFg = $('dropzoneFgFile');
+    const inpFg = $('inputFgFile');
+    if (dzFg && inpFg) {
+      dzFg.addEventListener('click', () => inpFg.click());
+      dzFg.addEventListener('dragover', e => { e.preventDefault(); dzFg.classList.add('drag-over'); });
+      dzFg.addEventListener('dragleave', () => dzFg.classList.remove('drag-over'));
+      dzFg.addEventListener('drop', e => {
+        e.preventDefault();
+        dzFg.classList.remove('drag-over');
+        if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+          handleFgFileUpload(e.dataTransfer.files[0]);
+        }
+      });
+      inpFg.addEventListener('change', e => {
+        if (e.target.files && e.target.files[0]) {
+          handleFgFileUpload(e.target.files[0]);
+        }
+      });
+    }
+
+    if ($('btnDownloadFgTemplate')) {
+      $('btnDownloadFgTemplate').addEventListener('click', downloadFgTemplateExcel);
+    }
+    if ($('btnExportFgStockExcel')) {
+      $('btnExportFgStockExcel').addEventListener('click', exportFgStockWorkbook);
+    }
+    if ($('btnResetDefaultFg')) {
+      $('btnResetDefaultFg').addEventListener('click', () => {
+        store.resetDefaultFgInventory();
+        Swal.fire({ icon: 'success', title: 'รีเซ็ตสต็อก FG มาตรฐาน 90 ตัวแล้ว', timer: 1300, showConfirmButton: false });
+      });
+    }
+    if ($('fgFamilyFilterSelect')) {
+      $('fgFamilyFilterSelect').addEventListener('change', e => {
+        fgFamilyFilter = e.target.value;
+        renderFgWarehouseTab(store.runMrpCalculation());
+      });
+    }
+    if ($('filterFgActiveOnly')) {
+      $('filterFgActiveOnly').addEventListener('change', () => {
+        renderFgWarehouseTab(store.runMrpCalculation());
+      });
+    }
+    if ($('fgTableSearchInput')) {
+      $('fgTableSearchInput').addEventListener('input', e => {
+        fgTableSearchQuery = e.target.value;
+        renderFgWarehouseTab(store.runMrpCalculation());
+      });
     }
 
     // Order File Upload Dropzone

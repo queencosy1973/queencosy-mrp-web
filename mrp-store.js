@@ -16,9 +16,11 @@
 
   const CLOUD_STOCK_MOVEMENT_ID = 'QC_STOCK_MOVEMENT_DATA_V4';
   const CLOUD_FABRIC_STATE_ID = 'QC_FABRIC_CUTTER_STATE_V1';
+  const CLOUD_FG_INVENTORY_ID = 'QC_FG_INVENTORY_DATA_V1';
   const CLOUD_MRP_STATE_ID = 'QC_MRP_BOM_PLANNER_STATE_V1';
   const LOCAL_MRP_STATE_KEY = 'QUEENCOSY_MRP_STATE_V2';
   const LOCAL_STOCK_MOVEMENT_KEY = 'STOCK_APP_DATA_V4';
+  const LOCAL_FG_INVENTORY_KEY = 'QC_FG_INVENTORY_DATA_V1';
   const LOCAL_PNL_STATE_KEY = 'QUEENCOSY_PNL_STATE_V1';
 
   // =========================================================================
@@ -579,15 +581,79 @@
   };
 
   // =========================================================================
+  // 4B. FINISHED GOODS (FG / สินค้าสำเร็จรูป) INVENTORY & IN-OUT SEED DATA
+  // =========================================================================
+  function classifySofaFamily(sku) {
+    const s = String(sku || '').toLowerCase();
+    if (s.includes('ตัวแอล') || s.includes('mncf') || s.includes('mnh')) {
+      return { id: 'LSHAPE', label: 'โซฟาตัวแอล (L-Shape)', icon: '🛋️' };
+    }
+    if (s.includes('ปรับนอน') || s.includes('หัวกระดก') || s.includes('-rc') || s.includes('-rs')) {
+      return { id: 'SOFABED', label: 'โซฟาเบดปรับนอน/หัวกระดก', icon: '🛏️' };
+    }
+    if (s.includes('3ที่นั่ง') || s.includes('bs3') || s.includes('lu3') || s.includes('ln3') || s.includes('cs3')) {
+      return { id: 'SOFA3', label: 'โซฟา 3 ที่นั่ง', icon: '🛋️' };
+    }
+    if (s.includes('2ที่นั่ง') || s.includes('bs2') || s.includes('cs2') || s.includes('lu2') || s.includes('ln2')) {
+      return { id: 'SOFA2', label: 'โซฟา 2 ที่นั่ง', icon: '🪑' };
+    }
+    return { id: 'STOOL_ACC', label: 'สตูล / หมอน / อะไหล่', icon: '📦' };
+  }
+
+  function getDefaultFgInventoryData() {
+    // Net FG On-Hand across these 14 active SKUs = 90 units + extra ready-to-ship SKUs
+    return {
+      version: 1,
+      updatedAt: '2026-11-11T09:00:00.000Z',
+      beginningStock: {
+        'Qs-โซฟาเบดปรับนอน-rc-ดำ-PQ002C-17': 10,
+        'Qs-โซฟาเบดปรับนอน-rc-น้ำตาล-PQ002C-12': 6,
+        'Qs-โซฟาเบดปรับนอน-rc-เทา-PQ002C-46': 5,
+        'Qs-โซฟาเบดหัวกระดกพรีเมี่ยม-rsh-เทา-337-29': 4,
+        'Qs-โซฟาเบดปรับนอนพรีเมี่ยม-rch-น้ำเงิน-337-31': 4,
+        'Qs-โซฟาตัวแอลมินิมอล-Mncf(R)-ครีม-MJ356-1a': 3,
+        'Qs-โซฟาตัวแอลมินิมอล-Mncf(L)-เทา-MJ356-3a': 3,
+        'Qs-โซฟา3ที่นั่งท้าวแขน-bs3-ดำ-PQ002C-17': 8,
+        'Qs-โซฟา2ที่นั่งท้าวแขน-bs2-ครีม-PQ002C-6': 7,
+        'Qs-โซฟา3ที่นั่งวางแก้ว-lu3-มอคค่า-PQ002C-48': 4,
+        'Qs-โซฟา3ที่นั่งกระดุมวางแก้ว-ln3-น้ำตาลทอง-736b-01': 2,
+        'Qs-โซฟา3ที่นั่งกระดุมวางแก้ว-ln3-สีเทาเข้ม-736b-02': 3,
+        'Qs-โซฟา2ที่นั่งเรียบเบาะใหญ่-cs2-ชา-PQ002C-19': 6,
+        'Qs-เก้าอี้สตูล-cu-ดำ-PQ002C-17': 12
+      },
+      inbound: [
+        { id: 'FG-IN-001', date: '2026-11-10', sku: 'Qs-โซฟาเบดปรับนอน-rc-ดำ-PQ002C-17', quantity: 8, team: 'ทีมหุ้ม A (ช่างเอก)', note: 'รับเข้าโซฟาผลิตเสร็จรอบเช้า' },
+        { id: 'FG-IN-002', date: '2026-11-10', sku: 'Qs-โซฟาเบดปรับนอน-rc-น้ำตาล-PQ002C-12', quantity: 5, team: 'ทีมหุ้ม A (ช่างเอก)', note: 'รับเข้าโซฟาผลิตเสร็จ' },
+        { id: 'FG-IN-003', date: '2026-11-10', sku: 'Qs-โซฟาเบดหัวกระดกพรีเมี่ยม-rsh-เทา-337-29', quantity: 4, team: 'ทีมหุ้ม B (ช่างนัท)', note: 'รับเข้าโซฟาเบดหัวกระดก' },
+        { id: 'FG-IN-004', date: '2026-11-10', sku: 'Qs-โซฟาตัวแอลมินิมอล-Mncf(R)-ครีม-MJ356-1a', quantity: 5, team: 'ทีมหุ้ม C (ตัวแอล)', note: 'รับเข้าตัวแอลลูกฟูกครีม' },
+        { id: 'FG-IN-005', date: '2026-11-11', sku: 'Qs-โซฟา3ที่นั่งท้าวแขน-bs3-ดำ-PQ002C-17', quantity: 6, team: 'ทีมหุ้ม B (ช่างนัท)', note: 'รับเข้า BS3 ดำ' },
+        { id: 'FG-IN-006', date: '2026-11-11', sku: 'Qs-เก้าอี้สตูล-cu-ดำ-PQ002C-17', quantity: 10, team: 'ทีมสตูล', note: 'ผลิตเสร็จเข้าคลัง FG' }
+      ],
+      outbound: [
+        { id: 'FG-OUT-001', date: '2026-11-10', sku: 'Qs-โซฟาเบดปรับนอน-rc-ดำ-PQ002C-17', quantity: 6, channel: 'TikTok Shop', note: 'แพ็คส่งขนส่ง Flash / J&T' },
+        { id: 'FG-OUT-002', date: '2026-11-10', sku: 'Qs-โซฟาเบดปรับนอน-rc-น้ำตาล-PQ002C-12', quantity: 3, channel: 'TikTok Shop', note: 'แพ็คส่งลูกค้า' },
+        { id: 'FG-OUT-003', date: '2026-11-10', sku: 'Qs-โซฟาเบดหัวกระดกพรีเมี่ยม-rsh-เทา-337-29', quantity: 2, channel: 'Shopee', note: 'แพ็คส่ง Shopee Bulky' },
+        { id: 'FG-OUT-004', date: '2026-11-11', sku: 'Qs-โซฟาตัวแอลมินิมอล-Mncf(R)-ครีม-MJ356-1a', quantity: 3, channel: 'TikTok Shop', note: 'แพ็คส่งรอบเช้า' },
+        { id: 'FG-OUT-005', date: '2026-11-11', sku: 'Qs-โซฟา3ที่นั่งท้าวแขน-bs3-ดำ-PQ002C-17', quantity: 4, channel: 'TikTok Shop', note: 'แพ็คส่งขนส่ง' },
+        { id: 'FG-OUT-006', date: '2026-11-11', sku: 'Qs-เก้าอี้สตูล-cu-ดำ-PQ002C-17', quantity: 7, channel: 'TikTok Shop', note: 'แพ็คส่งพร้อมโซฟา' }
+      ],
+      adjustments: []
+    };
+  }
+
+  // =========================================================================
   // 5. MAIN MRP STORE CLASS
   // =========================================================================
   class QueenCosyMrpStore {
     constructor() {
       this.masterSuppliers = MASTER_SUPPLIERS;
-      this.masterBom = JSON.parse(JSON.stringify(window.MASTER_BOM_DATA || { materials: [], skus: [] }));
+      const globalBom = (typeof MASTER_BOM_DATA !== 'undefined' ? MASTER_BOM_DATA : window.MASTER_BOM_DATA) || { materials: [], skus: [] };
+      this.masterBom = JSON.parse(JSON.stringify(globalBom));
       this.stockMovementRaw = window.INITIAL_INVENTORY_DATA
         ? JSON.parse(JSON.stringify(window.INITIAL_INVENTORY_DATA))
         : { categories: [], products: [], inbound: [], outbound: [], adjustments: [] };
+
+      this.fgInventoryRaw = getDefaultFgInventoryData();
 
       this.bomCloudStockMap = JSON.parse(JSON.stringify(DEFAULT_BOM_CLOUD_FABRIC_STOCK));
       this.cutterBalance = {
@@ -618,6 +684,7 @@
       this.statusListeners = [];
 
       this.loadLocalState();
+      this.syncBacklogFgFromWarehouse(false);
       this.initSupabase();
     }
 
@@ -687,6 +754,21 @@
             this.stockMovementRaw = this.ensureCompleteStockData(parsedStock);
           }
         }
+
+        // Also check if Finished Goods (FG) Inventory data is in localStorage
+        const savedFg = localStorage.getItem(LOCAL_FG_INVENTORY_KEY);
+        if (savedFg) {
+          const parsedFg = JSON.parse(savedFg);
+          if (parsedFg && parsedFg.beginningStock) {
+            this.fgInventoryRaw = {
+              ...getDefaultFgInventoryData(),
+              ...parsedFg,
+              inbound: Array.isArray(parsedFg.inbound) ? parsedFg.inbound : [],
+              outbound: Array.isArray(parsedFg.outbound) ? parsedFg.outbound : [],
+              adjustments: Array.isArray(parsedFg.adjustments) ? parsedFg.adjustments : []
+            };
+          }
+        }
       } catch (e) {
         console.warn('[MrpStore] loadLocalState warning:', e);
       }
@@ -695,9 +777,51 @@
     saveLocalState() {
       try {
         localStorage.setItem(LOCAL_MRP_STATE_KEY, JSON.stringify(this.state));
+        localStorage.setItem(LOCAL_FG_INVENTORY_KEY, JSON.stringify(this.fgInventoryRaw));
         this.notify();
       } catch (e) {
         console.error('[MrpStore] saveLocalState error:', e);
+      }
+    }
+
+    async pushFgInventoryToCloud() {
+      try {
+        this.fgInventoryRaw.updatedAt = new Date().toISOString();
+        localStorage.setItem(LOCAL_FG_INVENTORY_KEY, JSON.stringify(this.fgInventoryRaw));
+
+        const fgMap = this.getComputedFgStockMap();
+        let totalFgUnits = 0;
+        let activeSkus = 0;
+        fgMap.forEach(entry => {
+          if (entry.onHandQty > 0) {
+            activeSkus++;
+            totalFgUnits += entry.onHandQty;
+          }
+        });
+
+        await fetch(`${SUPABASE_URL}/rest/v1/production_batches?on_conflict=batch_id`, {
+          method: 'POST',
+          headers: {
+            apikey: SUPABASE_ANON_KEY,
+            Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+            'Content-Type': 'application/json',
+            Prefer: 'resolution=merge-duplicates,return=minimal'
+          },
+          body: JSON.stringify({
+            batch_id: CLOUD_FG_INVENTORY_ID,
+            batch_name: 'QueenCosy Finished Goods (FG) Stock Movement V1',
+            source: 'QC_FG_WAREHOUSE',
+            status: 'COMPLETED',
+            total_skus: activeSkus,
+            total_units: totalFgUnits,
+            total_material_cost: 0,
+            items_json: this.fgInventoryRaw,
+            updated_at: new Date().toISOString(),
+            notes: `FG On-Hand: ${totalFgUnits} units across ${activeSkus} SKUs`
+          })
+        });
+      } catch (err) {
+        console.warn('[MrpStore] pushFgInventoryToCloud warning:', err);
       }
     }
 
@@ -742,7 +866,7 @@
 
         await this.pullLiveStockMovement();
 
-        // Subscribe to realtime changes on QC_STOCK_MOVEMENT_DATA_V4 & QC_FABRIC_CUTTER_STATE_V1
+        // Subscribe to realtime changes on QC_STOCK_MOVEMENT_DATA_V4, QC_FABRIC_CUTTER_STATE_V1 & QC_FG_INVENTORY_DATA_V1
         this.supabase
           .channel('qc-mrp-live-stock-sync')
           .on('postgres_changes', {
@@ -761,6 +885,12 @@
             } else if (rec.batch_id === CLOUD_FABRIC_STATE_ID && rec.items_json && rec.items_json.cutterBalance) {
               this.cutterBalance = rec.items_json.cutterBalance;
               this.notify();
+            } else if (rec.batch_id === CLOUD_FG_INVENTORY_ID && rec.items_json && rec.items_json.beginningStock) {
+              this.fgInventoryRaw = rec.items_json;
+              localStorage.setItem(LOCAL_FG_INVENTORY_KEY, JSON.stringify(this.fgInventoryRaw));
+              this.syncBacklogFgFromWarehouse(false);
+              this.setCloudStatus('online', 'ซิงค์สดคลัง FG & วัตถุดิบ 100%');
+              this.notify();
             }
           })
           .subscribe();
@@ -771,7 +901,7 @@
     }
 
     async pullLiveStockMovement() {
-      this.setCloudStatus('syncing', 'กำลังดึงสต็อกไม้/ผ้า/ฟองน้ำจาก Supabase...');
+      this.setCloudStatus('syncing', 'กำลังดึงสต็อกวัตถุดิบ & สินค้าสำเร็จรูป (FG) จาก Supabase...');
       try {
         const headers = {
           apikey: SUPABASE_ANON_KEY,
@@ -779,7 +909,7 @@
         };
 
         const [batchesResp, pricesResp] = await Promise.all([
-          fetch(`${SUPABASE_URL}/rest/v1/production_batches?batch_id=in.(${CLOUD_STOCK_MOVEMENT_ID},${CLOUD_FABRIC_STATE_ID})&select=batch_id,updated_at,items_json`, { headers }),
+          fetch(`${SUPABASE_URL}/rest/v1/production_batches?batch_id=in.(${CLOUD_STOCK_MOVEMENT_ID},${CLOUD_FABRIC_STATE_ID},${CLOUD_FG_INVENTORY_ID})&select=batch_id,updated_at,items_json`, { headers }),
           fetch(`${SUPABASE_URL}/rest/v1/bom_calc_material_prices?select=material_name,category,unit,unit_price,current_stock`, { headers })
         ]);
 
@@ -800,11 +930,18 @@
         if (!batchesResp.ok) throw new Error(`HTTP ${batchesResp.status}`);
         const rows = await batchesResp.json();
         let foundStockBatch = false;
+        let foundFgBatch = false;
 
         if (Array.isArray(rows)) {
           for (const row of rows) {
             if (row.batch_id === CLOUD_FABRIC_STATE_ID && row.items_json && row.items_json.cutterBalance) {
               this.cutterBalance = row.items_json.cutterBalance;
+            }
+            if (row.batch_id === CLOUD_FG_INVENTORY_ID && row.items_json && row.items_json.beginningStock) {
+              this.fgInventoryRaw = row.items_json;
+              localStorage.setItem(LOCAL_FG_INVENTORY_KEY, JSON.stringify(this.fgInventoryRaw));
+              this.syncBacklogFgFromWarehouse(false);
+              foundFgBatch = true;
             }
             if (row.batch_id === CLOUD_STOCK_MOVEMENT_ID && row.items_json && Array.isArray(row.items_json.products)) {
               const rawCloud = row.items_json;
@@ -844,8 +981,13 @@
           }
         }
 
+        // Seed FG Inventory to Supabase if it does not exist on cloud yet
+        if (!foundFgBatch) {
+          this.pushFgInventoryToCloud();
+        }
+
         if (foundStockBatch) {
-          this.setCloudStatus('online', `ซิงค์สต็อกครบ (${this.stockMovementRaw.products.length} รหัสคลัง + ผ้า BOM)`);
+          this.setCloudStatus('online', `ซิงค์ครบ 100% (${this.stockMovementRaw.products.length} วัตถุดิบ + คลัง FG)`);
           this.notify();
           return true;
         }
@@ -950,6 +1092,84 @@
           lastSupplier
         };
       });
+    }
+
+    // =========================================================================
+    // 6B. COMPUTE FINISHED GOODS (FG / สินค้าสำเร็จรูป) ON-HAND ACROSS 439 SKUS
+    // =========================================================================
+    // Formula: fgOnHand = beginningStock[sku] + sum(fgInbound) - sum(fgOutbound) + sum(fgAdjustments)
+    getComputedFgStockMap() {
+      const fg = this.fgInventoryRaw || { beginningStock: {}, inbound: [], outbound: [], adjustments: [] };
+      const begMap = fg.beginningStock || {};
+      const inMap = {};
+      const outMap = {};
+      const adjMap = {};
+
+      (fg.inbound || []).forEach(tx => {
+        const key = String(tx.sku || '').trim();
+        if (!key) return;
+        inMap[key] = (inMap[key] || 0) + Number(tx.quantity || 0);
+      });
+
+      (fg.outbound || []).forEach(tx => {
+        const key = String(tx.sku || '').trim();
+        if (!key) return;
+        outMap[key] = (outMap[key] || 0) + Number(tx.quantity || 0);
+      });
+
+      (fg.adjustments || []).forEach(tx => {
+        const key = String(tx.sku || '').trim();
+        if (!key) return;
+        adjMap[key] = (adjMap[key] || 0) + Number(tx.quantity || 0);
+      });
+
+      const allSkuSet = new Set();
+      (this.masterBom.skus || []).forEach(s => allSkuSet.add(s.sku.trim()));
+      Object.keys(begMap).forEach(k => allSkuSet.add(k.trim()));
+      Object.keys(inMap).forEach(k => allSkuSet.add(k.trim()));
+      Object.keys(outMap).forEach(k => allSkuSet.add(k.trim()));
+      Object.keys(adjMap).forEach(k => allSkuSet.add(k.trim()));
+      (this.state.backlogItems || []).forEach(b => {
+        if (b.sku) allSkuSet.add(b.sku.trim());
+      });
+
+      const resultMap = new Map();
+      allSkuSet.forEach(sku => {
+        if (!sku) return;
+        const beg = Number(begMap[sku] || 0);
+        const tIn = Number(inMap[sku] || 0);
+        const tOut = Number(outMap[sku] || 0);
+        const tAdj = Number(adjMap[sku] || 0);
+        const onHand = Math.max(0, beg + tIn - tOut + tAdj);
+        const fam = classifySofaFamily(sku);
+        resultMap.set(sku.toLowerCase(), {
+          sku,
+          familyId: fam.id,
+          familyLabel: fam.label,
+          familyIcon: fam.icon,
+          begStock: beg,
+          totalIn: tIn,
+          totalOut: tOut,
+          totalAdj: tAdj,
+          onHandQty: onHand
+        });
+      });
+
+      return resultMap;
+    }
+
+    syncBacklogFgFromWarehouse(notifyAndSave = true) {
+      const fgMap = this.getComputedFgStockMap();
+      (this.state.backlogItems || []).forEach(item => {
+        const key = String(item.sku || '').trim().toLowerCase();
+        const fgEntry = fgMap.get(key);
+        if (fgEntry) {
+          item.fgStock = fgEntry.onHandQty;
+        }
+      });
+      if (notifyAndSave) {
+        this.saveLocalState();
+      }
     }
 
     // =========================================================================
@@ -1394,6 +1614,85 @@
       const foamStockItems = computedStockList.filter(p => p.category === 'กลุ่มฟองน้ำ' && p.onHandQty > 0);
       const totalFoamOnHand = foamStockItems.reduce((s, p) => s + Math.max(0, p.onHandQty), 0);
 
+      // Compute FG Warehouse Inventory across all 439 SKUs with BOM Unit Costs
+      const fgStockMap = this.getComputedFgStockMap();
+      const matPriceByBomName = new Map();
+      materialRequirements.forEach(m => {
+        matPriceByBomName.set(m.bomName, {
+          unitPrice: m.unitPrice,
+          bomPerStockUnit: m.bomPerStockUnit || 1
+        });
+      });
+
+      const backlogBySku = new Map();
+      skuPlanResults.forEach(r => {
+        backlogBySku.set(String(r.sku || '').trim().toLowerCase(), r);
+      });
+
+      const computeSkuBomUnitCost = (skuName) => {
+        const recipe = skuRecipeMap.get(String(skuName || '').trim().toLowerCase());
+        if (!recipe || !recipe.materials) return 1380;
+        let cost = 0;
+        Object.entries(recipe.materials).forEach(([mName, usage]) => {
+          const mp = matPriceByBomName.get(mName);
+          if (mp && Number(usage) > 0) {
+            cost += (Number(usage) / mp.bomPerStockUnit) * mp.unitPrice;
+          }
+        });
+        if (this.state.includeHardwareRules) {
+          AUXILIARY_HARDWARE_BOM.forEach(rule => {
+            const mp = matPriceByBomName.get(rule.name);
+            const u = rule.calcUsage(skuName, 1);
+            if (mp && u > 0) {
+              cost += (u / mp.bomPerStockUnit) * mp.unitPrice;
+            }
+          });
+        }
+        return Math.round(cost * 100) / 100;
+      };
+
+      let totalFgWarehouseUnits = 0;
+      let totalFgWarehouseIn = 0;
+      let totalFgWarehouseOut = 0;
+      let totalFgWarehouseValue = 0;
+      let activeFgSkusCount = 0;
+      let totalFgFreeAvailable = 0;
+
+      const fgInventoryList = [];
+      fgStockMap.forEach((fgEntry, lowerSku) => {
+        const bPlan = backlogBySku.get(lowerSku);
+        const unitCost = bPlan && bPlan.unitBomCost > 0 ? bPlan.unitBomCost : computeSkuBomUnitCost(fgEntry.sku);
+        const orderQty = bPlan ? bPlan.grossOrder : 0;
+        const allocatedQty = Math.min(orderQty, fgEntry.onHandQty);
+        const freeQty = Math.max(0, fgEntry.onHandQty - allocatedQty);
+        const netProd = Math.max(0, orderQty - fgEntry.onHandQty);
+        const stockVal = Math.round(fgEntry.onHandQty * unitCost * 100) / 100;
+
+        totalFgWarehouseUnits += fgEntry.onHandQty;
+        totalFgWarehouseIn += fgEntry.totalIn;
+        totalFgWarehouseOut += fgEntry.totalOut;
+        totalFgWarehouseValue += stockVal;
+        totalFgFreeAvailable += freeQty;
+        if (fgEntry.onHandQty > 0) activeFgSkusCount++;
+
+        fgInventoryList.push({
+          ...fgEntry,
+          orderQty,
+          allocatedQty,
+          freeQty,
+          netProd,
+          unitBomCost: unitCost,
+          fgStockValue: stockVal,
+          inBacklog: !!bPlan
+        });
+      });
+
+      fgInventoryList.sort((a, b) => {
+        if (b.onHandQty !== a.onHandQty) return b.onHandQty - a.onHandQty;
+        if (b.orderQty !== a.orderQty) return b.orderQty - a.orderQty;
+        return a.sku.localeCompare(b.sku, 'th');
+      });
+
       const avgGrossMatPerSofa = totalNetProduce > 0 ? (totalGrossBomCost / totalNetProduce) : 0;
       const avgNetBuyPerSofa = totalNetProduce > 0 ? (totalNetPurchaseBudget / totalNetProduce) : 0;
 
@@ -1418,6 +1717,12 @@
           totalFabricWarehouseYards,
           totalBomFabricYards,
           totalFoamOnHand,
+          totalFgWarehouseUnits,
+          totalFgWarehouseIn,
+          totalFgWarehouseOut,
+          totalFgWarehouseValue: Math.round(totalFgWarehouseValue * 100) / 100,
+          activeFgSkusCount,
+          totalFgFreeAvailable,
           avgGrossMatPerSofa: Math.round(avgGrossMatPerSofa * 100) / 100,
           avgNetBuyPerSofa: Math.round(avgNetBuyPerSofa * 100) / 100
         },
@@ -1426,6 +1731,7 @@
           fabricStockItems,
           foamStockItems
         },
+        fgInventoryList,
         skuPlanResults,
         materialRequirements,
         categoryBreakdown: Object.values(categoryBreakdown),
@@ -1435,41 +1741,162 @@
     }
 
     // =========================================================================
-    // 8. MUTATION HELPERS (Orders, FG Stock, BOM Mapping, P&L Sync)
+    // 8. MUTATION HELPERS (Orders, FG Stock Warehouse, BOM Mapping, P&L Sync)
     // =========================================================================
     updateBacklogItem(index, field, value) {
       if (!this.state.backlogItems[index]) return;
       if (field === 'sku' || field === 'note') {
         this.state.backlogItems[index][field] = String(value || '');
       } else {
-        this.state.backlogItems[index][field] = Math.max(0, Number(value || 0));
+        const numVal = Math.max(0, Number(value || 0));
+        this.state.backlogItems[index][field] = numVal;
+        // Two-way sync: if fgStock is edited in Tab 2, update FG Warehouse on-hand & push to Supabase
+        if (field === 'fgStock') {
+          this.setFgPhysicalStock(this.state.backlogItems[index].sku, numVal, 'ปรับยอดจากตารางตัดสต็อก FG', false);
+          return;
+        }
       }
       this.saveLocalState();
     }
 
-    addBacklogItem(sku, tiktokQty = 0, shopeeQty = 0, fgStock = 0, note = '') {
+    addBacklogItem(sku, tiktokQty = 0, shopeeQty = 0, fgStock = null, note = '') {
       const cleanSku = String(sku || '').trim();
       if (!cleanSku) return false;
+      const fgMap = this.getComputedFgStockMap();
+      const warehouseFg = fgMap.get(cleanSku.toLowerCase());
+      const effectiveFg = (fgStock !== null && fgStock !== undefined && Number(fgStock) > 0)
+        ? Math.max(0, Number(fgStock))
+        : (warehouseFg ? warehouseFg.onHandQty : 0);
+
       const existingIdx = this.state.backlogItems.findIndex(
         it => it.sku.trim().toLowerCase() === cleanSku.toLowerCase()
       );
       if (existingIdx >= 0) {
         this.state.backlogItems[existingIdx].tiktokQty += Math.max(0, Number(tiktokQty || 0));
         this.state.backlogItems[existingIdx].shopeeQty += Math.max(0, Number(shopeeQty || 0));
-        if (Number(fgStock) > 0) {
-          this.state.backlogItems[existingIdx].fgStock = Math.max(0, Number(fgStock));
-        }
+        this.state.backlogItems[existingIdx].fgStock = effectiveFg;
       } else {
         this.state.backlogItems.unshift({
           sku: cleanSku,
           tiktokQty: Math.max(0, Number(tiktokQty || 0)),
           shopeeQty: Math.max(0, Number(shopeeQty || 0)),
-          fgStock: Math.max(0, Number(fgStock || 0)),
+          fgStock: effectiveFg,
           note
         });
       }
+      if (fgStock !== null && Number(fgStock) > 0 && (!warehouseFg || warehouseFg.onHandQty !== Number(fgStock))) {
+        this.setFgPhysicalStock(cleanSku, Number(fgStock), 'อัปเดตพร้อมเพิ่มออเดอร์', false);
+        return true;
+      }
       this.saveLocalState();
       return true;
+    }
+
+    // --- FG WAREHOUSE TRANSACTION METHODS (Synced 100% with Supabase QC_FG_INVENTORY_DATA_V1) ---
+    recordFgInbound({ sku, quantity, date, team = 'ฝ่ายผลิตโรงงาน', note = '' }) {
+      const cleanSku = String(sku || '').trim();
+      const qty = Math.max(0, Number(quantity || 0));
+      if (!cleanSku || qty <= 0) return false;
+
+      if (!Array.isArray(this.fgInventoryRaw.inbound)) this.fgInventoryRaw.inbound = [];
+      const txId = `FG-IN-${Date.now().toString().slice(-6)}`;
+      this.fgInventoryRaw.inbound.unshift({
+        id: txId,
+        date: date || new Date().toISOString().slice(0, 10),
+        sku: cleanSku,
+        quantity: qty,
+        team: team || 'ฝ่ายผลิตโรงงาน',
+        note: note || 'รับเข้าโซฟาผลิตเสร็จเข้าคลัง FG',
+        createdAt: new Date().toISOString()
+      });
+
+      this.syncBacklogFgFromWarehouse(true);
+      this.pushFgInventoryToCloud();
+      return true;
+    }
+
+    recordFgOutbound({ sku, quantity, date, channel = 'TikTok / Shopee', note = '' }) {
+      const cleanSku = String(sku || '').trim();
+      const qty = Math.max(0, Number(quantity || 0));
+      if (!cleanSku || qty <= 0) return false;
+
+      if (!Array.isArray(this.fgInventoryRaw.outbound)) this.fgInventoryRaw.outbound = [];
+      const txId = `FG-OUT-${Date.now().toString().slice(-6)}`;
+      this.fgInventoryRaw.outbound.unshift({
+        id: txId,
+        date: date || new Date().toISOString().slice(0, 10),
+        sku: cleanSku,
+        quantity: qty,
+        channel: channel || 'TikTok / Shopee',
+        note: note || 'เบิกจ่ายแพ็คส่งลูกค้า',
+        createdAt: new Date().toISOString()
+      });
+
+      this.syncBacklogFgFromWarehouse(true);
+      this.pushFgInventoryToCloud();
+      return true;
+    }
+
+    setFgPhysicalStock(sku, targetOnHandQty, reason = 'ปรับปรุงยอดตรวจนับสต็อก FG จริง', pushCloud = true) {
+      const cleanSku = String(sku || '').trim();
+      if (!cleanSku) return false;
+      const target = Math.max(0, Number(targetOnHandQty || 0));
+      const fgMap = this.getComputedFgStockMap();
+      const currentEntry = fgMap.get(cleanSku.toLowerCase());
+      const currentOnHand = currentEntry ? currentEntry.onHandQty : 0;
+      const diff = target - currentOnHand;
+
+      if (diff !== 0) {
+        if (!Array.isArray(this.fgInventoryRaw.adjustments)) this.fgInventoryRaw.adjustments = [];
+        this.fgInventoryRaw.adjustments.unshift({
+          id: `FG-ADJ-${Date.now().toString().slice(-6)}`,
+          date: new Date().toISOString().slice(0, 10),
+          sku: currentEntry ? currentEntry.sku : cleanSku,
+          quantity: diff,
+          reason,
+          createdAt: new Date().toISOString()
+        });
+      }
+
+      this.syncBacklogFgFromWarehouse(true);
+      if (pushCloud) {
+        this.pushFgInventoryToCloud();
+      } else {
+        this.pushFgInventoryToCloud();
+      }
+      return true;
+    }
+
+    deleteFgTransaction(txType, txId) {
+      if (txType === 'IN') {
+        this.fgInventoryRaw.inbound = (this.fgInventoryRaw.inbound || []).filter(t => t.id !== txId);
+      } else if (txType === 'OUT') {
+        this.fgInventoryRaw.outbound = (this.fgInventoryRaw.outbound || []).filter(t => t.id !== txId);
+      } else if (txType === 'ADJ') {
+        this.fgInventoryRaw.adjustments = (this.fgInventoryRaw.adjustments || []).filter(t => t.id !== txId);
+      }
+      this.syncBacklogFgFromWarehouse(true);
+      this.pushFgInventoryToCloud();
+    }
+
+    clearAllFgZero() {
+      this.fgInventoryRaw = {
+        version: 1,
+        updatedAt: new Date().toISOString(),
+        beginningStock: {},
+        inbound: [],
+        outbound: [],
+        adjustments: []
+      };
+      this.state.backlogItems.forEach(it => { it.fgStock = 0; });
+      this.saveLocalState();
+      this.pushFgInventoryToCloud();
+    }
+
+    resetDefaultFgInventory() {
+      this.fgInventoryRaw = getDefaultFgInventoryData();
+      this.syncBacklogFgFromWarehouse(true);
+      this.pushFgInventoryToCloud();
     }
 
     removeBacklogItem(index) {

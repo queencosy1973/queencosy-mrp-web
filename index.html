@@ -95,27 +95,31 @@
       </div>
     </div>
 
-    <!-- 5 MODULE NAVIGATION TABS -->
+    <!-- 6 MODULE NAVIGATION TABS -->
     <div class="bg-white text-slate-700 border-t border-slate-200">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <nav class="flex space-x-1 sm:space-x-2 overflow-x-auto" id="mrpTabNav">
-          <button data-tab="tab-dashboard" class="mrp-tab-btn active px-3.5 py-3 text-xs sm:text-sm font-semibold flex items-center gap-2 whitespace-nowrap cursor-pointer">
-            <span>📊 1. แดชบอร์ดแผนผลิต & งบสั่งซื้อรวม</span>
+          <button data-tab="tab-dashboard" class="mrp-tab-btn active px-3 py-3 text-xs sm:text-sm font-semibold flex items-center gap-1.5 whitespace-nowrap cursor-pointer">
+            <span>📊 1. แดชบอร์ดแผนผลิต</span>
           </button>
-          <button data-tab="tab-backlog" class="mrp-tab-btn px-3.5 py-3 text-xs sm:text-sm font-semibold flex items-center gap-2 whitespace-nowrap cursor-pointer">
-            <span>🛋️ 2. ออเดอร์ค้างผลิต & ตัดสต็อก FG</span>
+          <button data-tab="tab-backlog" class="mrp-tab-btn px-3 py-3 text-xs sm:text-sm font-semibold flex items-center gap-1.5 whitespace-nowrap cursor-pointer">
+            <span>🛋️ 2. ออเดอร์ค้าง & ตัดสต็อก FG</span>
             <span id="badgeBacklogCount" class="px-2 py-0.5 text-[11px] rounded-full bg-indigo-100 text-indigo-700 font-mono">0</span>
           </button>
-          <button data-tab="tab-bom-builder" class="mrp-tab-btn px-3.5 py-3 text-xs sm:text-sm font-semibold flex items-center gap-2 whitespace-nowrap cursor-pointer">
-            <span>🧩 3. ผูกสูตร BOM & รหัสวัสดุ Stock Movement</span>
+          <button data-tab="tab-fg-warehouse" class="mrp-tab-btn px-3 py-3 text-xs sm:text-sm font-semibold flex items-center gap-1.5 whitespace-nowrap cursor-pointer">
+            <span>📦 3. คลังสินค้าสำเร็จรูป (FG Stock)</span>
+            <span id="badgeFgStockCount" class="px-2 py-0.5 text-[11px] rounded-full bg-emerald-100 text-emerald-800 font-mono">0 ตัว</span>
+          </button>
+          <button data-tab="tab-bom-builder" class="mrp-tab-btn px-3 py-3 text-xs sm:text-sm font-semibold flex items-center gap-1.5 whitespace-nowrap cursor-pointer">
+            <span>🧩 4. ผูกสูตร BOM & รหัสวัสดุ</span>
             <span id="badgeBomCount" class="px-2 py-0.5 text-[11px] rounded-full bg-slate-100 text-slate-700 font-mono">439</span>
           </button>
-          <button data-tab="tab-shortage" class="mrp-tab-btn px-3.5 py-3 text-xs sm:text-sm font-semibold flex items-center gap-2 whitespace-nowrap cursor-pointer">
-            <span>🔍 4. เช็กสต็อกวัตถุดิบจริง & รายการขาด</span>
+          <button data-tab="tab-shortage" class="mrp-tab-btn px-3 py-3 text-xs sm:text-sm font-semibold flex items-center gap-1.5 whitespace-nowrap cursor-pointer">
+            <span>🔍 5. เช็กสต็อกวัตถุดิบ & รายการขาด</span>
             <span id="badgeShortageCount" class="px-2 py-0.5 text-[11px] rounded-full bg-rose-100 text-rose-700 font-mono">0</span>
           </button>
-          <button data-tab="tab-supplier-po" class="mrp-tab-btn px-3.5 py-3 text-xs sm:text-sm font-semibold flex items-center gap-2 whitespace-nowrap cursor-pointer">
-            <span>🛒 5. ใบแผนสั่งซื้อแยกซัพพลายเออร์ (Auto PO)</span>
+          <button data-tab="tab-supplier-po" class="mrp-tab-btn px-3 py-3 text-xs sm:text-sm font-semibold flex items-center gap-1.5 whitespace-nowrap cursor-pointer">
+            <span>🛒 6. ใบสั่งซื้อแยกซัพพลายเออร์</span>
             <span id="badgeSupplierPoCount" class="px-2 py-0.5 text-[11px] rounded-full bg-emerald-100 text-emerald-800 font-mono">0</span>
           </button>
         </nav>
@@ -142,10 +146,10 @@
       </div>
 
       <!-- Step 2: FG Stock Deduction -->
-      <div class="bg-white rounded-2xl p-3.5 border border-emerald-200 bg-gradient-to-br from-white to-emerald-50/40 shadow-xs">
+      <div onclick="switchMrpTab('tab-fg-warehouse')" class="bg-white rounded-2xl p-3.5 border border-emerald-200 bg-gradient-to-br from-white to-emerald-50/40 shadow-xs cursor-pointer hover:border-emerald-400 transition" title="คลิกเพื่อเปิดคลังสินค้าสำเร็จรูป (FG Stock)">
         <div class="flex items-center justify-between text-xs font-semibold text-emerald-700">
           <span>2️⃣ หักสต็อก FG พร้อมส่ง</span>
-          <span class="px-1.5 py-0.5 text-[10px] bg-emerald-100 text-emerald-800 rounded font-semibold">พร้อมแพ็คส่ง</span>
+          <span class="px-1.5 py-0.5 text-[10px] bg-emerald-100 text-emerald-800 rounded font-semibold">คลัง FG ➔</span>
         </div>
         <div class="mt-1.5 flex items-baseline gap-1.5">
           <span id="kpiFgDeducted" class="text-2xl font-black text-emerald-700 font-mono">-0</span>
@@ -473,6 +477,247 @@
                 <td id="footNetProduceQty" class="py-3.5 px-3 text-center font-mono text-base text-indigo-300">0 ตัว</td>
                 <td id="footAvgBomUnit" class="py-3.5 px-3 text-right font-mono text-slate-300">฿0</td>
                 <td id="footTotalBomValue" class="py-3.5 px-4 text-right font-mono text-base text-amber-300">฿0.00</td>
+                <td></td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- =================================================================== -->
+    <!-- TAB 3 (NEW): FINISHED GOODS (FG / สินค้าสำเร็จรูป) STOCK MOVEMENT SYSTEM -->
+    <!-- =================================================================== -->
+    <section id="tab-fg-warehouse" class="mrp-tab-pane hidden space-y-6">
+      <!-- Top 4 FG Warehouse KPI Cards -->
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-3.5">
+        <div class="bg-white rounded-2xl p-4 border-2 border-emerald-200 bg-gradient-to-br from-white to-emerald-50/40 shadow-xs">
+          <div class="flex items-center justify-between text-xs font-bold text-emerald-800">
+            <span>📦 สต็อกโซฟาพร้อมส่งรวม (FG On-Hand)</span>
+            <span id="fgKpiActiveSkus" class="px-2 py-0.5 text-[10px] rounded-full bg-emerald-100 text-emerald-800">0 รุ่น</span>
+          </div>
+          <div class="mt-2 flex items-baseline gap-1.5">
+            <span id="fgKpiTotalOnHand" class="text-2xl sm:text-3xl font-black text-emerald-700 font-mono">0</span>
+            <span class="text-xs font-bold text-emerald-600">ตัว</span>
+          </div>
+          <div class="mt-1 text-[11px] text-emerald-700">ซิงค์ตัดออเดอร์ใน Tab 2 อัตโนมัติ 100%</div>
+        </div>
+
+        <div class="bg-white rounded-2xl p-4 border border-indigo-200 bg-gradient-to-br from-white to-indigo-50/30 shadow-xs">
+          <div class="flex items-center justify-between text-xs font-bold text-indigo-800">
+            <span>✂️ จองตัดออเดอร์ค้างส่งรอบนี้</span>
+            <span class="px-2 py-0.5 text-[10px] rounded-full bg-indigo-100 text-indigo-800">FG Netting</span>
+          </div>
+          <div class="mt-2 flex items-baseline gap-1.5">
+            <span id="fgKpiAllocated" class="text-2xl sm:text-3xl font-black text-indigo-700 font-mono">0</span>
+            <span class="text-xs font-bold text-indigo-600">ตัว</span>
+          </div>
+          <div class="mt-1 text-[11px] text-indigo-600" id="fgKpiFreeSub">เหลือว่างพร้อมขายทันที 0 ตัว</div>
+        </div>
+
+        <div class="bg-white rounded-2xl p-4 border border-slate-200 shadow-xs">
+          <div class="flex items-center justify-between text-xs font-semibold text-slate-600">
+            <span>🔄 เคลื่อนไหวคลัง FG (รับเข้า / จ่ายออก)</span>
+            <span class="text-[10px] text-slate-400">QC_FG_INVENTORY_DATA_V1</span>
+          </div>
+          <div class="mt-2 flex items-baseline gap-3 font-mono">
+            <span class="text-lg font-black text-teal-600" id="fgKpiTotalIn">+0 รับเข้า</span>
+            <span class="text-slate-300">|</span>
+            <span class="text-lg font-black text-rose-600" id="fgKpiTotalOut">-0 ส่งออก</span>
+          </div>
+          <div class="mt-1 text-[11px] text-slate-400">รับจากฝ่ายผลิต vs แพ็คส่งขนส่ง</div>
+        </div>
+
+        <div class="bg-white rounded-2xl p-4 border border-amber-200 bg-gradient-to-br from-white to-amber-50/40 shadow-xs">
+          <div class="flex items-center justify-between text-xs font-bold text-amber-800">
+            <span>💰 มูลค่าสต็อก FG (ราคาทุนวัสดุ BOM)</span>
+            <span class="px-2 py-0.5 text-[10px] rounded-full bg-amber-100 text-amber-800">BOM Cost</span>
+          </div>
+          <div class="mt-2 flex items-baseline gap-1">
+            <span id="fgKpiTotalValue" class="text-2xl sm:text-3xl font-black text-amber-900 font-mono">฿0</span>
+          </div>
+          <div class="mt-1 text-[11px] text-amber-700">คำนวณจากสูตร BOM รายรุ่น 100%</div>
+        </div>
+      </div>
+
+      <!-- 3 Action Boxes: 1) Record FG In/Out, 2) Upload FG Excel, 3) Recent FG Transactions Log -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-4">
+        <!-- Box 1 (5 Cols): Record FG Inbound / Outbound / Physical Count -->
+        <div class="lg:col-span-5 bg-white rounded-2xl p-4 sm:p-5 border border-slate-200 shadow-xs flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <span class="px-2.5 py-0.5 text-[10px] font-bold bg-emerald-100 text-emerald-800 rounded-full">บันทึกเคลื่อนไหวสินค้าสำเร็จรูป (FG)</span>
+              <span class="text-[11px] text-slate-400">ซิงค์ขึ้น Supabase ทันที</span>
+            </div>
+            <h3 class="text-sm font-bold text-slate-900">➕ รับเข้าโซฟาผลิตเสร็จ / ➖ เบิกจ่ายแพ็คส่งลูกค้า</h3>
+
+            <div class="space-y-3 mt-3">
+              <!-- Transaction Type Radio Buttons -->
+              <div class="grid grid-cols-3 gap-1.5 p-1 bg-slate-100 rounded-xl text-xs font-bold">
+                <button type="button" data-fg-tx-mode="IN" class="fg-tx-mode-btn py-1.5 px-2 rounded-lg bg-emerald-600 text-white shadow-xs cursor-pointer transition">
+                  📥 รับเข้าผลิตเสร็จ
+                </button>
+                <button type="button" data-fg-tx-mode="OUT" class="fg-tx-mode-btn py-1.5 px-2 rounded-lg text-slate-600 hover:bg-white cursor-pointer transition">
+                  📤 จ่ายออกส่งลูกค้า
+                </button>
+                <button type="button" data-fg-tx-mode="SET" class="fg-tx-mode-btn py-1.5 px-2 rounded-lg text-slate-600 hover:bg-white cursor-pointer transition">
+                  ⚖️ ตั้งยอดนับจริง
+                </button>
+              </div>
+
+              <!-- Searchable Sofa SKU Input -->
+              <div class="relative">
+                <label class="block text-[11px] font-semibold text-slate-600 mb-1">เลือกรุ่นโซฟาสำเร็จรูป (ค้นหาจาก 439 รุ่น Master BOM):</label>
+                <input type="text" id="fgTxSkuInput" placeholder="พิมพ์รุ่น เช่น rc ดำ, rsh เทา, mncf ครีม, bs3, cu..." class="w-full px-3 py-2 text-xs border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:outline-none" autocomplete="off" />
+                <div id="fgTxSkuAutocomplete" class="autocomplete-list hidden"></div>
+              </div>
+
+              <div class="grid grid-cols-3 gap-2">
+                <div>
+                  <label class="block text-[10px] font-semibold text-slate-600 mb-0.5" id="fgTxQtyLabel">จำนวนรับเข้า (ตัว)</label>
+                  <input type="number" id="fgTxQtyInput" min="0" value="5" class="w-full px-2.5 py-1.5 text-xs font-mono font-bold border border-emerald-400 bg-emerald-50/30 rounded-lg" />
+                </div>
+                <div>
+                  <label class="block text-[10px] font-semibold text-slate-600 mb-0.5">วันที่รายการ</label>
+                  <input type="date" id="fgTxDateInput" class="w-full px-2 py-1.5 text-xs border border-slate-300 rounded-lg font-mono" />
+                </div>
+                <div>
+                  <label class="block text-[10px] font-semibold text-slate-600 mb-0.5" id="fgTxTeamLabel">ทีมผลิต / ช่องทาง</label>
+                  <input type="text" id="fgTxTeamInput" value="ทีมช่างหุ้มโซฟา" placeholder="เช่น ทีมหุ้ม A / TikTok" class="w-full px-2.5 py-1.5 text-xs border border-slate-300 rounded-lg" />
+                </div>
+              </div>
+
+              <div>
+                <input type="text" id="fgTxNoteInput" placeholder="หมายเหตุเพิ่มเติม (เช่น รอบผลิตเช้า, เลขใบเบิก, ตรวจนับสต็อกประจำวัน)" class="w-full px-3 py-1.5 text-xs border border-slate-200 rounded-lg" />
+              </div>
+            </div>
+          </div>
+
+          <button id="btnSubmitFgTransaction" class="w-full mt-3 py-2.5 px-4 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl transition cursor-pointer shadow-sm">
+            📥 บันทึกรับเข้าคลังสินค้าสำเร็จรูป (FG Stock)
+          </button>
+        </div>
+
+        <!-- Box 2 (3 Cols): Excel Import / Export FG Stock -->
+        <div class="lg:col-span-3 bg-white rounded-2xl p-4 sm:p-5 border border-slate-200 shadow-xs flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between mb-1.5">
+              <span class="px-2 py-0.5 text-[10px] font-bold bg-indigo-100 text-indigo-700 rounded">นำเข้า / ส่งออก Excel</span>
+              <span class="text-[11px] text-slate-400">SkuMapper</span>
+            </div>
+            <h3 class="text-sm font-bold text-slate-900">📂 อัปโหลดไฟล์สต็อก FG (.xlsx / .csv)</h3>
+            <p class="text-xs text-slate-500 mt-1 mb-2.5">อัปโหลดตารางนับสต็อกโซฟา ระบบจะจับคู่รหัส 439 รุ่นและตัดยอดออเดอร์ให้อัตโนมัติ</p>
+
+            <div class="mb-2">
+              <select id="fgImportModeSelect" class="w-full px-2.5 py-1.5 text-xs border border-slate-300 rounded-lg bg-white font-semibold text-slate-700">
+                <option value="SET_ONHAND">⚖️ ตั้งเป็นยอดคงเหลือพร้อมส่งจริง (ทับยอดเดิม)</option>
+                <option value="ADD_INBOUND">📥 บวกเพิ่มเป็นยอดรับเข้าผลิตเสร็จ (+FG In)</option>
+              </select>
+            </div>
+
+            <div id="dropzoneFgFile" class="dropzone-box p-3 text-center">
+              <input type="file" id="inputFgFile" class="hidden" accept=".xlsx,.xls,.csv" />
+              <div class="text-xs font-semibold text-emerald-700">📦 คลิกหรือลากไฟล์สต็อก FG มาวาง</div>
+              <div class="text-[10px] text-slate-400 mt-0.5">รองรับไฟล์นับสต็อกโซฟาทุกฟอร์แมต</div>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-1.5 mt-3 pt-2.5 border-t border-slate-100">
+            <button id="btnDownloadFgTemplate" class="py-1.5 px-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-[11px] font-semibold cursor-pointer transition">
+              📥 โหลดฟอร์ม FG
+            </button>
+            <button id="btnExportFgStockExcel" class="py-1.5 px-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 rounded-lg text-[11px] font-semibold cursor-pointer transition">
+              📊 ส่งออกรายงาน FG
+            </button>
+          </div>
+        </div>
+
+        <!-- Box 3 (4 Cols): Recent FG In/Out Movement Log -->
+        <div class="lg:col-span-4 bg-white rounded-2xl p-4 sm:p-5 border border-slate-200 shadow-xs flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <h3 class="text-sm font-bold text-slate-900">🕒 ประวัติรับเข้า-จ่ายออกคลัง FG ล่าสุด</h3>
+              <div class="flex items-center gap-1.5">
+                <button id="btnResetDefaultFg" class="text-[11px] text-indigo-600 hover:underline font-medium cursor-pointer" title="รีเซ็ตเป็นยอดสต็อก FG มาตรฐาน 90 ตัว">รีเซ็ตค่าเริ่มต้น</button>
+              </div>
+            </div>
+            <div id="fgRecentTransactionsList" class="space-y-1.5 max-h-56 overflow-y-auto pr-1 text-xs">
+              <!-- Populated by app.js -->
+            </div>
+          </div>
+          <div class="mt-2 pt-2 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-400">
+            <span>คลิก ✕ เพื่อยกเลิกรายการที่คีย์ผิด</span>
+            <span class="text-emerald-600 font-semibold">● ซิงค์กับ Tab 2 อัตโนมัติ</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- FG Master Inventory Table (439 Sofa SKUs) -->
+      <div class="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
+        <div class="p-4 sm:p-5 border-b border-slate-100 flex flex-col lg:flex-row lg:items-center justify-between gap-3">
+          <div>
+            <div class="flex flex-wrap items-center gap-2">
+              <h3 class="text-base font-bold text-slate-900">📦 ตารางคุมสต็อกสินค้าสำเร็จรูป รายรุ่นโซฟา (Finished Goods Inventory Ledger)</h3>
+              <span class="px-2.5 py-0.5 text-[11px] font-bold bg-emerald-100 text-emerald-800 rounded-full">ซิงค์ Supabase (QC_FG_INVENTORY_DATA_V1)</span>
+            </div>
+            <p class="text-xs text-slate-500 mt-0.5">
+              พิมพ์แก้เลขในช่อง <b>"คงเหลือพร้อมส่งจริง (FG On-Hand)"</b> หรือกดปุ่ม <b>+รับเข้า / -จ่ายออก</b> ได้โดยตรง ระบบจะนำไปหักออกจากออเดอร์ค้างผลิตใน Tab 2 ทันที
+            </p>
+          </div>
+
+          <div class="flex flex-wrap items-center gap-2">
+            <select id="fgFamilyFilterSelect" class="px-3 py-1.5 text-xs border border-slate-300 rounded-xl bg-white font-semibold">
+              <option value="ALL">ทุกหมวดโซฟา (439 รุ่น)</option>
+              <option value="SOFABED">🛏️ โซฟาเบดปรับนอน / หัวกระดก</option>
+              <option value="LSHAPE">🛋️ โซฟาตัวแอล (L-Shape)</option>
+              <option value="SOFA3">🛋️ โซฟา 3 ที่นั่ง</option>
+              <option value="SOFA2">🪑 โซฟา 2 ที่นั่ง</option>
+              <option value="STOOL_ACC">📦 สตูล / หมอน / อะไหล่</option>
+            </select>
+
+            <label class="inline-flex items-center gap-1.5 text-xs font-semibold text-emerald-800 bg-emerald-50 px-3 py-1.5 rounded-xl border border-emerald-200 cursor-pointer">
+              <input type="checkbox" id="filterFgActiveOnly" checked class="rounded text-emerald-600" />
+              <span>แสดงเฉพาะรุ่นที่มีสต็อก FG หรือมีออเดอร์ค้าง</span>
+            </label>
+
+            <input type="text" id="fgTableSearchInput" placeholder="ค้นหารุ่นโซฟา เช่น rc, bs3, ครีม..." class="px-3 py-1.5 text-xs border border-slate-300 rounded-xl w-48" />
+          </div>
+        </div>
+
+        <div class="overflow-x-auto max-h-[600px]">
+          <table class="w-full text-left text-xs">
+            <thead class="bg-slate-50 border-b border-slate-200 text-slate-600 font-semibold sticky top-0 z-10">
+              <tr>
+                <th class="py-3 px-3 w-10 text-center">#</th>
+                <th class="py-3 px-4">รหัสสินค้าสำเร็จรูป (Master Sofa SKU)</th>
+                <th class="py-3 px-3">หมวดโซฟา</th>
+                <th class="py-3 px-2.5 text-center">ยอดยกมา</th>
+                <th class="py-3 px-2.5 text-center text-teal-700">📥 รับเข้า (+In)</th>
+                <th class="py-3 px-2.5 text-center text-rose-700">📤 ส่งออก (-Out)</th>
+                <th class="py-3 px-3 text-center bg-emerald-50 text-emerald-900 font-bold">📦 คงเหลือพร้อมส่งจริง</th>
+                <th class="py-3 px-3 text-center bg-slate-100/80">🛋️ ออเดอร์ค้างส่ง</th>
+                <th class="py-3 px-3 text-center bg-indigo-50/70 text-indigo-900 font-bold">✂️ ตัดจ่ายออเดอร์</th>
+                <th class="py-3 px-3 text-center text-teal-800 font-bold">🟢 เหลือว่างสุทธิ</th>
+                <th class="py-3 px-3 text-right">ทุน BOM/ตัว</th>
+                <th class="py-3 px-3 text-right">มูลค่าสต็อก FG</th>
+                <th class="py-3 px-3 text-center">รับ/จ่ายด่วน</th>
+              </tr>
+            </thead>
+            <tbody id="fgInventoryTableBody" class="divide-y divide-slate-100">
+              <!-- Populated by app.js -->
+            </tbody>
+            <tfoot class="bg-slate-900 text-white font-bold text-xs sticky bottom-0">
+              <tr>
+                <td colspan="3" class="py-3 px-4">รวมสต็อกสินค้าสำเร็จรูป (FG Warehouse)</td>
+                <td id="fgFootBeg" class="py-3 px-2.5 text-center font-mono">0</td>
+                <td id="fgFootIn" class="py-3 px-2.5 text-center font-mono text-teal-300">+0</td>
+                <td id="fgFootOut" class="py-3 px-2.5 text-center font-mono text-rose-300">-0</td>
+                <td id="fgFootOnHand" class="py-3 px-3 text-center font-mono text-base text-emerald-300">0 ตัว</td>
+                <td id="fgFootOrder" class="py-3 px-3 text-center font-mono">0</td>
+                <td id="fgFootAllocated" class="py-3 px-3 text-center font-mono text-indigo-300">-0</td>
+                <td id="fgFootFree" class="py-3 px-3 text-center font-mono text-teal-300">0 ตัว</td>
+                <td></td>
+                <td id="fgFootValue" class="py-3 px-3 text-right font-mono text-amber-300">฿0</td>
                 <td></td>
               </tr>
             </tfoot>

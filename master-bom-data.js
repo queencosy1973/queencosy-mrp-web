@@ -5131,6 +5131,9 @@ const MASTER_BOM_DATA = {
   ]
 };
 
+if (typeof window !== 'undefined') {
+  window.MASTER_BOM_DATA = MASTER_BOM_DATA;
+}
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = MASTER_BOM_DATA;
 }
