@@ -54,6 +54,8 @@
     if (window.location.protocol === 'file:') {
       const linkSm = $('linkStockMovement');
       if (linkSm) linkSm.href = '../stock-movement-app/index.html';
+      const linkPnl = $('linkPnlApp');
+      if (linkPnl) linkPnl.href = '../queencosy-pnl/index.html';
     }
 
     if (window.SkuMapper && store.masterBom) {
