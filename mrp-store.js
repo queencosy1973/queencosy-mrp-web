@@ -548,20 +548,20 @@
   // =========================================================================
   function getDefaultBacklogOrders() {
     return [
-      { sku: 'Qs-โซฟาเบดปรับนอน-rc-ดำ-PQ002C-17', tiktokQty: 145, shopeeQty: 28, fgStock: 12, note: 'รุ่นขายดีอันดับ 1 (หนัง PVC ดำ)' },
-      { sku: 'Qs-โซฟาเบดปรับนอน-rc-น้ำตาล-PQ002C-12', tiktokQty: 95, shopeeQty: 18, fgStock: 8, note: 'รุ่นขายดี (หนัง PVC น้ำตาล)' },
-      { sku: 'Qs-โซฟาเบดปรับนอน-rc-เทา-PQ002C-46', tiktokQty: 88, shopeeQty: 16, fgStock: 5, note: 'หนัง PVC เทา' },
-      { sku: 'Qs-โซฟาเบดหัวกระดกพรีเมี่ยม-rsh-เทา-337-29', tiktokQty: 92, shopeeQty: 20, fgStock: 6, note: 'ผ้าฮอลแลนด์สีเทา' },
-      { sku: 'Qs-โซฟาเบดปรับนอนพรีเมี่ยม-rch-น้ำเงิน-337-31', tiktokQty: 74, shopeeQty: 14, fgStock: 4, note: 'ผ้าฮอลแลนด์สีน้ำเงิน' },
-      { sku: 'Qs-โซฟาตัวแอลมินิมอล-Mncf(R)-ครีม-MJ356-1a', tiktokQty: 86, shopeeQty: 19, fgStock: 5, note: 'โซฟาตัวแอล ผ้าลูกฟูกครีม' },
-      { sku: 'Qs-โซฟาตัวแอลมินิมอล-Mncf(L)-เทา-MJ356-3a', tiktokQty: 68, shopeeQty: 15, fgStock: 3, note: 'โซฟาตัวแอล ผ้าลูกฟูกเทา' },
-      { sku: 'Qs-โซฟา3ที่นั่งท้าวแขน-bs3-ดำ-PQ002C-17', tiktokQty: 82, shopeeQty: 16, fgStock: 10, note: 'โซฟา 3 ที่นั่งท้าวแขน ดำ' },
-      { sku: 'Qs-โซฟา2ที่นั่งท้าวแขน-bs2-ครีม-PQ002C-6', tiktokQty: 65, shopeeQty: 12, fgStock: 7, note: 'โซฟา 2 ที่นั่งท้าวแขน ครีม' },
-      { sku: 'Qs-โซฟา3ที่นั่งวางแก้ว-lu3-มอคค่า-PQ002C-48', tiktokQty: 58, shopeeQty: 11, fgStock: 4, note: 'วางแก้ว มอคค่า' },
-      { sku: 'Qs-โซฟา3ที่นั่งกระดุมวางแก้ว-ln3-น้ำตาลทอง-736b-01', tiktokQty: 64, shopeeQty: 12, fgStock: 2, note: 'ผ้านาโน 736B น้ำตาลทอง' },
-      { sku: 'Qs-โซฟา3ที่นั่งกระดุมวางแก้ว-ln3-สีเทาเข้ม-736b-02', tiktokQty: 54, shopeeQty: 10, fgStock: 3, note: 'ผ้านาโน 736B เทาเข้ม' },
-      { sku: 'Qs-โซฟา2ที่นั่งเรียบเบาะใหญ่-cs2-ชา-PQ002C-19', tiktokQty: 60, shopeeQty: 10, fgStock: 6, note: 'โซฟา 2 ที่นั่ง ชา' },
-      { sku: 'Qs-เก้าอี้สตูล-cu-ดำ-PQ002C-17', tiktokQty: 80, shopeeQty: 10, fgStock: 15, note: 'สตูลแถม/ขายแยก' }
+      { sku: 'Qs-โซฟาเบดปรับนอน-rc-ดำ-PQ002C-17', tiktokQty: 145, shopeeQty: 28, fgStock: 1, note: 'รุ่นขายดีอันดับ 1 (ใบจด 11/11 มี FG 1 ตัว)' },
+      { sku: 'Qs-โซฟาเบดปรับนอน-rc-น้ำตาล-PQ002C-12', tiktokQty: 95, shopeeQty: 18, fgStock: 0, note: 'รุ่นขายดี (หนัง PVC น้ำตาล)' },
+      { sku: 'Qs-โซฟาเบดปรับนอน-rc-เทา-PQ002C-46', tiktokQty: 88, shopeeQty: 16, fgStock: 0, note: 'หนัง PVC เทา' },
+      { sku: 'Qs-โซฟาเบดหัวกระดก-rsII-สีเทาเข้ม-MJ350-20', tiktokQty: 92, shopeeQty: 20, fgStock: 2, note: 'RS โพลีเทา (ใบจด 11/11 มี FG 2 ตัว)' },
+      { sku: 'Qs-โซฟาเบดปรับนอนพรีเมี่ยม-rch-น้ำเงิน-337-31', tiktokQty: 74, shopeeQty: 14, fgStock: 0, note: 'ผ้าฮอลแลนด์สีน้ำเงิน' },
+      { sku: 'Qs-โซฟาตัวแอลมินิมอล-Mncf(R)-ครีม-MJ356-1a', tiktokQty: 86, shopeeQty: 19, fgStock: 0, note: 'โซฟาตัวแอล ผ้าลูกฟูกครีม' },
+      { sku: 'Qs-โซฟาตัวแอลมินิมอล-Mncf(L)-เทา-MJ356-3a', tiktokQty: 68, shopeeQty: 15, fgStock: 0, note: 'โซฟาตัวแอล ผ้าลูกฟูกเทา' },
+      { sku: 'Qs-โซฟา3ที่นั่งท้าวแขน-bs3-ดำ-PQ002C-17', tiktokQty: 82, shopeeQty: 16, fgStock: 1, note: 'BS3 ดำ (ใบจด 11/11 มี FG 1 ตัว)' },
+      { sku: 'Qs-โซฟา3ที่นั่งท้าวแขน-bs3-มอคค่า-PQ002C-48', tiktokQty: 65, shopeeQty: 12, fgStock: 1, note: 'BS3 มอคค่า (ใบจด 11/11 มี FG 1 ตัว)' },
+      { sku: 'Qs-โซฟา3ที่นั่งเรียบเบาะใหญ่-cs3-น้ำตาล-MJ356-4a', tiktokQty: 58, shopeeQty: 11, fgStock: 1, note: 'CS3 ลูกฟูกน้ำตาล (ใบจด 11/11 มี FG 1 ตัว)' },
+      { sku: 'Qs-โซฟา2ที่นั่งเรียบเบาะใหญ่-cs2-เขียว-MJ356-2a', tiktokQty: 64, shopeeQty: 12, fgStock: 1, note: 'CS2 ลูกฟูกเขียว (ใบจด 11/11 มี FG 1 ตัว)' },
+      { sku: 'Qs-โซฟา2ที่นั่งเรียบเบาะใหญ่-cs2-เทา-MJ337-29', tiktokQty: 54, shopeeQty: 10, fgStock: 1, note: 'CS2 ฮอลแลนด์เทา (ใบจด 11/11 มี FG 1 ตัว)' },
+      { sku: 'Qs-โซฟา2ที่นั่งบ็อกซ์-box2-เทา-PQ002C-46', tiktokQty: 60, shopeeQty: 10, fgStock: 2, note: 'BOX2 เทา (ใบจด 11/11 มี FG 2 ตัว)' },
+      { sku: 'Qs-เก้าอี้สตูล-cu-ชา-PQ002C-19', tiktokQty: 80, shopeeQty: 10, fgStock: 5, note: 'CU ชา 5 ตัว (ใบจด 11/11 รวมสตูล 12 ตัว)' }
     ];
   }
 
@@ -594,49 +594,33 @@
     if (s.includes('3ที่นั่ง') || s.includes('bs3') || s.includes('lu3') || s.includes('ln3') || s.includes('cs3')) {
       return { id: 'SOFA3', label: 'โซฟา 3 ที่นั่ง', icon: '🛋️' };
     }
-    if (s.includes('2ที่นั่ง') || s.includes('bs2') || s.includes('cs2') || s.includes('lu2') || s.includes('ln2')) {
+    if (s.includes('2ที่นั่ง') || s.includes('bs2') || s.includes('cs2') || s.includes('lu2') || s.includes('ln2') || s.includes('box2')) {
       return { id: 'SOFA2', label: 'โซฟา 2 ที่นั่ง', icon: '🪑' };
     }
     return { id: 'STOOL_ACC', label: 'สตูล / หมอน / อะไหล่', icon: '📦' };
   }
 
   function getDefaultFgInventoryData() {
-    // Net FG On-Hand across these 14 active SKUs = 90 units + extra ready-to-ship SKUs
+    // ตรงตามใบจดเช็กสต็อกหน้างานจริง วันที่ 11-11-69 (รวม 22 ชิ้น: โซฟา 10 ตัว + เก้าอี้สตูล CU 12 ตัว)
     return {
-      version: 1,
-      updatedAt: '2026-11-11T09:00:00.000Z',
+      version: 2,
+      updatedAt: '2026-11-11T18:00:00.000Z',
       beginningStock: {
-        'Qs-โซฟาเบดปรับนอน-rc-ดำ-PQ002C-17': 10,
-        'Qs-โซฟาเบดปรับนอน-rc-น้ำตาล-PQ002C-12': 6,
-        'Qs-โซฟาเบดปรับนอน-rc-เทา-PQ002C-46': 5,
-        'Qs-โซฟาเบดหัวกระดกพรีเมี่ยม-rsh-เทา-337-29': 4,
-        'Qs-โซฟาเบดปรับนอนพรีเมี่ยม-rch-น้ำเงิน-337-31': 4,
-        'Qs-โซฟาตัวแอลมินิมอล-Mncf(R)-ครีม-MJ356-1a': 3,
-        'Qs-โซฟาตัวแอลมินิมอล-Mncf(L)-เทา-MJ356-3a': 3,
-        'Qs-โซฟา3ที่นั่งท้าวแขน-bs3-ดำ-PQ002C-17': 8,
-        'Qs-โซฟา2ที่นั่งท้าวแขน-bs2-ครีม-PQ002C-6': 7,
-        'Qs-โซฟา3ที่นั่งวางแก้ว-lu3-มอคค่า-PQ002C-48': 4,
-        'Qs-โซฟา3ที่นั่งกระดุมวางแก้ว-ln3-น้ำตาลทอง-736b-01': 2,
-        'Qs-โซฟา3ที่นั่งกระดุมวางแก้ว-ln3-สีเทาเข้ม-736b-02': 3,
-        'Qs-โซฟา2ที่นั่งเรียบเบาะใหญ่-cs2-ชา-PQ002C-19': 6,
-        'Qs-เก้าอี้สตูล-cu-ดำ-PQ002C-17': 12
+        'Qs-เก้าอี้สตูล-cu-ครีม-PQ002C-6': 2,
+        'Qs-เก้าอี้สตูล-cu-มอคค่า-PQ002C-48': 2,
+        'Qs-เก้าอี้สตูล-cu-เทา-PQ002C-46': 3,
+        'Qs-เก้าอี้สตูล-cu-ชา-PQ002C-19': 5,
+        'Qs-โซฟา2ที่นั่งบ็อกซ์-box2-เทา-PQ002C-46': 2,
+        'Qs-โซฟา2ที่นั่งเรียบเบาะใหญ่-cs2-เขียว-MJ356-2a': 1,
+        'Qs-โซฟา2ที่นั่งเรียบเบาะใหญ่-cs2-เทา-MJ337-29': 1,
+        'Qs-โซฟา3ที่นั่งเรียบเบาะใหญ่-cs3-น้ำตาล-MJ356-4a': 1,
+        'Qs-โซฟา3ที่นั่งท้าวแขน-bs3-ดำ-PQ002C-17': 1,
+        'Qs-โซฟา3ที่นั่งท้าวแขน-bs3-มอคค่า-PQ002C-48': 1,
+        'Qs-โซฟาเบดหัวกระดก-rsII-สีเทาเข้ม-MJ350-20': 2,
+        'Qs-โซฟาเบดปรับนอน-rc-ดำ-PQ002C-17': 1
       },
-      inbound: [
-        { id: 'FG-IN-001', date: '2026-11-10', sku: 'Qs-โซฟาเบดปรับนอน-rc-ดำ-PQ002C-17', quantity: 8, team: 'ทีมหุ้ม A (ช่างเอก)', note: 'รับเข้าโซฟาผลิตเสร็จรอบเช้า' },
-        { id: 'FG-IN-002', date: '2026-11-10', sku: 'Qs-โซฟาเบดปรับนอน-rc-น้ำตาล-PQ002C-12', quantity: 5, team: 'ทีมหุ้ม A (ช่างเอก)', note: 'รับเข้าโซฟาผลิตเสร็จ' },
-        { id: 'FG-IN-003', date: '2026-11-10', sku: 'Qs-โซฟาเบดหัวกระดกพรีเมี่ยม-rsh-เทา-337-29', quantity: 4, team: 'ทีมหุ้ม B (ช่างนัท)', note: 'รับเข้าโซฟาเบดหัวกระดก' },
-        { id: 'FG-IN-004', date: '2026-11-10', sku: 'Qs-โซฟาตัวแอลมินิมอล-Mncf(R)-ครีม-MJ356-1a', quantity: 5, team: 'ทีมหุ้ม C (ตัวแอล)', note: 'รับเข้าตัวแอลลูกฟูกครีม' },
-        { id: 'FG-IN-005', date: '2026-11-11', sku: 'Qs-โซฟา3ที่นั่งท้าวแขน-bs3-ดำ-PQ002C-17', quantity: 6, team: 'ทีมหุ้ม B (ช่างนัท)', note: 'รับเข้า BS3 ดำ' },
-        { id: 'FG-IN-006', date: '2026-11-11', sku: 'Qs-เก้าอี้สตูล-cu-ดำ-PQ002C-17', quantity: 10, team: 'ทีมสตูล', note: 'ผลิตเสร็จเข้าคลัง FG' }
-      ],
-      outbound: [
-        { id: 'FG-OUT-001', date: '2026-11-10', sku: 'Qs-โซฟาเบดปรับนอน-rc-ดำ-PQ002C-17', quantity: 6, channel: 'TikTok Shop', note: 'แพ็คส่งขนส่ง Flash / J&T' },
-        { id: 'FG-OUT-002', date: '2026-11-10', sku: 'Qs-โซฟาเบดปรับนอน-rc-น้ำตาล-PQ002C-12', quantity: 3, channel: 'TikTok Shop', note: 'แพ็คส่งลูกค้า' },
-        { id: 'FG-OUT-003', date: '2026-11-10', sku: 'Qs-โซฟาเบดหัวกระดกพรีเมี่ยม-rsh-เทา-337-29', quantity: 2, channel: 'Shopee', note: 'แพ็คส่ง Shopee Bulky' },
-        { id: 'FG-OUT-004', date: '2026-11-11', sku: 'Qs-โซฟาตัวแอลมินิมอล-Mncf(R)-ครีม-MJ356-1a', quantity: 3, channel: 'TikTok Shop', note: 'แพ็คส่งรอบเช้า' },
-        { id: 'FG-OUT-005', date: '2026-11-11', sku: 'Qs-โซฟา3ที่นั่งท้าวแขน-bs3-ดำ-PQ002C-17', quantity: 4, channel: 'TikTok Shop', note: 'แพ็คส่งขนส่ง' },
-        { id: 'FG-OUT-006', date: '2026-11-11', sku: 'Qs-เก้าอี้สตูล-cu-ดำ-PQ002C-17', quantity: 7, channel: 'TikTok Shop', note: 'แพ็คส่งพร้อมโซฟา' }
-      ],
+      inbound: [],
+      outbound: [],
       adjustments: []
     };
   }
@@ -759,7 +743,7 @@
         const savedFg = localStorage.getItem(LOCAL_FG_INVENTORY_KEY);
         if (savedFg) {
           const parsedFg = JSON.parse(savedFg);
-          if (parsedFg && parsedFg.beginningStock) {
+          if (parsedFg && parsedFg.beginningStock && Number(parsedFg.version || 1) >= 2) {
             this.fgInventoryRaw = {
               ...getDefaultFgInventoryData(),
               ...parsedFg,
@@ -767,6 +751,9 @@
               outbound: Array.isArray(parsedFg.outbound) ? parsedFg.outbound : [],
               adjustments: Array.isArray(parsedFg.adjustments) ? parsedFg.adjustments : []
             };
+          } else {
+            this.fgInventoryRaw = getDefaultFgInventoryData();
+            localStorage.setItem(LOCAL_FG_INVENTORY_KEY, JSON.stringify(this.fgInventoryRaw));
           }
         }
       } catch (e) {
