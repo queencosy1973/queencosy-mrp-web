@@ -1108,6 +1108,231 @@
     reader.readAsArrayBuffer(file);
   }
 
+  // =========================================================================
+  // 8B. ZERO-DOWNLOAD LIVE ORDER PULL MODAL (TikTok & Shopee Auto Sync)
+  // =========================================================================
+  function openLiveOrderSyncModal() {
+    Swal.fire({
+      title: `<div class="text-base sm:text-lg font-black text-slate-900 flex items-center justify-center gap-2"><span>⚡ ดึงออเดอร์สดจากระบบ TikTok & Shopee อัตโนมัติ</span></div>`,
+      width: 640,
+      html: `
+        <div class="text-left text-xs space-y-3.5 mt-1">
+          <div class="p-3 rounded-xl bg-indigo-50 border border-indigo-200 text-indigo-900">
+            <div class="font-bold text-xs flex items-center justify-between">
+              <span>🚀 ไม่ต้องกด Export หรือดาวน์โหลดไฟล์ Excel จากหลังบ้านอีกต่อไป!</span>
+              <span class="px-2 py-0.5 rounded-full bg-indigo-600 text-white text-[10px]">Zero-Download</span>
+            </div>
+            <p class="text-[11px] text-indigo-700 mt-1">
+              ระบบเชื่อมต่อฐานข้อมูลใบปะหน้า <b>Daily Parcel Checker</b> + <b>Parcel Label Tracker</b> + <b>Seller Center Sync</b> บน Supabase Cloud เพื่อดึงรายการโซฟาค้างส่งแยกตามรุ่น (439 Master SKUs) และตัดสต็อก FG พร้อมส่งให้อัตโนมัติ
+            </p>
+          </div>
+
+          <div class="space-y-2">
+            <label class="block font-bold text-slate-800 text-xs">เลือกรูปแบบการดึงออเดอร์สด:</label>
+
+            <label class="flex items-start gap-2.5 p-3 rounded-xl border-2 border-indigo-500 bg-indigo-50/40 cursor-pointer transition">
+              <input type="radio" name="swalLiveSyncMode" value="SELLER_CENTER_SCALED" checked class="mt-1 text-indigo-600" />
+              <div class="flex-1">
+                <div class="font-bold text-slate-900 flex items-center justify-between">
+                  <span>🎯 โหมดที่ 1 (แนะนำ): ยอดรวมรอจัดส่ง Seller Center ล่าสุด + แตกตามรุ่นใบปะหน้าจริง</span>
+                  <span class="px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 text-[10px] font-bold">แม่นยำสูงสุด</span>
+                </div>
+                <p class="text-[11px] text-slate-600 mt-0.5">
+                  ดึงยอดรวมรอจัดส่งจริงจากหน้าเว็บ TikTok Seller Center & Shopee Seller Center ล่าสุด แล้วกระจายรุ่นโซฟาตามสัดส่วนใบปะหน้าค้างส่งจริงในระบบ Cloud
+                </p>
+              </div>
+            </label>
+
+            <label class="flex items-start gap-2.5 p-3 rounded-xl border border-slate-200 hover:border-indigo-300 bg-white cursor-pointer transition">
+              <input type="radio" name="swalLiveSyncMode" value="CLOUD_PARCEL_UNSHIPPED" class="mt-1 text-indigo-600" />
+              <div class="flex-1">
+                <div class="font-bold text-slate-900 flex items-center justify-between">
+                  <span>📦 โหมดที่ 2: ดึงเฉพาะใบปะหน้าที่ยังไม่ได้ยิงบาร์โค้ดส่งขนส่ง (Cloud Parcel Unshipped)</span>
+                  <span class="px-2 py-0.5 rounded bg-slate-100 text-slate-700 text-[10px] font-semibold">รายใบปะหน้า</span>
+                </div>
+                <p class="text-[11px] text-slate-500 mt-0.5">
+                  ดึงรายการออเดอร์รายชิ้นจากระบบเช็กพัสดุรายวัน (หักพัสดุที่ยิงสแกนขึ้นรถขนส่งแล้วออกอัตโนมัติ)
+                </p>
+              </div>
+            </label>
+          </div>
+
+          <div class="grid grid-cols-2 gap-3 p-3 rounded-xl bg-slate-50 border border-slate-200">
+            <div>
+              <label class="block font-semibold text-slate-700 mb-1">ช่วงข้อมูลใบปะหน้า Cloud:</label>
+              <select id="swalSyncDaysBack" class="w-full px-2.5 py-1.5 rounded-lg border border-slate-300 bg-white font-semibold text-slate-800">
+                <option value="3">3 วันล่าสุด (รอบส่งด่วน)</option>
+                <option value="7">7 วันล่าสุด (รอบสัปดาห์)</option>
+                <option value="14" selected>14 วันล่าสุด (แนะนำ - ครบทุกรุ่น)</option>
+                <option value="30">30 วันล่าสุด (ทั้งเดือน)</option>
+              </select>
+            </div>
+            <div>
+              <label class="block font-semibold text-slate-700 mb-1">การจัดการตารางเดิม:</label>
+              <select id="swalSyncReplaceMode" class="w-full px-2.5 py-1.5 rounded-lg border border-slate-300 bg-white font-semibold text-slate-800">
+                <option value="REPLACE" selected>🔄 แทนที่ตารางเดิมทั้งหมด (แนะนำ)</option>
+                <option value="APPEND">➕ บวกเพิ่มเข้ากับตารางเดิม</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="pt-2 border-t border-slate-200 flex items-center justify-between">
+            <span class="text-[11px] text-slate-500">หรือก๊อปข้อความจากหน้าเว็บ Seller Center มาวางโดยตรง:</span>
+            <button type="button" id="btnSwitchToPasteModal" class="px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-indigo-700 font-bold text-xs cursor-pointer transition">
+              📋 เปิดหน้าต่างก๊อปวาง (Ctrl+V)
+            </button>
+          </div>
+        </div>
+      `,
+      showCancelButton: true,
+      confirmButtonText: '⚡ ดึงออเดอร์ TikTok & Shopee เดี๋ยวนี้',
+      cancelButtonText: 'ยกเลิก',
+      confirmButtonColor: '#4f46e5',
+      didOpen: () => {
+        const pasteBtn = document.getElementById('btnSwitchToPasteModal');
+        if (pasteBtn) {
+          pasteBtn.addEventListener('click', () => {
+            Swal.close();
+            openPasteOrdersModal();
+          });
+        }
+      },
+      preConfirm: () => {
+        const modeEl = document.querySelector('input[name="swalLiveSyncMode"]:checked');
+        const mode = modeEl ? modeEl.value : 'SELLER_CENTER_SCALED';
+        const daysBack = parseInt(document.getElementById('swalSyncDaysBack').value, 10) || 14;
+        const replaceExisting = document.getElementById('swalSyncReplaceMode').value === 'REPLACE';
+        return { mode, daysBack, replaceExisting };
+      }
+    }).then(async (result) => {
+      if (!result.isConfirmed || !result.value) return;
+
+      Swal.fire({
+        title: 'กำลังดึงออเดอร์สด TikTok & Shopee...',
+        html: '<div class="text-xs text-slate-600">กำลังเชื่อมต่อ Supabase Cloud, กรองพัสดุที่ส่งแล้ว และจับคู่รหัสโซฟา 439 รุ่น...</div>',
+        allowOutsideClick: false,
+        didOpen: () => Swal.showLoading()
+      });
+
+      const syncRes = await store.pullLiveOrdersFromCloud({
+        mode: result.value.mode,
+        daysBack: result.value.daysBack,
+        excludeScanned: true,
+        replaceExisting: result.value.replaceExisting
+      });
+
+      if (!syncRes.success) {
+        Swal.fire('เกิดข้อผิดพลาด', syncRes.error || 'ไม่สามารถดึงออเดอร์จาก Cloud ได้', 'error');
+        return;
+      }
+
+      const calc = store.runMrpCalculation();
+      const s = calc.summary;
+      switchMrpTab('tab-backlog');
+
+      Swal.fire({
+        icon: 'success',
+        title: '⚡ ดึงออเดอร์สด TikTok & Shopee สำเร็จ!',
+        width: 560,
+        html: `
+          <div class="text-left text-xs space-y-2.5">
+            <div class="p-3.5 rounded-xl bg-slate-900 text-white space-y-1.5 font-mono">
+              <div class="flex justify-between">
+                <span class="text-slate-300">📱 ยอดออเดอร์ TikTok Shop:</span>
+                <span class="font-bold text-white">${fmt(s.totalTiktokOrders)} ตัว</span>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-slate-300">🛍️ ยอดออเดอร์ Shopee:</span>
+                <span class="font-bold text-amber-300">${fmt(s.totalShopeeOrders)} ตัว</span>
+              </div>
+              <div class="flex justify-between pt-1 border-t border-white/15">
+                <span class="text-slate-200 font-bold">รวมออเดอร์ค้างส่งทั้งหมด:</span>
+                <span class="font-black text-base text-white">${fmt(s.totalGrossBacklog)} ตัว (${fmt(syncRes.syncedSkusCount)} รุ่น)</span>
+              </div>
+              <div class="flex justify-between text-emerald-300">
+                <span>📦 หักสต็อก FG พร้อมส่งในคลัง:</span>
+                <span class="font-bold">-${fmt(s.totalFgUsed)} ตัว</span>
+              </div>
+              <div class="flex justify-between pt-1 border-t border-white/15 text-indigo-300">
+                <span class="font-bold">🏭 ต้องสั่งผลิตจริง (Net Production):</span>
+                <span class="font-black text-base">${fmt(s.totalNetProduce)} ตัว</span>
+              </div>
+            </div>
+            <div class="p-2.5 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-800 text-[11px]">
+              ✅ คำนวณแตกสูตร BOM และเช็กสต็อกวัตถุดิบจริงเสร็จสมบูรณ์! งบต้องสั่งซื้อวัสดุเพิ่มสุทธิ: <b>฿${fmt(s.totalNetPurchaseBudget, 2)}</b>
+            </div>
+          </div>
+        `,
+        confirmButtonText: 'ดูตารางออเดอร์ & แผนผลิต',
+        confirmButtonColor: '#4f46e5'
+      });
+    });
+  }
+
+  function openPasteOrdersModal() {
+    Swal.fire({
+      title: `<div class="text-base font-bold text-slate-900">📋 ก๊อปวางข้อความจากหน้าเว็บ TikTok / Shopee Seller Center</div>`,
+      width: 640,
+      html: `
+        <div class="text-left text-xs space-y-3">
+          <div class="p-2.5 rounded-xl bg-amber-50 border border-amber-200 text-amber-900 text-[11px]">
+            💡 <b>วิธีใช้แบบไม่ต้องโหลดไฟล์:</b> เปิดหน้าคำสั่งซื้อใน TikTok Seller Center หรือ Shopee Seller Center กดคลุมดำหรือ <b>Ctrl+A ➔ Ctrl+C</b> แล้วนำมาวาง (<b>Ctrl+V</b>) ในช่องด้านล่างนี้ ระบบจะสกัดรหัสรุ่นโซฟาและจำนวนให้อัตโนมัติ!
+          </div>
+          <div class="grid grid-cols-2 gap-2">
+            <div>
+              <label class="block font-semibold text-slate-700 mb-1">ช่องทางออเดอร์:</label>
+              <select id="swalPasteChannel" class="w-full px-2.5 py-1.5 border border-slate-300 rounded-lg font-semibold">
+                <option value="AUTO">🔍 ตรวจจับอัตโนมัติ (TikTok / Shopee)</option>
+                <option value="TIKTOK">📱 บันทึกเป็นยอด TikTok Shop</option>
+                <option value="SHOPEE">🛍️ บันทึกเป็นยอด Shopee</option>
+              </select>
+            </div>
+            <div>
+              <label class="block font-semibold text-slate-700 mb-1">รูปแบบการนำเข้า:</label>
+              <select id="swalPasteReplace" class="w-full px-2.5 py-1.5 border border-slate-300 rounded-lg font-semibold">
+                <option value="APPEND">➕ บวกเพิ่มเข้ากับตารางปัจจุบัน</option>
+                <option value="REPLACE">🔄 ล้างตารางเดิมแล้วใช้ยอดที่วางใหม่</option>
+              </select>
+            </div>
+          </div>
+          <div>
+            <label class="block font-semibold text-slate-700 mb-1">วางข้อความออเดอร์ที่นี่ (Ctrl+V):</label>
+            <textarea id="swalPasteTextarea" rows="8" placeholder="วางข้อความจากหน้าเว็บ TikTok / Shopee หรือตารางรายการสินค้า เช่น:\nQs-โซฟาเบดปรับนอน-rc-ดำ-PQ002C-17 x 5\nโซฟาตัวแอลมินิมอล Mncf(R) ครีม 3\n..." class="w-full p-3 border border-slate-300 rounded-xl font-mono text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none"></textarea>
+          </div>
+        </div>
+      `,
+      showCancelButton: true,
+      confirmButtonText: '⚡ แปลงข้อความเป็นรายการโซฟาทันที',
+      cancelButtonText: 'ยกเลิก',
+      confirmButtonColor: '#4f46e5',
+      preConfirm: () => {
+        const rawText = document.getElementById('swalPasteTextarea').value;
+        const channel = document.getElementById('swalPasteChannel').value;
+        const replace = document.getElementById('swalPasteReplace').value === 'REPLACE';
+        if (!rawText || !rawText.trim()) {
+          Swal.showValidationMessage('กรุณาวางข้อความออเดอร์ก่อนกดปุ่มแปลงข้อมูล');
+          return false;
+        }
+        return { rawText, channel, replace };
+      }
+    }).then(res => {
+      if (!res.isConfirmed || !res.value) return;
+      const out = store.importOrdersFromPastedText(res.value.rawText, res.value.channel, res.value.replace);
+      if (!out.success) {
+        Swal.fire('ไม่พบรหัสรุ่นโซฟา', out.message, 'warning');
+        return;
+      }
+      switchMrpTab('tab-backlog');
+      Swal.fire({
+        icon: 'success',
+        title: 'นำเข้าจากข้อความสำเร็จ!',
+        text: `จับคู่ได้ ${out.matchedSkusCount} รุ่นโซฟา (รวม ${fmt(out.totalUnits)} ตัว)`,
+        timer: 1800,
+        showConfirmButton: false
+      });
+    });
+  }
+
   function exportSupplierPoWorkbook() {
     if (typeof XLSX === 'undefined') return;
     const calc = store.runMrpCalculation();
@@ -1312,6 +1537,17 @@
         if (!btn) return;
         switchMrpTab(btn.getAttribute('data-tab'));
       });
+    }
+
+    // 1-Click Live Order Pull Buttons (Header, Dashboard, Tab 2)
+    ['btnPullLiveOrdersHeader', 'btnPullLiveOrdersDash', 'btnPullLiveOrdersMain'].forEach(btnId => {
+      const btn = $(btnId);
+      if (btn) {
+        btn.addEventListener('click', openLiveOrderSyncModal);
+      }
+    });
+    if ($('btnPasteOrdersModal')) {
+      $('btnPasteOrdersModal').addEventListener('click', openPasteOrdersModal);
     }
 
     // Refresh Live Stock Movement

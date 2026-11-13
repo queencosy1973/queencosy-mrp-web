@@ -73,6 +73,12 @@
           <span id="cloudStatusText">กำลังเชื่อมต่อ Supabase...</span>
         </div>
 
+        <!-- 1-Click Pull Live Orders from TikTok & Shopee Button -->
+        <button id="btnPullLiveOrdersHeader" class="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-indigo-500 via-purple-600 to-pink-500 hover:from-indigo-400 hover:to-pink-400 text-white text-xs font-bold transition flex items-center gap-1.5 cursor-pointer shadow-md shadow-indigo-500/20" title="ดึงออเดอร์สดจากระบบ TikTok & Shopee อัตโนมัติ ไม่ต้องดาวน์โหลดไฟล์ Excel">
+          <i data-lucide="zap" class="w-3.5 h-3.5"></i>
+          <span>⚡ ดึงออเดอร์ TikTok / Shopee</span>
+        </button>
+
         <!-- Refresh Live Stock Movement Button -->
         <button id="btnRefreshStock" class="px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold transition flex items-center gap-1.5 cursor-pointer shadow-sm" title="ดึงยอดสต็อกคงเหลือจริงล่าสุดจาก Supabase (QC_STOCK_MOVEMENT_DATA_V4)">
           <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
@@ -228,6 +234,9 @@
             <h2 class="text-lg sm:text-xl font-bold mt-1">สรุปวงจรแปลงออเดอร์ค้างผลิต ➔ ตัดสต็อก ➔ งบสั่งซื้อวัสดุแยกตามซัพพลายเออร์</h2>
           </div>
           <div class="flex flex-wrap gap-2">
+            <button id="btnPullLiveOrdersDash" class="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-pink-500 to-indigo-500 hover:from-pink-400 hover:to-indigo-400 text-xs font-bold text-white cursor-pointer transition shadow">
+              ⚡ ดึงออเดอร์สด TikTok / Shopee
+            </button>
             <button onclick="switchMrpTab('tab-backlog')" class="px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-xs font-semibold text-white border border-white/15 cursor-pointer transition">
               ✏️ แก้ไขออเดอร์ / สต็อก FG
             </button>
@@ -338,33 +347,41 @@
     <section id="tab-backlog" class="mrp-tab-pane hidden space-y-6">
       <!-- Top 3 Input Boxes: Upload E-Com Order / Add SKU Manually / Batch FG Tools -->
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        <!-- Box 1: Upload TikTok / Shopee Order Export -->
-        <div class="bg-white rounded-2xl p-4 border border-slate-200 shadow-xs flex flex-col justify-between">
+        <!-- Box 1: 1-Click Auto Pull TikTok / Shopee Orders + Paste / Upload -->
+        <div class="bg-white rounded-2xl p-4 border-2 border-indigo-200 bg-gradient-to-br from-white to-indigo-50/30 shadow-xs flex flex-col justify-between">
           <div>
             <div class="flex items-center justify-between mb-1.5">
-              <span class="px-2 py-0.5 text-[10px] font-bold bg-purple-100 text-purple-700 rounded">นำเข้าไฟล์ออเดอร์</span>
-              <span class="text-[11px] text-slate-400">TikTok / Shopee (.xlsx, .csv)</span>
+              <span class="px-2 py-0.5 text-[10px] font-bold bg-gradient-to-r from-indigo-600 to-pink-600 text-white rounded-full">⚡ ซิงค์ออเดอร์อัตโนมัติ (ไม่ต้องโหลดไฟล์)</span>
+              <span class="text-[11px] font-semibold text-indigo-700">TikTok + Shopee Live</span>
             </div>
-            <h3 class="text-sm font-bold text-slate-900">อัปโหลดไฟล์ Order Export เพื่อแปลงเป็นรุ่นโซฟา</h3>
-            <p class="text-xs text-slate-500 mt-1 mb-3">ใช้ระบบ <b>SkuMapper</b> ถอดชื่อสินค้าและสีเป็นรหัส Master SKU อัตโนมัติ</p>
+            <h3 class="text-sm font-bold text-slate-900">ดึงออเดอร์ค้างส่งจากระบบ TikTok & Shopee อัตโนมัติ</h3>
+            <p class="text-xs text-slate-500 mt-1 mb-2.5">ดึงยอดออเดอร์ค้างส่งรายรุ่นจาก Cloud ใบปะหน้า + Seller Center และตัดพัสดุที่สแกนส่งแล้วให้อัตโนมัติในคลิกเดียว</p>
+
+            <div class="space-y-2 mb-3">
+              <button id="btnPullLiveOrdersMain" class="w-full py-2.5 px-3 rounded-xl bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 hover:from-indigo-500 hover:to-pink-500 text-white font-bold text-xs shadow-md shadow-indigo-500/20 transition cursor-pointer flex items-center justify-center gap-1.5">
+                <span>⚡ ดึงออเดอร์สด TikTok & Shopee ทันที (ไม่ต้องโหลดไฟล์)</span>
+              </button>
+              <button id="btnPasteOrdersModal" class="w-full py-1.5 px-3 rounded-xl bg-indigo-50 hover:bg-indigo-100 text-indigo-800 border border-indigo-200 font-semibold text-xs transition cursor-pointer flex items-center justify-center gap-1.5">
+                <span>📋 ก๊อปวางข้อความจากหน้าเว็บ Seller Center (Ctrl+V)</span>
+              </button>
+            </div>
           </div>
-          <div>
-            <div class="flex items-center gap-2 mb-2">
-              <label class="text-[11px] font-semibold text-slate-600">ช่องทางไฟล์:</label>
-              <select id="importOrderChannelSelect" class="px-2.5 py-1 text-xs border border-slate-300 rounded-lg bg-white font-semibold text-slate-700">
-                <option value="AUTO">🔍 ตรวจจับอัตโนมัติ (TikTok / Shopee)</option>
-                <option value="TIKTOK">📱 บันทึกเป็นยอด TikTok Shop</option>
-                <option value="SHOPEE">🛍️ บันทึกเป็นยอด Shopee</option>
+          <div class="pt-2 border-t border-slate-200/80">
+            <div class="flex items-center gap-2 mb-1.5">
+              <span class="text-[10px] font-semibold text-slate-500">หรืออัปโหลดไฟล์สำรอง:</span>
+              <select id="importOrderChannelSelect" class="px-2 py-0.5 text-[11px] border border-slate-300 rounded-lg bg-white font-semibold text-slate-700">
+                <option value="AUTO">🔍 อัตโนมัติ (TT/SP)</option>
+                <option value="TIKTOK">📱 TikTok</option>
+                <option value="SHOPEE">🛍️ Shopee</option>
               </select>
-              <label class="inline-flex items-center gap-1 text-[11px] text-slate-600 ml-auto cursor-pointer">
-                <input type="checkbox" id="importReplaceMode" class="rounded text-indigo-600" />
-                <span>ล้างรายการเดิมก่อนนำเข้า</span>
+              <label class="inline-flex items-center gap-1 text-[10px] text-slate-600 ml-auto cursor-pointer">
+                <input type="checkbox" id="importReplaceMode" class="rounded text-indigo-600" checked />
+                <span>แทนที่ของเดิม</span>
               </label>
             </div>
-            <div id="dropzoneOrderFile" class="dropzone-box p-3.5 text-center">
+            <div id="dropzoneOrderFile" class="dropzone-box p-2 text-center">
               <input type="file" id="inputOrderFile" class="hidden" accept=".xlsx,.xls,.csv" />
-              <div class="text-xs font-semibold text-indigo-700">📂 คลิกหรือลากไฟล์ออเดอร์ TikTok / Shopee มาวางที่นี่</div>
-              <div class="text-[11px] text-slate-400 mt-0.5">รองรับทั้งไฟล์ Order All และไฟล์ Template แผนผลิต</div>
+              <div class="text-[11px] font-semibold text-indigo-700">📂 ลากไฟล์ Excel (.xlsx/.csv) มาวาง (กรณีใช้ไฟล์)</div>
             </div>
           </div>
         </div>
