@@ -1993,8 +1993,16 @@
         // 1. Fetch P&L Live Pipeline (Seller Center totals), Live MRP Orders batch, and recent Parcel/Label batches
         const [pnlResp, parcelResp] = await Promise.all([
           fetch(`${SUPABASE_URL}/rest/v1/production_batches?batch_id=in.(${CLOUD_PNL_PIPELINE_ID},${CLOUD_LIVE_ORDERS_ID})&select=batch_id,updated_at,items_json,notes`, { headers }),
-          fetch(`${SUPABASE_URL}/rest/v1/production_batches?source=in.(DAILY_PARCEL_CHECKER,QC_LABEL_ORDERS,QC_LABEL_SCAN)&order=batch_id.desc&limit=35&select=batch_id,source,updated_at,total_units,items_json`, { headers })
+          fetch(`${SUPABASE_URL}/rest/v1/production_batches?source=in.(DAILY_PARCEL_CHECKER,QC_LABEL_ORDERS,QC_LABEL_SCAN)&order=updated_at.desc&limit=60&select=batch_id,source,updated_at,total_units,items_json`, { headers })
         ]);
+
+        const parseJsonField = (val) => {
+          if (!val) return {};
+          if (typeof val === 'string') {
+            try { return JSON.parse(val); } catch (e) { return {}; }
+          }
+          return val;
+        };
 
         let sellerCenterTiktok = 1111;
         let sellerCenterShopee = 211;
@@ -2006,17 +2014,18 @@
           const pnlRows = await pnlResp.json();
           if (Array.isArray(pnlRows)) {
             for (const row of pnlRows) {
-              if (row.batch_id === CLOUD_PNL_PIPELINE_ID && row.items_json) {
-                const pipe = row.items_json.platformPipeline || row.items_json;
+              const j = parseJsonField(row.items_json);
+              if (row.batch_id === CLOUD_PNL_PIPELINE_ID && j) {
+                const pipe = j.platformPipeline || j;
                 if (Number(pipe.tiktokBacklogOrders) > 0 || Number(pipe.shopeeBacklogOrders) > 0) {
                   sellerCenterTiktok = Number(pipe.tiktokBacklogOrders || 0);
                   sellerCenterShopee = Number(pipe.shopeeBacklogOrders || 0);
-                  sellerCenterSyncAt = row.items_json.updatedAt || row.updated_at;
+                  sellerCenterSyncAt = j.updatedAt || row.updated_at;
                 }
               }
-              if (row.batch_id === CLOUD_LIVE_ORDERS_ID && row.items_json && Array.isArray(row.items_json.backlogItems)) {
-                directChromeItems = row.items_json.backlogItems;
-                directChromeMeta = row.items_json.meta || { syncedAt: row.updated_at };
+              if (row.batch_id === CLOUD_LIVE_ORDERS_ID && j && Array.isArray(j.backlogItems)) {
+                directChromeItems = j.backlogItems;
+                directChromeMeta = j.meta || { syncedAt: row.updated_at };
               }
             }
           }
@@ -2039,7 +2048,11 @@
         }
 
         // 2. Process real order & scan batches from Daily Parcel Checker & Parcel Label Tracker
-        const parcelRows = (parcelResp && parcelResp.ok) ? await parcelResp.json() : [];
+        const rawParcelRows = (parcelResp && parcelResp.ok) ? await parcelResp.json() : [];
+        const parcelRows = (rawParcelRows || []).map(r => ({
+          ...r,
+          items_json: parseJsonField(r.items_json)
+        }));
         const scannedSet = new Set();
 
         // Collect all scanned tracking numbers first
@@ -2059,7 +2072,11 @@
         const orderBatches = (parcelRows || []).filter(r =>
           (r.source === 'DAILY_PARCEL_CHECKER' || r.source === 'QC_LABEL_ORDERS') &&
           r.items_json && Array.isArray(r.items_json.orders) && r.items_json.orders.length > 0
-        );
+        ).sort((a, b) => {
+          const da = (a.items_json && a.items_json.date) || a.batch_id.replace(/^QC_(PARCEL_DATA|LABEL_ORDERS)_/, '');
+          const db = (b.items_json && b.items_json.date) || b.batch_id.replace(/^QC_(PARCEL_DATA|LABEL_ORDERS)_/, '');
+          return String(db).localeCompare(String(da));
+        });
 
         const uniqueDates = [];
         const allowedDateSet = new Set();

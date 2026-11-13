@@ -150,16 +150,25 @@ async function runSync() {
   const [pnlResp, fgResp, parcelResp] = await Promise.all([
     fetch(`${SUPABASE_URL}/rest/v1/production_batches?batch_id=eq.QC_PNL_PIPELINE_STATE_V1&select=batch_id,updated_at,items_json`, { headers }),
     fetch(`${SUPABASE_URL}/rest/v1/production_batches?batch_id=eq.QC_FG_INVENTORY_DATA_V1&select=batch_id,items_json`, { headers }),
-    fetch(`${SUPABASE_URL}/rest/v1/production_batches?source=in.(DAILY_PARCEL_CHECKER,QC_LABEL_ORDERS,QC_LABEL_SCAN)&order=batch_id.desc&limit=35&select=batch_id,source,items_json`, { headers })
+    fetch(`${SUPABASE_URL}/rest/v1/production_batches?source=in.(DAILY_PARCEL_CHECKER,QC_LABEL_ORDERS,QC_LABEL_SCAN)&order=updated_at.desc&limit=60&select=batch_id,source,items_json`, { headers })
   ]);
+
+  const parseJsonField = (val) => {
+    if (!val) return {};
+    if (typeof val === 'string') {
+      try { return JSON.parse(val); } catch (e) { return {}; }
+    }
+    return val;
+  };
 
   let targetTiktok = chromeLive?.tiktokOrders || 1111;
   let targetShopee = chromeLive?.shopeeOrders || 211;
 
   if (pnlResp.ok) {
     const pnlRows = await pnlResp.json();
-    if (pnlRows[0]?.items_json?.platformPipeline) {
-      const pipe = pnlRows[0].items_json.platformPipeline;
+    const pj = parseJsonField(pnlRows[0]?.items_json);
+    if (pj?.platformPipeline) {
+      const pipe = pj.platformPipeline;
       if (!chromeLive?.tiktokOrders && Number(pipe.tiktokBacklogOrders) > 0) targetTiktok = Number(pipe.tiktokBacklogOrders);
       if (!chromeLive?.shopeeOrders && Number(pipe.shopeeBacklogOrders) > 0) targetShopee = Number(pipe.shopeeBacklogOrders);
     }
@@ -168,12 +177,17 @@ async function runSync() {
   let fgBegStock = {};
   if (fgResp.ok) {
     const fgRows = await fgResp.json();
-    if (fgRows[0]?.items_json?.beginningStock) {
-      fgBegStock = fgRows[0].items_json.beginningStock;
+    const fj = parseJsonField(fgRows[0]?.items_json);
+    if (fj?.beginningStock) {
+      fgBegStock = fj.beginningStock;
     }
   }
 
-  const parcelRows = parcelResp.ok ? await parcelResp.json() : [];
+  const rawParcelRows = parcelResp.ok ? await parcelResp.json() : [];
+  const parcelRows = rawParcelRows.map(r => ({
+    ...r,
+    items_json: parseJsonField(r.items_json)
+  }));
   const scannedSet = new Set();
   parcelRows.forEach(r => {
     (r.items_json?.scans || []).forEach(sc => {
