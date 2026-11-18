@@ -2190,10 +2190,17 @@
                 runningTt += scaled;
               }
             });
-            // Adjust top SKU for rounding difference so sum matches sellerCenterTiktok 100%
-            const diffTt = sellerCenterTiktok - runningTt;
-            if (diffTt !== 0 && syncedItems[0]) {
-              syncedItems[0].tiktokQty = Math.max(0, syncedItems[0].tiktokQty + diffTt);
+            // Adjust top SKUs for rounding difference so sum matches sellerCenterTiktok 100%
+            let diffTt = sellerCenterTiktok - runningTt;
+            for (let i = 0; i < syncedItems.length && diffTt !== 0; i++) {
+              if (diffTt > 0) {
+                syncedItems[i].tiktokQty += diffTt;
+                diffTt = 0;
+              } else if (syncedItems[i].tiktokQty > 1) {
+                const take = Math.min(syncedItems[i].tiktokQty - 1, -diffTt);
+                syncedItems[i].tiktokQty -= take;
+                diffTt += take;
+              }
             }
           }
 
@@ -2210,9 +2217,16 @@
                 runningSh += scaled;
               }
             });
-            const diffSh = sellerCenterShopee - runningSh;
-            if (diffSh !== 0 && syncedItems[0]) {
-              syncedItems[0].shopeeQty = Math.max(0, syncedItems[0].shopeeQty + diffSh);
+            let diffSh = sellerCenterShopee - runningSh;
+            for (let i = 0; i < syncedItems.length && diffSh !== 0; i++) {
+              if (diffSh > 0) {
+                syncedItems[i].shopeeQty += diffSh;
+                diffSh = 0;
+              } else if (syncedItems[i].shopeeQty > 0) {
+                const take = Math.min(syncedItems[i].shopeeQty, -diffSh);
+                syncedItems[i].shopeeQty -= take;
+                diffSh += take;
+              }
             }
           }
         }
