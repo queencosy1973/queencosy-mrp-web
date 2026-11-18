@@ -2442,7 +2442,10 @@
         pipe.tiktokBacklogOrders = s.totalTiktokOrders;
         pipe.shopeeBacklogOrders = s.totalShopeeOrders;
         pipe.fgReadyUnits = s.totalFgUsed;
-        pipe.bomMaterialPerUnit = Math.round(s.avgGrossMatPerSofa || 1380);
+        pipe.bomMaterialPerUnit = Number((s.avgGrossMatPerSofa || 1045).toFixed(2));
+        pipe.mrpGrossBomCost = Math.round(s.totalGrossBomCost || 0);
+        pipe.mrpStockDeducted = Math.round(s.totalStockValueUsed || 0);
+        pipe.mrpNetPurchaseNeeded = Math.round(s.totalNetPurchaseBudget || 0);
 
         localStorage.setItem(LOCAL_PNL_STATE_KEY, JSON.stringify(pnlState));
 
@@ -2456,7 +2459,10 @@
             existing.tiktokBacklogOrders = s.totalTiktokOrders;
             existing.shopeeBacklogOrders = s.totalShopeeOrders;
             existing.fgReadyUnits = s.totalFgUsed;
-            existing.bomMaterialPerUnit = Math.round(s.avgGrossMatPerSofa || 1380);
+            existing.bomMaterialPerUnit = Number((s.avgGrossMatPerSofa || 1045).toFixed(2));
+            existing.mrpGrossBomCost = Math.round(s.totalGrossBomCost || 0);
+            existing.mrpStockDeducted = Math.round(s.totalStockValueUsed || 0);
+            existing.mrpNetPurchaseNeeded = Math.round(s.totalNetPurchaseBudget || 0);
             existing.updatedAt = new Date().toISOString();
             return fetch(`${SUPABASE_URL}/rest/v1/production_batches?on_conflict=batch_id`, {
               method: 'POST',
