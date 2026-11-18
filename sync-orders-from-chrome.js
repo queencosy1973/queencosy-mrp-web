@@ -161,14 +161,14 @@ async function runSync() {
     return val;
   };
 
-  let targetTiktok = chromeLive?.tiktokOrders || 1111;
-  let targetShopee = chromeLive?.shopeeOrders || 211;
+  let targetTiktok = chromeLive?.tiktokOrders || 1138;
+  let targetShopee = chromeLive?.shopeeOrders || 271;
 
   if (pnlResp.ok) {
     const pnlRows = await pnlResp.json();
     const pj = parseJsonField(pnlRows[0]?.items_json);
-    if (pj?.platformPipeline) {
-      const pipe = pj.platformPipeline;
+    const pipe = pj?.platformPipeline || pj;
+    if (pipe) {
       if (!chromeLive?.tiktokOrders && Number(pipe.tiktokBacklogOrders) > 0) targetTiktok = Number(pipe.tiktokBacklogOrders);
       if (!chromeLive?.shopeeOrders && Number(pipe.shopeeBacklogOrders) > 0) targetShopee = Number(pipe.shopeeBacklogOrders);
     }

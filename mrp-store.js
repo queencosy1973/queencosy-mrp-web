@@ -546,24 +546,24 @@
   ];
 
   // =========================================================================
-  // 4. DEFAULT REALISTIC BACKLOG SCENARIO (1,322 Units: TikTok 1,111 + Shopee 211)
+  // 4. DEFAULT REALISTIC BACKLOG SCENARIO (1,409 Units: TikTok 1,138 + Shopee 271)
   // =========================================================================
   function getDefaultBacklogOrders() {
     return [
-      { sku: 'Qs-โซฟาเบดปรับนอน-rc-ดำ-PQ002C-17', tiktokQty: 145, shopeeQty: 28, fgStock: 1, note: 'รุ่นขายดีอันดับ 1 (ใบจด 11/11 มี FG 1 ตัว)' },
-      { sku: 'Qs-โซฟาเบดปรับนอน-rc-น้ำตาล-PQ002C-12', tiktokQty: 95, shopeeQty: 18, fgStock: 0, note: 'รุ่นขายดี (หนัง PVC น้ำตาล)' },
-      { sku: 'Qs-โซฟาเบดปรับนอน-rc-เทา-PQ002C-46', tiktokQty: 88, shopeeQty: 16, fgStock: 0, note: 'หนัง PVC เทา' },
-      { sku: 'Qs-โซฟาเบดหัวกระดก-rsII-สีเทาเข้ม-MJ350-20', tiktokQty: 92, shopeeQty: 20, fgStock: 2, note: 'RS โพลีเทา (ใบจด 11/11 มี FG 2 ตัว)' },
-      { sku: 'Qs-โซฟาเบดปรับนอนพรีเมี่ยม-rch-น้ำเงิน-337-31', tiktokQty: 74, shopeeQty: 14, fgStock: 0, note: 'ผ้าฮอลแลนด์สีน้ำเงิน' },
-      { sku: 'Qs-โซฟาตัวแอลมินิมอล-Mncf(R)-ครีม-MJ356-1a', tiktokQty: 86, shopeeQty: 19, fgStock: 0, note: 'โซฟาตัวแอล ผ้าลูกฟูกครีม' },
-      { sku: 'Qs-โซฟาตัวแอลมินิมอล-Mncf(L)-เทา-MJ356-3a', tiktokQty: 68, shopeeQty: 15, fgStock: 0, note: 'โซฟาตัวแอล ผ้าลูกฟูกเทา' },
-      { sku: 'Qs-โซฟา3ที่นั่งท้าวแขน-bs3-ดำ-PQ002C-17', tiktokQty: 82, shopeeQty: 16, fgStock: 1, note: 'BS3 ดำ (ใบจด 11/11 มี FG 1 ตัว)' },
-      { sku: 'Qs-โซฟา3ที่นั่งท้าวแขน-bs3-มอคค่า-PQ002C-48', tiktokQty: 65, shopeeQty: 12, fgStock: 1, note: 'BS3 มอคค่า (ใบจด 11/11 มี FG 1 ตัว)' },
-      { sku: 'Qs-โซฟา3ที่นั่งเรียบเบาะใหญ่-cs3-น้ำตาล-MJ356-4a', tiktokQty: 58, shopeeQty: 11, fgStock: 1, note: 'CS3 ลูกฟูกน้ำตาล (ใบจด 11/11 มี FG 1 ตัว)' },
-      { sku: 'Qs-โซฟา2ที่นั่งเรียบเบาะใหญ่-cs2-เขียว-MJ356-2a', tiktokQty: 64, shopeeQty: 12, fgStock: 1, note: 'CS2 ลูกฟูกเขียว (ใบจด 11/11 มี FG 1 ตัว)' },
-      { sku: 'Qs-โซฟา2ที่นั่งเรียบเบาะใหญ่-cs2-เทา-MJ337-29', tiktokQty: 54, shopeeQty: 10, fgStock: 1, note: 'CS2 ฮอลแลนด์เทา (ใบจด 11/11 มี FG 1 ตัว)' },
-      { sku: 'Qs-โซฟา2ที่นั่งบ็อกซ์-box2-เทา-PQ002C-46', tiktokQty: 60, shopeeQty: 10, fgStock: 2, note: 'BOX2 เทา (ใบจด 11/11 มี FG 2 ตัว)' },
-      { sku: 'Qs-เก้าอี้สตูล-cu-ชา-PQ002C-19', tiktokQty: 80, shopeeQty: 10, fgStock: 5, note: 'CU ชา 5 ตัว (ใบจด 11/11 รวมสตูล 12 ตัว)' }
+      { sku: 'Qs-โซฟาเบดปรับนอน-rc-ดำ-PQ002C-17', tiktokQty: 149, shopeeQty: 36, fgStock: 1, note: 'รุ่นขายดีอันดับ 1 (ใบจด 11/11 มี FG 1 ตัว)' },
+      { sku: 'Qs-โซฟาเบดปรับนอน-rc-น้ำตาล-PQ002C-12', tiktokQty: 97, shopeeQty: 23, fgStock: 0, note: 'รุ่นขายดี (หนัง PVC น้ำตาล)' },
+      { sku: 'Qs-โซฟาเบดปรับนอน-rc-เทา-PQ002C-46', tiktokQty: 90, shopeeQty: 21, fgStock: 0, note: 'หนัง PVC เทา' },
+      { sku: 'Qs-โซฟาเบดหัวกระดก-rsII-สีเทาเข้ม-MJ350-20', tiktokQty: 94, shopeeQty: 26, fgStock: 2, note: 'RS โพลีเทา (ใบจด 11/11 มี FG 2 ตัว)' },
+      { sku: 'Qs-โซฟาเบดปรับนอนพรีเมี่ยม-rch-น้ำเงิน-337-31', tiktokQty: 76, shopeeQty: 18, fgStock: 0, note: 'ผ้าฮอลแลนด์สีน้ำเงิน' },
+      { sku: 'Qs-โซฟาตัวแอลมินิมอล-Mncf(R)-ครีม-MJ356-1a', tiktokQty: 88, shopeeQty: 24, fgStock: 0, note: 'โซฟาตัวแอล ผ้าลูกฟูกครีม' },
+      { sku: 'Qs-โซฟาตัวแอลมินิมอล-Mncf(L)-เทา-MJ356-3a', tiktokQty: 70, shopeeQty: 19, fgStock: 0, note: 'โซฟาตัวแอล ผ้าลูกฟูกเทา' },
+      { sku: 'Qs-โซฟา3ที่นั่งท้าวแขน-bs3-ดำ-PQ002C-17', tiktokQty: 84, shopeeQty: 21, fgStock: 1, note: 'BS3 ดำ (ใบจด 11/11 มี FG 1 ตัว)' },
+      { sku: 'Qs-โซฟา3ที่นั่งท้าวแขน-bs3-มอคค่า-PQ002C-48', tiktokQty: 67, shopeeQty: 15, fgStock: 1, note: 'BS3 มอคค่า (ใบจด 11/11 มี FG 1 ตัว)' },
+      { sku: 'Qs-โซฟา3ที่นั่งเรียบเบาะใหญ่-cs3-น้ำตาล-MJ356-4a', tiktokQty: 59, shopeeQty: 14, fgStock: 1, note: 'CS3 ลูกฟูกน้ำตาล (ใบจด 11/11 มี FG 1 ตัว)' },
+      { sku: 'Qs-โซฟา2ที่นั่งเรียบเบาะใหญ่-cs2-เขียว-MJ356-2a', tiktokQty: 66, shopeeQty: 15, fgStock: 1, note: 'CS2 ลูกฟูกเขียว (ใบจด 11/11 มี FG 1 ตัว)' },
+      { sku: 'Qs-โซฟา2ที่นั่งเรียบเบาะใหญ่-cs2-เทา-MJ337-29', tiktokQty: 55, shopeeQty: 13, fgStock: 1, note: 'CS2 ฮอลแลนด์เทา (ใบจด 11/11 มี FG 1 ตัว)' },
+      { sku: 'Qs-โซฟา2ที่นั่งบ็อกซ์-box2-เทา-PQ002C-46', tiktokQty: 61, shopeeQty: 13, fgStock: 2, note: 'BOX2 เทา (ใบจด 11/11 มี FG 2 ตัว)' },
+      { sku: 'Qs-เก้าอี้สตูล-cu-ชา-PQ002C-19', tiktokQty: 82, shopeeQty: 13, fgStock: 5, note: 'CU ชา 5 ตัว (ใบจด 11/11 รวมสตูล 12 ตัว)' }
     ];
   }
 
@@ -904,7 +904,7 @@
         };
 
         const [batchesResp, pricesResp] = await Promise.all([
-          fetch(`${SUPABASE_URL}/rest/v1/production_batches?batch_id=in.(${CLOUD_STOCK_MOVEMENT_ID},${CLOUD_FABRIC_STATE_ID},${CLOUD_FG_INVENTORY_ID})&select=batch_id,updated_at,items_json`, { headers }),
+          fetch(`${SUPABASE_URL}/rest/v1/production_batches?batch_id=in.(${CLOUD_STOCK_MOVEMENT_ID},${CLOUD_FABRIC_STATE_ID},${CLOUD_FG_INVENTORY_ID},${CLOUD_LIVE_ORDERS_ID})&select=batch_id,updated_at,items_json`, { headers }),
           fetch(`${SUPABASE_URL}/rest/v1/bom_calc_material_prices?select=material_name,category,unit,unit_price,current_stock`, { headers })
         ]);
 
@@ -937,6 +937,12 @@
               localStorage.setItem(LOCAL_FG_INVENTORY_KEY, JSON.stringify(this.fgInventoryRaw));
               this.syncBacklogFgFromWarehouse(false);
               foundFgBatch = true;
+            }
+            if (row.batch_id === CLOUD_LIVE_ORDERS_ID && row.items_json && Array.isArray(row.items_json.backlogItems) && row.items_json.backlogItems.length > 0) {
+              this.state.backlogItems = row.items_json.backlogItems;
+              this.state.lastOrderSyncMeta = row.items_json.meta || { syncedAt: row.updated_at };
+              this.syncBacklogFgFromWarehouse(false);
+              localStorage.setItem(LOCAL_MRP_STATE_KEY, JSON.stringify(this.state));
             }
             if (row.batch_id === CLOUD_STOCK_MOVEMENT_ID && row.items_json && Array.isArray(row.items_json.products)) {
               const rawCloud = row.items_json;
