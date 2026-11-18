@@ -163,16 +163,22 @@ async function runSync() {
     return val;
   };
 
-  let targetTiktok = chromeLive?.tiktokOrders || 1146;
-  let targetShopee = chromeLive?.shopeeOrders || 269;
+  let targetTiktok = chromeLive?.tiktokOrders || 1095;
+  let targetShopee = chromeLive?.shopeeOrders || 266;
 
   if (pnlResp.ok) {
     const pnlRows = await pnlResp.json();
     const pj = parseJsonField(pnlRows[0]?.items_json);
     const pipe = pj?.platformPipeline || pj;
     if (pipe) {
-      if (!chromeLive?.tiktokOrders && Number(pipe.tiktokBacklogOrders) > 0) targetTiktok = Number(pipe.tiktokBacklogOrders);
-      if (!chromeLive?.shopeeOrders && Number(pipe.shopeeBacklogOrders) > 0) targetShopee = Number(pipe.shopeeBacklogOrders);
+      const oldTt = [1111, 1125, 1138, 1146];
+      const oldSh = [211, 269, 271];
+      if (!chromeLive?.tiktokOrders && Number(pipe.tiktokBacklogOrders) > 0 && !oldTt.includes(Number(pipe.tiktokBacklogOrders))) {
+        targetTiktok = Number(pipe.tiktokBacklogOrders);
+      }
+      if (!chromeLive?.shopeeOrders && Number(pipe.shopeeBacklogOrders) > 0 && !oldSh.includes(Number(pipe.shopeeBacklogOrders))) {
+        targetShopee = Number(pipe.shopeeBacklogOrders);
+      }
     }
   }
 
@@ -326,6 +332,58 @@ async function runSync() {
   console.log(`    - TikTok Shop : ${targetTiktok.toLocaleString()} ตัว`);
   console.log(`    - Shopee      : ${targetShopee.toLocaleString()} ตัว`);
   console.log(`    - รวมทั้งหมด  : ${totalUnits.toLocaleString()} ตัว (แยกเป็น ${finalBacklog.length} รุ่นโซฟาตามสูตร BOM)`);
+
+  // Also calculate exact MRP BOM numbers and sync to QC_PNL_PIPELINE_STATE_V1
+  try {
+    const localStorageMock = { _data: {}, getItem(k) { return this._data[k] || null; }, setItem(k, v) { this._data[k] = String(v); } };
+    const mrpBox = { window: { localStorage: localStorageMock }, localStorage: localStorageMock, fetch, console, setTimeout, clearTimeout };
+    mrpBox.window.window = mrpBox.window;
+    vm.createContext(mrpBox);
+    vm.runInContext(fs.readFileSync(path.join(__dirname, 'seed.js'), 'utf8'), mrpBox);
+    vm.runInContext(fs.readFileSync(path.join(__dirname, 'master-bom-data.js'), 'utf8'), mrpBox);
+    vm.runInContext(fs.readFileSync(path.join(__dirname, 'sku-mapper.js'), 'utf8'), mrpBox);
+    vm.runInContext(fs.readFileSync(path.join(__dirname, 'mrp-store.js'), 'utf8'), mrpBox);
+
+    const store = mrpBox.window.MrpStore;
+    await store.pullLiveStockMovement();
+    const calc = store.runMrpCalculation();
+    const s = calc.summary;
+
+    const pResp2 = await fetch(`${SUPABASE_URL}/rest/v1/production_batches?batch_id=eq.QC_PNL_PIPELINE_STATE_V1&select=items_json`, { headers });
+    const pRows2 = await pResp2.json();
+    const existingPipe = parseJsonField(pRows2[0]?.items_json);
+    existingPipe.tiktokBacklogOrders = s.totalTiktokOrders;
+    existingPipe.shopeeBacklogOrders = s.totalShopeeOrders;
+    existingPipe.fgReadyUnits = s.totalFgUsed;
+    existingPipe.bomMaterialPerUnit = Number((s.avgGrossMatPerSofa || 1051.48).toFixed(2));
+    existingPipe.mrpGrossBomCost = Math.round(s.totalGrossBomCost || 0);
+    existingPipe.mrpStockDeducted = Math.round(s.totalStockDeductedValue || 0);
+    existingPipe.mrpNetPurchaseNeeded = Math.round(s.totalNetPurchaseBudget || 0);
+    existingPipe.mrpCashWeekly = Math.round(s.cashWeeklyBudget || 0);
+    existingPipe.mrpCreditEom = Math.round(s.creditEomBudget || 0);
+    existingPipe.mrpWarehouseTotal = Math.round(s.totalWarehouseStockValue || 0);
+    existingPipe.updatedAt = new Date().toISOString();
+
+    await fetch(`${SUPABASE_URL}/rest/v1/production_batches?on_conflict=batch_id`, {
+      method: 'POST',
+      headers: { ...headers, 'Content-Type': 'application/json', Prefer: 'resolution=merge-duplicates,return=minimal' },
+      body: JSON.stringify({
+        batch_id: 'QC_PNL_PIPELINE_STATE_V1',
+        batch_name: 'QueenCosy P&L Daily Pipeline State V1',
+        source: 'QC_MRP_ORDER_SYNC',
+        status: 'COMPLETED',
+        total_skus: 2,
+        total_units: s.totalGrossBacklog,
+        total_material_cost: Math.round(s.totalNetPurchaseBudget || 0),
+        items_json: existingPipe,
+        updated_at: new Date().toISOString(),
+        notes: `TikTok: ${s.totalTiktokOrders} | Shopee: ${s.totalShopeeOrders} | NetPO: ${Math.round(s.totalNetPurchaseBudget || 0)}`
+      })
+    });
+    console.log(` 🔄 ซิงค์ตัวเลข BOM เข้าสู่ระบบ P&L สำเร็จ: ต้องผลิตจริง ${s.totalNetProduce} ตัว | ตาม BOM ฿${Math.round(s.totalGrossBomCost).toLocaleString()} | หักสต็อก -฿${Math.round(s.totalStockDeductedValue).toLocaleString()} | ต้องซื้อเพิ่ม ฿${Math.round(s.totalNetPurchaseBudget).toLocaleString()}`);
+  } catch (mrpErr) {
+    console.warn(' ⚠️ MRP-to-P&L sync warning:', mrpErr.message);
+  }
 }
 
 runSync().catch(err => console.error('Error:', err.message));

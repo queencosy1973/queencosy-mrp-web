@@ -546,24 +546,24 @@
   ];
 
   // =========================================================================
-  // 4. DEFAULT REALISTIC BACKLOG SCENARIO (1,409 Units: TikTok 1,138 + Shopee 271)
+  // 4. DEFAULT REALISTIC BACKLOG SCENARIO (1,361 Units: TikTok 1,095 + Shopee 266)
   // =========================================================================
   function getDefaultBacklogOrders() {
     return [
-      { sku: 'Qs-โซฟาเบดปรับนอน-rc-ดำ-PQ002C-17', tiktokQty: 149, shopeeQty: 36, fgStock: 1, note: 'รุ่นขายดีอันดับ 1 (ใบจด 11/11 มี FG 1 ตัว)' },
-      { sku: 'Qs-โซฟาเบดปรับนอน-rc-น้ำตาล-PQ002C-12', tiktokQty: 97, shopeeQty: 23, fgStock: 0, note: 'รุ่นขายดี (หนัง PVC น้ำตาล)' },
-      { sku: 'Qs-โซฟาเบดปรับนอน-rc-เทา-PQ002C-46', tiktokQty: 90, shopeeQty: 21, fgStock: 0, note: 'หนัง PVC เทา' },
-      { sku: 'Qs-โซฟาเบดหัวกระดก-rsII-สีเทาเข้ม-MJ350-20', tiktokQty: 94, shopeeQty: 26, fgStock: 2, note: 'RS โพลีเทา (ใบจด 11/11 มี FG 2 ตัว)' },
-      { sku: 'Qs-โซฟาเบดปรับนอนพรีเมี่ยม-rch-น้ำเงิน-337-31', tiktokQty: 76, shopeeQty: 18, fgStock: 0, note: 'ผ้าฮอลแลนด์สีน้ำเงิน' },
-      { sku: 'Qs-โซฟาตัวแอลมินิมอล-Mncf(R)-ครีม-MJ356-1a', tiktokQty: 88, shopeeQty: 24, fgStock: 0, note: 'โซฟาตัวแอล ผ้าลูกฟูกครีม' },
-      { sku: 'Qs-โซฟาตัวแอลมินิมอล-Mncf(L)-เทา-MJ356-3a', tiktokQty: 70, shopeeQty: 19, fgStock: 0, note: 'โซฟาตัวแอล ผ้าลูกฟูกเทา' },
-      { sku: 'Qs-โซฟา3ที่นั่งท้าวแขน-bs3-ดำ-PQ002C-17', tiktokQty: 84, shopeeQty: 21, fgStock: 1, note: 'BS3 ดำ (ใบจด 11/11 มี FG 1 ตัว)' },
-      { sku: 'Qs-โซฟา3ที่นั่งท้าวแขน-bs3-มอคค่า-PQ002C-48', tiktokQty: 67, shopeeQty: 15, fgStock: 1, note: 'BS3 มอคค่า (ใบจด 11/11 มี FG 1 ตัว)' },
-      { sku: 'Qs-โซฟา3ที่นั่งเรียบเบาะใหญ่-cs3-น้ำตาล-MJ356-4a', tiktokQty: 59, shopeeQty: 14, fgStock: 1, note: 'CS3 ลูกฟูกน้ำตาล (ใบจด 11/11 มี FG 1 ตัว)' },
-      { sku: 'Qs-โซฟา2ที่นั่งเรียบเบาะใหญ่-cs2-เขียว-MJ356-2a', tiktokQty: 66, shopeeQty: 15, fgStock: 1, note: 'CS2 ลูกฟูกเขียว (ใบจด 11/11 มี FG 1 ตัว)' },
-      { sku: 'Qs-โซฟา2ที่นั่งเรียบเบาะใหญ่-cs2-เทา-MJ337-29', tiktokQty: 55, shopeeQty: 13, fgStock: 1, note: 'CS2 ฮอลแลนด์เทา (ใบจด 11/11 มี FG 1 ตัว)' },
-      { sku: 'Qs-โซฟา2ที่นั่งบ็อกซ์-box2-เทา-PQ002C-46', tiktokQty: 61, shopeeQty: 13, fgStock: 2, note: 'BOX2 เทา (ใบจด 11/11 มี FG 2 ตัว)' },
-      { sku: 'Qs-เก้าอี้สตูล-cu-ชา-PQ002C-19', tiktokQty: 82, shopeeQty: 13, fgStock: 5, note: 'CU ชา 5 ตัว (ใบจด 11/11 รวมสตูล 12 ตัว)' }
+      { sku: 'Qs-โซฟาเบดปรับนอน-rc-ดำ-PQ002C-17', tiktokQty: 143, shopeeQty: 35, fgStock: 1, note: 'รุ่นขายดีอันดับ 1 (ใบจด 11/11 มี FG 1 ตัว)' },
+      { sku: 'Qs-โซฟาเบดปรับนอน-rc-น้ำตาล-PQ002C-12', tiktokQty: 93, shopeeQty: 23, fgStock: 0, note: 'รุ่นขายดี (หนัง PVC น้ำตาล)' },
+      { sku: 'Qs-โซฟาเบดปรับนอน-rc-เทา-PQ002C-46', tiktokQty: 87, shopeeQty: 21, fgStock: 0, note: 'หนัง PVC เทา' },
+      { sku: 'Qs-โซฟาเบดหัวกระดก-rsII-สีเทาเข้ม-MJ350-20', tiktokQty: 90, shopeeQty: 25, fgStock: 2, note: 'RS โพลีเทา (ใบจด 11/11 มี FG 2 ตัว)' },
+      { sku: 'Qs-โซฟาเบดปรับนอนพรีเมี่ยม-rch-น้ำเงิน-337-31', tiktokQty: 73, shopeeQty: 18, fgStock: 0, note: 'ผ้าฮอลแลนด์สีน้ำเงิน' },
+      { sku: 'Qs-โซฟาตัวแอลมินิมอล-Mncf(R)-ครีม-MJ356-1a', tiktokQty: 85, shopeeQty: 23, fgStock: 0, note: 'โซฟาตัวแอล ผ้าลูกฟูกครีม' },
+      { sku: 'Qs-โซฟาตัวแอลมินิมอล-Mncf(L)-เทา-MJ356-3a', tiktokQty: 67, shopeeQty: 19, fgStock: 0, note: 'โซฟาตัวแอล ผ้าลูกฟูกเทา' },
+      { sku: 'Qs-โซฟา3ที่นั่งท้าวแขน-bs3-ดำ-PQ002C-17', tiktokQty: 81, shopeeQty: 21, fgStock: 1, note: 'BS3 ดำ (ใบจด 11/11 มี FG 1 ตัว)' },
+      { sku: 'Qs-โซฟา3ที่นั่งท้าวแขน-bs3-มอคค่า-PQ002C-48', tiktokQty: 64, shopeeQty: 15, fgStock: 1, note: 'BS3 มอคค่า (ใบจด 11/11 มี FG 1 ตัว)' },
+      { sku: 'Qs-โซฟา3ที่นั่งเรียบเบาะใหญ่-cs3-น้ำตาล-MJ356-4a', tiktokQty: 57, shopeeQty: 14, fgStock: 1, note: 'CS3 ลูกฟูกน้ำตาล (ใบจด 11/11 มี FG 1 ตัว)' },
+      { sku: 'Qs-โซฟา2ที่นั่งเรียบเบาะใหญ่-cs2-เขียว-MJ356-2a', tiktokQty: 64, shopeeQty: 14, fgStock: 1, note: 'CS2 ลูกฟูกเขียว (ใบจด 11/11 มี FG 1 ตัว)' },
+      { sku: 'Qs-โซฟา2ที่นั่งเรียบเบาะใหญ่-cs2-เทา-MJ337-29', tiktokQty: 53, shopeeQty: 13, fgStock: 1, note: 'CS2 ฮอลแลนด์เทา (ใบจด 11/11 มี FG 1 ตัว)' },
+      { sku: 'Qs-โซฟา2ที่นั่งบ็อกซ์-box2-เทา-PQ002C-46', tiktokQty: 59, shopeeQty: 13, fgStock: 2, note: 'BOX2 เทา (ใบจด 11/11 มี FG 2 ตัว)' },
+      { sku: 'Qs-เก้าอี้สตูล-cu-ชา-PQ002C-19', tiktokQty: 79, shopeeQty: 12, fgStock: 5, note: 'CU ชา 5 ตัว (ใบจด 11/11 รวมสตูล 12 ตัว)' }
     ];
   }
 
@@ -2024,8 +2024,8 @@
           return val;
         };
 
-        let sellerCenterTiktok = 1146;
-        let sellerCenterShopee = 269;
+        let sellerCenterTiktok = 1095;
+        let sellerCenterShopee = 266;
         let sellerCenterSyncAt = null;
         let directChromeItems = null;
         let directChromeMeta = null;
@@ -2450,10 +2450,13 @@
         pipe.tiktokBacklogOrders = s.totalTiktokOrders;
         pipe.shopeeBacklogOrders = s.totalShopeeOrders;
         pipe.fgReadyUnits = s.totalFgUsed;
-        pipe.bomMaterialPerUnit = Number((s.avgGrossMatPerSofa || 1045).toFixed(2));
+        pipe.bomMaterialPerUnit = Number((s.avgGrossMatPerSofa || 1051.48).toFixed(2));
         pipe.mrpGrossBomCost = Math.round(s.totalGrossBomCost || 0);
-        pipe.mrpStockDeducted = Math.round(s.totalStockValueUsed || 0);
+        pipe.mrpStockDeducted = Math.round(s.totalStockDeductedValue || s.totalStockValueUsed || 0);
         pipe.mrpNetPurchaseNeeded = Math.round(s.totalNetPurchaseBudget || 0);
+        pipe.mrpCashWeekly = Math.round(s.cashWeeklyBudget || 0);
+        pipe.mrpCreditEom = Math.round(s.creditEomBudget || 0);
+        pipe.mrpWarehouseTotal = Math.round(s.totalWarehouseStockValue || 0);
 
         localStorage.setItem(LOCAL_PNL_STATE_KEY, JSON.stringify(pnlState));
 
@@ -2467,10 +2470,13 @@
             existing.tiktokBacklogOrders = s.totalTiktokOrders;
             existing.shopeeBacklogOrders = s.totalShopeeOrders;
             existing.fgReadyUnits = s.totalFgUsed;
-            existing.bomMaterialPerUnit = Number((s.avgGrossMatPerSofa || 1045).toFixed(2));
+            existing.bomMaterialPerUnit = Number((s.avgGrossMatPerSofa || 1051.48).toFixed(2));
             existing.mrpGrossBomCost = Math.round(s.totalGrossBomCost || 0);
-            existing.mrpStockDeducted = Math.round(s.totalStockValueUsed || 0);
+            existing.mrpStockDeducted = Math.round(s.totalStockDeductedValue || s.totalStockValueUsed || 0);
             existing.mrpNetPurchaseNeeded = Math.round(s.totalNetPurchaseBudget || 0);
+            existing.mrpCashWeekly = Math.round(s.cashWeeklyBudget || 0);
+            existing.mrpCreditEom = Math.round(s.creditEomBudget || 0);
+            existing.mrpWarehouseTotal = Math.round(s.totalWarehouseStockValue || 0);
             existing.updatedAt = new Date().toISOString();
             return fetch(`${SUPABASE_URL}/rest/v1/production_batches?on_conflict=batch_id`, {
               method: 'POST',
