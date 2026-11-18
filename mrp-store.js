@@ -763,11 +763,17 @@
       }
     }
 
-    saveLocalState() {
+    saveLocalState(pushCloud = true) {
       try {
         localStorage.setItem(LOCAL_MRP_STATE_KEY, JSON.stringify(this.state));
         localStorage.setItem(LOCAL_FG_INVENTORY_KEY, JSON.stringify(this.fgInventoryRaw));
         this.notify();
+        if (pushCloud) {
+          clearTimeout(this._cloudOrderPushTimer);
+          this._cloudOrderPushTimer = setTimeout(() => {
+            this.pushLiveOrdersToCloud({ mode: 'LIVE_EDIT_SYNC' });
+          }, 400);
+        }
       } catch (e) {
         console.error('[MrpStore] saveLocalState error:', e);
       }
@@ -884,7 +890,7 @@
               this.state.backlogItems = rec.items_json.backlogItems;
               this.state.lastOrderSyncMeta = rec.items_json.meta || { syncedAt: rec.updated_at };
               this.syncBacklogFgFromWarehouse(false);
-              this.saveLocalState();
+              this.saveLocalState(false);
               this.setCloudStatus('online', 'ดึงออเดอร์สด TikTok & Shopee อัตโนมัติสำเร็จ!');
             }
           })
@@ -2439,6 +2445,43 @@
         pipe.bomMaterialPerUnit = Math.round(s.avgGrossMatPerSofa || 1380);
 
         localStorage.setItem(LOCAL_PNL_STATE_KEY, JSON.stringify(pnlState));
+
+        // Also push to Supabase QC_PNL_PIPELINE_STATE_V1 so all executives viewing P&L see the exact same numbers
+        fetch(`${SUPABASE_URL}/rest/v1/production_batches?batch_id=eq.${CLOUD_PNL_PIPELINE_ID}&select=items_json`, {
+          headers: { apikey: SUPABASE_ANON_KEY, Authorization: `Bearer ${SUPABASE_ANON_KEY}` }
+        })
+          .then(r => r.json())
+          .then(rows => {
+            const existing = (rows && rows[0] && rows[0].items_json) ? rows[0].items_json : {};
+            existing.tiktokBacklogOrders = s.totalTiktokOrders;
+            existing.shopeeBacklogOrders = s.totalShopeeOrders;
+            existing.fgReadyUnits = s.totalFgUsed;
+            existing.bomMaterialPerUnit = Math.round(s.avgGrossMatPerSofa || 1380);
+            existing.updatedAt = new Date().toISOString();
+            return fetch(`${SUPABASE_URL}/rest/v1/production_batches?on_conflict=batch_id`, {
+              method: 'POST',
+              headers: {
+                apikey: SUPABASE_ANON_KEY,
+                Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+                'Content-Type': 'application/json',
+                Prefer: 'resolution=merge-duplicates,return=minimal'
+              },
+              body: JSON.stringify({
+                batch_id: CLOUD_PNL_PIPELINE_ID,
+                batch_name: 'QueenCosy P&L Daily Pipeline State V1',
+                source: 'QC_MRP_WEB_SYNC',
+                status: 'COMPLETED',
+                total_skus: 2,
+                total_units: s.totalTiktokOrders + s.totalShopeeOrders,
+                total_material_cost: Math.round(s.totalNetPurchaseBudget || 0),
+                items_json: existing,
+                updated_at: new Date().toISOString(),
+                notes: `TikTok: ${s.totalTiktokOrders}, Shopee: ${s.totalShopeeOrders}, NetPO: ${Math.round(s.totalNetPurchaseBudget || 0)}`
+              })
+            });
+          })
+          .catch(() => {});
+
         return {
           success: true,
           monthKey: mKey,
