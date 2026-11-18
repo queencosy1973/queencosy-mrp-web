@@ -111,7 +111,7 @@
       fallbackStockPrice: 50.0
     },
     'ไม้หน้า 4 (ท่อน)': {
-      stockProductIds: ['PROD-005', 'PROD-004', 'PROD-008', 'PROD-070', 'PROD-114', 'PROD-116'],
+      stockProductIds: ['PROD-005', 'PROD-004', 'PROD-008', 'PROD-070', 'PROD-114', 'PROD-116', 'PROD-122'],
       stockUnit: 'แผ่น/ท่อน',
       bomPerStockUnit: 1,
       supplierName: 'ลุนนี (ไม้)',
@@ -121,7 +121,7 @@
 
     // --- 2. กลุ่มฟองน้ำ (FOAM) ---
     'ฟองน้ำ 2 นิ้ว ที่นั่ง (PM7)': {
-      stockProductIds: ['PROD-014', 'PROD-117', 'PROD-022'],
+      stockProductIds: ['PROD-014', 'PROD-117', 'PROD-022', 'PROD-123', 'PROD-124'],
       stockUnit: 'แผ่น',
       bomPerStockUnit: 1,
       supplierName: 'บจก.พรีเมียม (ฟองน้ำ)',
@@ -355,7 +355,7 @@
       fallbackStockPrice: 53.0
     },
     'สีเทา-MJ356-3a': {
-      stockProductIds: ['PROD-097', 'PROD-094'],
+      stockProductIds: ['PROD-097', 'PROD-094', 'PROD-125'],
       stockUnit: 'หลา',
       bomPerStockUnit: 1,
       supplierName: 'PDK-ผ้า',
@@ -705,12 +705,20 @@
               ...JSON.parse(JSON.stringify(DEFAULT_BOM_TO_STOCK_MAPPING)),
               ...parsed.bomMapping
             };
-            // Ensure 1M wood pool includes PROD-001, PROD-003, PROD-010
-            if (this.state.bomMapping['ไม้ 2 นิ้ว 1 เมตร (ท่อน)']) {
-              const ids = new Set(this.state.bomMapping['ไม้ 2 นิ้ว 1 เมตร (ท่อน)'].stockProductIds || []);
-              ['PROD-001', 'PROD-003', 'PROD-010', 'PROD-110', 'PROD-115'].forEach(id => ids.add(id));
-              this.state.bomMapping['ไม้ 2 นิ้ว 1 เมตร (ท่อน)'].stockProductIds = Array.from(ids);
-            }
+            // Ensure 1M wood pool and new Nov 18 PROD-122..125 are always linked
+            const autoMergePools = {
+              'ไม้ 2 นิ้ว 1 เมตร (ท่อน)': ['PROD-001', 'PROD-003', 'PROD-010', 'PROD-110', 'PROD-115'],
+              'ไม้หน้า 4 (ท่อน)': ['PROD-005', 'PROD-004', 'PROD-008', 'PROD-070', 'PROD-114', 'PROD-116', 'PROD-122'],
+              'ฟองน้ำ 2 นิ้ว ที่นั่ง (PM7)': ['PROD-014', 'PROD-117', 'PROD-022', 'PROD-123', 'PROD-124'],
+              'สีเทา-MJ356-3a': ['PROD-097', 'PROD-094', 'PROD-125']
+            };
+            Object.entries(autoMergePools).forEach(([matKey, reqIds]) => {
+              if (this.state.bomMapping[matKey]) {
+                const s = new Set(this.state.bomMapping[matKey].stockProductIds || []);
+                reqIds.forEach(id => s.add(id));
+                this.state.bomMapping[matKey].stockProductIds = Array.from(s);
+              }
+            });
           }
           if (parsed.includeHardwareRules !== undefined) {
             this.state.includeHardwareRules = parsed.includeHardwareRules;
