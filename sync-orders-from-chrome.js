@@ -74,9 +74,10 @@ async function tryReadChromeSellerCenter() {
               const evalRes = await callCdp('Runtime.evaluate', {
                 expression: `(function(){
                   const txt = document.body ? document.body.innerText : '';
-                  const m1 = txt.match(/รอจัดส่ง[\\s\\n\\r]*([0-9,]{1,6})/);
-                  const m2 = txt.match(/To Ship[\\s\\n\\r]*([0-9,]{1,6})/i);
-                  return { count: m1 ? m1[1] : (m2 ? m2[1] : null) };
+                  const m1 = txt.match(/ที่จะจัดส่ง[\\s\\n\\r]*\\(?([0-9,]{1,6})\\)?/);
+                  const m2 = txt.match(/พบคำสั่งซื้อ\\s*([0-9,]{1,6})\\s*รายการ/);
+                  const m3 = txt.match(/To Ship[\\s\\n\\r]*\\(?([0-9,]{1,6})\\)?/i);
+                  return { count: m1 ? m1[1] : (m2 ? m2[1] : (m3 ? m3[1] : null)) };
                 })()`,
                 returnByValue: true
               }, sessionId);
@@ -95,8 +96,9 @@ async function tryReadChromeSellerCenter() {
                 expression: `(function(){
                   const txt = document.body ? document.body.innerText : '';
                   const m1 = txt.match(/ที่ต้องจัดส่ง[\\s\\n\\r]*\\(?([0-9,]{1,6})\\)?/);
-                  const m2 = txt.match(/รอดำเนินการ[\\s\\n\\r]*\\(?([0-9,]{1,6})\\)?/);
-                  return { count: m1 ? m1[1] : (m2 ? m2[1] : null) };
+                  const m2 = txt.match(/ดำเนินการแล้ว[\\s\\n\\r]*\\(?([0-9,]{1,6})\\)?/);
+                  const m3 = txt.match(/รอดำเนินการ[\\s\\n\\r]*\\(?([0-9,]{1,6})\\)?/);
+                  return { count: m1 ? m1[1] : (m2 ? m2[1] : (m3 ? m3[1] : null)) };
                 })()`,
                 returnByValue: true
               }, sessionId);
@@ -161,8 +163,8 @@ async function runSync() {
     return val;
   };
 
-  let targetTiktok = chromeLive?.tiktokOrders || 1138;
-  let targetShopee = chromeLive?.shopeeOrders || 271;
+  let targetTiktok = chromeLive?.tiktokOrders || 1146;
+  let targetShopee = chromeLive?.shopeeOrders || 269;
 
   if (pnlResp.ok) {
     const pnlRows = await pnlResp.json();

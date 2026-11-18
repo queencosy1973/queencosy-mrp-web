@@ -2010,8 +2010,8 @@
           return val;
         };
 
-        let sellerCenterTiktok = 1111;
-        let sellerCenterShopee = 211;
+        let sellerCenterTiktok = 1146;
+        let sellerCenterShopee = 269;
         let sellerCenterSyncAt = null;
         let directChromeItems = null;
         let directChromeMeta = null;
