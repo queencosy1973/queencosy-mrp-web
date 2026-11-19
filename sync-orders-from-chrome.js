@@ -163,16 +163,16 @@ async function runSync() {
     return val;
   };
 
-  let targetTiktok = chromeLive?.tiktokOrders || 1095;
-  let targetShopee = chromeLive?.shopeeOrders || 266;
+  let targetTiktok = chromeLive?.tiktokOrders || 1079;
+  let targetShopee = chromeLive?.shopeeOrders || 268;
 
   if (pnlResp.ok) {
     const pnlRows = await pnlResp.json();
     const pj = parseJsonField(pnlRows[0]?.items_json);
     const pipe = pj?.platformPipeline || pj;
     if (pipe) {
-      const oldTt = [1111, 1125, 1138, 1146];
-      const oldSh = [211, 269, 271];
+      const oldTt = [1111, 1125, 1138, 1146, 1095];
+      const oldSh = [211, 269, 271, 266];
       if (!chromeLive?.tiktokOrders && Number(pipe.tiktokBacklogOrders) > 0 && !oldTt.includes(Number(pipe.tiktokBacklogOrders))) {
         targetTiktok = Number(pipe.tiktokBacklogOrders);
       }
