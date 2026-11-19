@@ -534,7 +534,7 @@
       name: 'ลูกแม็กยิงโครงและหุ้มผ้า (F40 / 1008J)',
       unit: 'กล่อง',
       category: 'HARDWARE',
-      stockProductIds: ['PROD-042', 'PROD-044', 'PROD-067'],
+      stockProductIds: ['PROD-042', 'PROD-044', 'PROD-067', 'PROD-126'],
       stockUnit: 'กล่อง',
       bomPerStockUnit: 1,
       supplierName: 'กิตติศักดิ์ (ลูกแม็ก) / ไพวัล (ด้าย)',
