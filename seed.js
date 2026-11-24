@@ -1,6 +1,234 @@
-// Auto-synced from QC_STOCK_MOVEMENT_DATA_V4 on 2026-11-20
+// Auto-synced from QC_STOCK_MOVEMENT_DATA_V4 on 2026-11-24
 window.INITIAL_INVENTORY_DATA = {
   "inbound": [
+    {
+      "id": "IN-0602",
+      "date": "2026-11-23",
+      "note": "1 ลัง",
+      "type": "IN",
+      "quantity": 10,
+      "supplier": "MJ",
+      "productId": "PROD-126",
+      "unitPrice": 149,
+      "totalValue": 1490,
+      "productName": "แม็ก 438K"
+    },
+    {
+      "id": "IN-0601",
+      "date": "2026-11-23",
+      "note": "12 ลัง",
+      "type": "IN",
+      "quantity": 84,
+      "supplier": "MJ",
+      "productId": "PROD-042",
+      "unitPrice": 68.33,
+      "totalValue": 5739.72,
+      "productName": "แม็ก F40 (MJ)"
+    },
+    {
+      "id": "IN-0600",
+      "date": "2026-11-23",
+      "note": "22 ลัง",
+      "type": "IN",
+      "quantity": 330,
+      "supplier": "MJ",
+      "productId": "PROD-039",
+      "unitPrice": 90,
+      "totalValue": 29700,
+      "productName": "เกียร์ปรับสายรุ้ง"
+    },
+    {
+      "id": "IN-0599",
+      "date": "2026-11-23",
+      "note": "",
+      "type": "IN",
+      "quantity": 262,
+      "supplier": "ไทยโฟม",
+      "productId": "PROD-123",
+      "unitPrice": 330,
+      "totalValue": 86460,
+      "productName": "ฟองน้ำ TS21 2นิ้ว (ไทยโฟม)"
+    },
+    {
+      "id": "IN-0598",
+      "date": "2026-11-23",
+      "note": "",
+      "type": "IN",
+      "quantity": 50,
+      "supplier": "ไทยโฟม",
+      "productId": "PROD-124",
+      "unitPrice": 495,
+      "totalValue": 24750,
+      "productName": "ฟองน้ำ TS21 3นิ้ว (ไทยโฟม)"
+    },
+    {
+      "id": "IN-0597",
+      "date": "2026-11-23",
+      "note": "12 ลัง",
+      "type": "IN",
+      "quantity": 864,
+      "supplier": "วีไนน์",
+      "productId": "PROD-030",
+      "unitPrice": 13,
+      "totalValue": 11232,
+      "productName": "เทปใส"
+    },
+    {
+      "id": "IN-0596",
+      "date": "2026-11-21",
+      "note": "ตัดรอบ 5 : STOCK 2PL/3PL/แขน และตัวตกหล่น L-mini",
+      "type": "IN",
+      "quantity": 343.4,
+      "supplier": "MJ",
+      "productId": "PROD-079",
+      "unitPrice": 53,
+      "totalValue": 18200.199999999997,
+      "productName": "HL337-23 (แดงไวน์)"
+    },
+    {
+      "id": "IN-0595",
+      "date": "2026-11-21",
+      "note": "ตัดรอบ 5 : STOCK 2PL/3PL/แขน และตัวตกหล่น L-mini",
+      "type": "IN",
+      "quantity": 284.4,
+      "supplier": "MJ",
+      "productId": "PROD-083",
+      "unitPrice": 52,
+      "totalValue": 14788.8,
+      "productName": "MJ337-31 (น้ำเงิน)"
+    },
+    {
+      "id": "IN-0594",
+      "date": "2026-11-21",
+      "note": "ตัดรอบ 5 : STOCK 2PL/3PL/แขน และตัวตกหล่น L-mini",
+      "type": "IN",
+      "quantity": 170.9,
+      "supplier": "MJ",
+      "productId": "PROD-085",
+      "unitPrice": 52,
+      "totalValue": 8886.800000000001,
+      "productName": "MJ337-29 (เทาควัน)"
+    },
+    {
+      "id": "IN-0593",
+      "date": "2026-11-21",
+      "note": "ตัดรอบ 5 : STOCK 2PL/3PL/แขน และตัวตกหล่น L-mini",
+      "type": "IN",
+      "quantity": 71.3,
+      "supplier": "MJ",
+      "productId": "PROD-088",
+      "unitPrice": 52,
+      "totalValue": 3707.6,
+      "productName": "MJ337-22 (โรสโกลด์)"
+    },
+    {
+      "id": "IN-0592",
+      "date": "2026-11-21",
+      "note": "ตัดรอบ 5 : STOCK 2PL/3PL/แขน และตัวตกหล่น L-mini",
+      "type": "IN",
+      "quantity": 701,
+      "supplier": "ทั่วไป",
+      "productId": "PROD-090",
+      "unitPrice": 52,
+      "totalValue": 36452,
+      "productName": "MJ337-08 (น้ำตาล)"
+    },
+    {
+      "id": "IN-0591",
+      "date": "2026-11-21",
+      "note": "ตัดรอบ 5 : STOCK 2PL/3PL/แขน และตัวตกหล่น L-mini",
+      "type": "IN",
+      "quantity": 600,
+      "supplier": "MJ",
+      "productId": "PROD-103",
+      "unitPrice": 32,
+      "totalValue": 19200,
+      "productName": "PQ002C-46 (เทา)"
+    },
+    {
+      "id": "IN-0590",
+      "date": "2026-11-21",
+      "note": "ตัดรอบ 5 : STOCK 2PL/3PL/แขน และตัวตกหล่น L-mini",
+      "type": "IN",
+      "quantity": 50,
+      "supplier": "MJ",
+      "productId": "PROD-106",
+      "unitPrice": 30,
+      "totalValue": 1500,
+      "productName": "PQ002C-17 (ดำ)"
+    },
+    {
+      "id": "IN-0589",
+      "date": "2026-11-21",
+      "note": "ตัดรอบ 5 : STOCK 2PL/3PL/แขน และตัวตกหล่น L-mini ",
+      "type": "IN",
+      "quantity": 600,
+      "supplier": "MJ",
+      "productId": "PROD-108",
+      "unitPrice": 32,
+      "totalValue": 19200,
+      "productName": "PQ002C-06 (ครีม)"
+    },
+    {
+      "id": "IN-0588",
+      "date": "2026-11-21",
+      "note": "ขา2\" เข้า 28 ถุง สั่งไว้ในราคาเก่า",
+      "type": "IN",
+      "quantity": 7000,
+      "supplier": "MJ",
+      "productId": "PROD-033",
+      "unitPrice": 2.05,
+      "totalValue": 14349.999999999998,
+      "productName": "ขาพลาสติก 2\""
+    },
+    {
+      "id": "IN-0587",
+      "date": "2026-11-21",
+      "note": "ไม้ Stock",
+      "type": "IN",
+      "quantity": 720,
+      "supplier": "MJ",
+      "productId": "PROD-001",
+      "unitPrice": 5.5,
+      "totalValue": 3960,
+      "productName": "ไม้ระแนง 100-140 M"
+    },
+    {
+      "id": "IN-0586",
+      "date": "2026-11-21",
+      "note": "ไม้ Stock",
+      "type": "IN",
+      "quantity": 1220,
+      "supplier": "MJ",
+      "productId": "PROD-003",
+      "unitPrice": 7,
+      "totalValue": 8540,
+      "productName": "ไม้สะเดา 100-140 M"
+    },
+    {
+      "id": "IN-0585",
+      "date": "2026-11-21",
+      "note": "ไม้ STOCK",
+      "type": "IN",
+      "quantity": 1000,
+      "supplier": "MJ",
+      "productId": "PROD-002",
+      "unitPrice": 12.5,
+      "totalValue": 12500,
+      "productName": "ไม้ระแนงยาว 150-200 M"
+    },
+    {
+      "id": "IN-0584",
+      "date": "2026-11-21",
+      "note": "",
+      "type": "IN",
+      "quantity": 100,
+      "supplier": "ไทยสตาร์",
+      "productId": "PROD-116",
+      "unitPrice": 249,
+      "totalValue": 24900,
+      "productName": "ซีลยืด (ไทยสตาร์)"
+    },
     {
       "id": "IN-0583",
       "date": "2026-11-21",
@@ -6087,6 +6315,216 @@ window.INITIAL_INVENTORY_DATA = {
     }
   ],
   "outbound": [
+    {
+      "id": "OUT-0823",
+      "date": "2026-11-21",
+      "type": "OUT",
+      "unit": "แผ่น",
+      "quantity": 60,
+      "productId": "PROD-012",
+      "dailyUsage": "",
+      "productName": "ไม้ยาว 180 M"
+    },
+    {
+      "id": "OUT-0822",
+      "date": "2026-11-21",
+      "type": "OUT",
+      "unit": "แผ่น",
+      "quantity": 680,
+      "productId": "PROD-002",
+      "dailyUsage": "",
+      "productName": "ไม้ระแนงยาว 150-200 M"
+    },
+    {
+      "id": "OUT-0821",
+      "date": "2026-11-21",
+      "type": "OUT",
+      "unit": "แผ่น",
+      "quantity": 1930,
+      "productId": "PROD-001",
+      "dailyUsage": "",
+      "productName": "ไม้ระแนง 100-140 M"
+    },
+    {
+      "id": "OUT-0820",
+      "date": "2026-11-21",
+      "type": "OUT",
+      "unit": "กก.",
+      "quantity": 28,
+      "productId": "PROD-029",
+      "dailyUsage": "4 มัด",
+      "productName": "กระดาษลูกฟูก แผ่น"
+    },
+    {
+      "id": "OUT-0819",
+      "date": "2026-11-21",
+      "type": "OUT",
+      "unit": "กก.",
+      "quantity": 250,
+      "productId": "PROD-028",
+      "dailyUsage": "10 ม้วน",
+      "productName": "กระดาษลูกฟูก ม้วน"
+    },
+    {
+      "id": "OUT-0817",
+      "date": "2026-11-21",
+      "type": "OUT",
+      "unit": "ม้วน",
+      "quantity": 23,
+      "productId": "PROD-068",
+      "dailyUsage": "",
+      "productName": "บับเบิ้ล ( Bubble) กุลนาถ"
+    },
+    {
+      "id": "OUT-0816",
+      "date": "2026-11-21",
+      "type": "OUT",
+      "unit": "ม้วน",
+      "quantity": 72,
+      "productId": "PROD-030",
+      "dailyUsage": "1 ลัง",
+      "productName": "เทปใส"
+    },
+    {
+      "id": "OUT-0815",
+      "date": "2026-11-21",
+      "type": "OUT",
+      "unit": "ม้วน",
+      "quantity": 15,
+      "productId": "PROD-116",
+      "dailyUsage": "",
+      "productName": "ซีลยืด (ไทยสตาร์)"
+    },
+    {
+      "id": "OUT-0814",
+      "date": "2026-11-21",
+      "type": "OUT",
+      "unit": "ตัว",
+      "quantity": 500,
+      "productId": "PROD-033",
+      "dailyUsage": "2 ถุง",
+      "productName": "ขาพลาสติก 2\""
+    },
+    {
+      "id": "OUT-0813",
+      "date": "2026-11-21",
+      "type": "OUT",
+      "unit": "ตัว",
+      "quantity": 500,
+      "productId": "PROD-034",
+      "dailyUsage": "1 ถุง",
+      "productName": "ขาพลาสติก 1\""
+    },
+    {
+      "id": "OUT-0812",
+      "date": "2026-11-21",
+      "type": "OUT",
+      "unit": "กล่อง",
+      "quantity": 30,
+      "productId": "PROD-044",
+      "dailyUsage": "1ลัง",
+      "productName": "แม็ก 1008J"
+    },
+    {
+      "id": "OUT-0811",
+      "date": "2026-11-21",
+      "type": "OUT",
+      "unit": "กล่อง",
+      "quantity": 12,
+      "productId": "PROD-126",
+      "dailyUsage": "12 กล่อง",
+      "productName": "แม็ก 438K"
+    },
+    {
+      "id": "OUT-0810",
+      "date": "2026-11-21",
+      "type": "OUT",
+      "unit": "กล่อง",
+      "quantity": 36,
+      "productId": "PROD-042",
+      "dailyUsage": "3 ลัง",
+      "productName": "แม็ก F40 (MJ)"
+    },
+    {
+      "id": "OUT-0809",
+      "date": "2026-11-21",
+      "type": "OUT",
+      "unit": "คู่",
+      "quantity": 45,
+      "productId": "PROD-039",
+      "dailyUsage": "3 ลัง",
+      "productName": "เกียร์ปรับสายรุ้ง"
+    },
+    {
+      "id": "OUT-0808",
+      "date": "2026-11-21",
+      "type": "OUT",
+      "unit": "ปี๊บ",
+      "quantity": 1,
+      "productId": "PROD-069",
+      "dailyUsage": "",
+      "productName": "กาวพ่น (Toda)"
+    },
+    {
+      "id": "OUT-0807",
+      "date": "2026-11-20",
+      "type": "OUT",
+      "unit": "แผ่น",
+      "quantity": 120,
+      "productId": "PROD-012",
+      "dailyUsage": "",
+      "productName": "ไม้ยาว 180 M"
+    },
+    {
+      "id": "OUT-0806",
+      "date": "2026-11-20",
+      "type": "OUT",
+      "unit": "แผ่น",
+      "quantity": 30,
+      "productId": "PROD-011",
+      "dailyUsage": "",
+      "productName": "ไม้ยาว 150 M"
+    },
+    {
+      "id": "OUT-0805",
+      "date": "2026-11-20",
+      "type": "OUT",
+      "unit": "แผ่น",
+      "quantity": 150,
+      "productId": "PROD-010",
+      "dailyUsage": "",
+      "productName": "ไม้ยาว 100 M"
+    },
+    {
+      "id": "OUT-0804",
+      "date": "2026-11-20",
+      "type": "OUT",
+      "unit": "แผ่น",
+      "quantity": 100,
+      "productId": "PROD-005",
+      "dailyUsage": "",
+      "productName": "ไม้หน้า 3,4"
+    },
+    {
+      "id": "OUT-0802",
+      "date": "2026-11-20",
+      "type": "OUT",
+      "unit": "แผ่น",
+      "quantity": 1040,
+      "productId": "PROD-002",
+      "dailyUsage": "",
+      "productName": "ไม้ระแนงยาว 150-200 M"
+    },
+    {
+      "id": "OUT-0801",
+      "date": "2026-11-20",
+      "type": "OUT",
+      "unit": "แผ่น",
+      "quantity": 670,
+      "productId": "PROD-003",
+      "dailyUsage": "",
+      "productName": "ไม้สะเดา 100-140 M"
+    },
     {
       "id": "OUT-0800",
       "date": "2026-11-20",
@@ -15074,7 +15512,7 @@ window.INITIAL_INVENTORY_DATA = {
       "conversionNote": ""
     }
   ],
-  "updatedAt": "2026-11-20T10:44:21.983Z",
+  "updatedAt": "2026-11-23T07:43:49.954Z",
   "categories": [
     "กลุ่มไม้",
     "กลุ่มฟองน้ำ",
@@ -15094,9 +15532,11 @@ window.INITIAL_INVENTORY_DATA = {
     "IN-0539",
     "OUT-0735",
     "IN-0569",
-    "IN-0578"
+    "IN-0578",
+    "OUT-0803",
+    "OUT-0818"
   ],
   "adjustments": [],
   "schemaVersion": 5,
-  "updatedByDevice": "QC-STK-4zea1w5"
+  "updatedByDevice": "QC-STK-4aihmy4"
 };
