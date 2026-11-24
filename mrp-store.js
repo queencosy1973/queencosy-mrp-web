@@ -2024,7 +2024,7 @@
           return val;
         };
 
-        let sellerCenterTiktok = 999;
+        let sellerCenterTiktok = 1031;
         let sellerCenterShopee = 275;
         let sellerCenterSyncAt = null;
         let directChromeItems = null;

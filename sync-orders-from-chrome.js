@@ -31,7 +31,7 @@ async function tryReadChromeSellerCenter() {
       const timeout = setTimeout(() => {
         try { ws.close(); } catch (e) {}
         resolve(null);
-      }, 6000);
+      }, 1500);
 
       function callCdp(method, params = {}, sessionId = null) {
         return new Promise((res, rej) => {
@@ -163,7 +163,7 @@ async function runSync() {
     return val;
   };
 
-  let targetTiktok = chromeLive?.tiktokOrders || 999;
+  let targetTiktok = chromeLive?.tiktokOrders || 1031;
   let targetShopee = chromeLive?.shopeeOrders || 275;
 
   if (pnlResp.ok) {
@@ -171,7 +171,7 @@ async function runSync() {
     const pj = parseJsonField(pnlRows[0]?.items_json);
     const pipe = pj?.platformPipeline || pj;
     if (pipe) {
-      const oldTt = [1111, 1125, 1138, 1146, 1095, 1079];
+      const oldTt = [1111, 1125, 1138, 1146, 1095, 1079, 999];
       const oldSh = [211, 269, 271, 266, 268];
       if (!chromeLive?.tiktokOrders && Number(pipe.tiktokBacklogOrders) > 0 && !oldTt.includes(Number(pipe.tiktokBacklogOrders))) {
         targetTiktok = Number(pipe.tiktokBacklogOrders);
