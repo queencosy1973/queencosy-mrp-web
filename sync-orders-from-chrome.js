@@ -349,19 +349,90 @@ async function runSync() {
     const calc = store.runMrpCalculation();
     const s = calc.summary;
 
+    // Calculate real SKU-weighted Gross Selling Price & Master Fee Table Net Payout across all backlog items
+    let realTtGross = 0, realShGross = 0, realMasterNet = 0;
+    try {
+      const feePath = 'D:\\QueenCosy_System\\ecom-reconcile-web\\default-fee-table.js';
+      if (fs.existsSync(feePath)) {
+        vm.runInContext(fs.readFileSync(feePath, 'utf8'), mrpBox);
+        const feeTable = mrpBox.window.DEFAULT_FEE_TABLE || [];
+        const getModel = (str) => {
+          str = String(str || '').toLowerCase();
+          if (/-(rss|rsh|rsw|rsn|rsii|rs)/.test(str)) return 'rs';
+          if (/-(rcs|rch|rcw|rcn|rcii|rc)/.test(str)) return 'rc';
+          if (/-(mn(?:h|cf|py|n)?)(\([lr]\))?/.test(str)) return 'mn';
+          if (/-(pl(?:n|h|cf|py)?)/.test(str)) return 'pl';
+          if (/-bs3s/.test(str)) return 'bs3s';
+          if (/-bs1/.test(str)) return 'bs1';
+          if (/-bs2/.test(str)) return 'bs2';
+          if (/-bs3/.test(str)) return 'bs3';
+          if (/-cs1/.test(str)) return 'cs1';
+          if (/-cs2/.test(str)) return 'cs2';
+          if (/-cs3/.test(str)) return 'cs3';
+          if (/-ln1/.test(str)) return 'ln1';
+          if (/-ln2/.test(str)) return 'ln2';
+          if (/-ln3/.test(str)) return 'ln3';
+          if (/-lu2/.test(str)) return 'lu2';
+          if (/-lu3/.test(str)) return 'lu3';
+          if (/-lz3?/.test(str)) return 'lz';
+          if (/-box2/.test(str)) return 'box2';
+          if (/-box3/.test(str)) return 'box3';
+          if (/-cu/.test(str)) return 'cu';
+          if (/-cl/.test(str)) return 'cl';
+          if (/rv2/.test(str)) return 'rv2';
+          if (/rv3/.test(str)) return 'rv3';
+          return 'other';
+        };
+        const getFab = (str) => {
+          str = String(str || '').toLowerCase();
+          if (/pq002c|(^|-)pq(-|$)/.test(str)) return 'PQ';
+          if (/mj337|(^|-)337(-|$)/.test(str)) return 'Holland';
+          if (/mj356|(^|-)356(-|$)/.test(str)) return 'Corrugated';
+          if (/mj350|(^|-)350(-|$)/.test(str)) return 'Poly';
+          if (/736b/.test(str)) return 'Nano';
+          return 'other';
+        };
+        const gMap = new Map(), mMap = new Map();
+        feeTable.forEach(ft => {
+          if (!ft.price || ft.price <= 0) return;
+          const m = getModel(ft.name), f = getFab(ft.name);
+          gMap.set(`${m}|${f}`, { price: ft.price, payout: ft.origPayout });
+          if (!mMap.has(m)) mMap.set(m, { price: ft.price, payout: ft.origPayout });
+        });
+        (store.state.backlogItems || []).forEach(it => {
+          const m = getModel(it.sku), f = getFab(it.sku);
+          let entry = gMap.get(`${m}|${f}`) || mMap.get(m);
+          if (!entry) {
+            if (m === 'box2' || m === 'lu2') entry = gMap.get(`bs2|${f}`) || { price: 1590, payout: 1110 };
+            else if (m === 'box3') entry = gMap.get(`bs3|${f}`) || { price: 1990, payout: 1389 };
+            else entry = { price: 1990, payout: 1389 };
+          }
+          realTtGross += Number(it.tiktokQty || 0) * entry.price;
+          realShGross += Number(it.shopeeQty || 0) * entry.price;
+          realMasterNet += (Number(it.tiktokQty || 0) + Number(it.shopeeQty || 0)) * entry.payout;
+        });
+      }
+    } catch (e) {}
+
     const pResp2 = await fetch(`${SUPABASE_URL}/rest/v1/production_batches?batch_id=eq.QC_PNL_PIPELINE_STATE_V1&select=items_json`, { headers });
     const pRows2 = await pResp2.json();
     const existingPipe = parseJsonField(pRows2[0]?.items_json);
     existingPipe.tiktokBacklogOrders = s.totalTiktokOrders;
     existingPipe.shopeeBacklogOrders = s.totalShopeeOrders;
     existingPipe.fgReadyUnits = s.totalFgUsed;
-    existingPipe.bomMaterialPerUnit = Number((s.avgGrossMatPerSofa || 1051.48).toFixed(2));
+    existingPipe.bomMaterialPerUnit = Number((s.avgGrossMatPerSofa || 1047).toFixed(2));
     existingPipe.mrpGrossBomCost = Math.round(s.totalGrossBomCost || 0);
     existingPipe.mrpStockDeducted = Math.round(s.totalStockDeductedValue || 0);
     existingPipe.mrpNetPurchaseNeeded = Math.round(s.totalNetPurchaseBudget || 0);
     existingPipe.mrpCashWeekly = Math.round(s.cashWeeklyBudget || 0);
     existingPipe.mrpCreditEom = Math.round(s.creditEomBudget || 0);
     existingPipe.mrpWarehouseTotal = Math.round(s.totalWarehouseStockValue || 0);
+    if ((realTtGross + realShGross) > 0 && s.totalGrossBacklog > 0) {
+      existingPipe.avgSofaPrice = Number(((realTtGross + realShGross) / s.totalGrossBacklog).toFixed(2));
+      existingPipe.realTtGrossRevenue = Math.round(realTtGross);
+      existingPipe.realShGrossRevenue = Math.round(realShGross);
+      existingPipe.realMasterNetPayout = Math.round(realMasterNet);
+    }
     existingPipe.updatedAt = new Date().toISOString();
 
     await fetch(`${SUPABASE_URL}/rest/v1/production_batches?on_conflict=batch_id`, {
