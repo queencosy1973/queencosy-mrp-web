@@ -2,6 +2,42 @@
 window.INITIAL_INVENTORY_DATA = {
   "inbound": [
     {
+      "id": "IN-0623",
+      "date": "2026-11-25",
+      "note": "",
+      "type": "IN",
+      "quantity": 1500,
+      "supplier": "MJ",
+      "productId": "PROD-002",
+      "unitPrice": 12.5,
+      "totalValue": 18750,
+      "productName": "ไม้ระแนงยาว 150-200 M"
+    },
+    {
+      "id": "IN-0622",
+      "date": "2026-11-25",
+      "note": "",
+      "type": "IN",
+      "quantity": 1440,
+      "supplier": "MJ",
+      "productId": "PROD-001",
+      "unitPrice": 5.5,
+      "totalValue": 7920,
+      "productName": "ไม้ระแนง 100-140 M"
+    },
+    {
+      "id": "IN-0621",
+      "date": "2026-11-25",
+      "note": "",
+      "type": "IN",
+      "quantity": 560,
+      "supplier": "MJ",
+      "productId": "PROD-003",
+      "unitPrice": 7,
+      "totalValue": 3920,
+      "productName": "ไม้สะเดา 100-140 M"
+    },
+    {
       "id": "IN-0620",
       "date": "2026-11-24",
       "note": "",
@@ -6507,6 +6543,136 @@ window.INITIAL_INVENTORY_DATA = {
     }
   ],
   "outbound": [
+    {
+      "id": "OUT-0863",
+      "date": "2026-11-25",
+      "type": "OUT",
+      "unit": "กก.",
+      "quantity": 77,
+      "productId": "PROD-029",
+      "dailyUsage": "11 มัด",
+      "productName": "กระดาษลูกฟูก แผ่น"
+    },
+    {
+      "id": "OUT-0862",
+      "date": "2026-11-25",
+      "type": "OUT",
+      "unit": "กก.",
+      "quantity": 200,
+      "productId": "PROD-028",
+      "dailyUsage": "8 ม้วน",
+      "productName": "กระดาษลูกฟูก ม้วน"
+    },
+    {
+      "id": "OUT-0861",
+      "date": "2026-11-25",
+      "type": "OUT",
+      "unit": "ม้วน",
+      "quantity": 10,
+      "productId": "PROD-068",
+      "dailyUsage": "10 ม้วน",
+      "productName": "บับเบิ้ล ( Bubble) กุลนาถ"
+    },
+    {
+      "id": "OUT-0860",
+      "date": "2026-11-25",
+      "type": "OUT",
+      "unit": "อัน",
+      "quantity": 12,
+      "productId": "PROD-040",
+      "dailyUsage": "1 ลัง",
+      "productName": "ด้ายเอ็นใส No.25"
+    },
+    {
+      "id": "OUT-0859",
+      "date": "2026-11-25",
+      "type": "OUT",
+      "unit": "ม้วน",
+      "quantity": 72,
+      "productId": "PROD-030",
+      "dailyUsage": "1 ลัง",
+      "productName": "เทปใส"
+    },
+    {
+      "id": "OUT-0858",
+      "date": "2026-11-25",
+      "type": "OUT",
+      "unit": "ม้วน",
+      "quantity": 6,
+      "productId": "PROD-116",
+      "dailyUsage": "6 ม้วน",
+      "productName": "ซีลยืด (ไทยสตาร์)"
+    },
+    {
+      "id": "OUT-0857",
+      "date": "2026-11-25",
+      "type": "OUT",
+      "unit": "ตัว",
+      "quantity": 500,
+      "productId": "PROD-034",
+      "dailyUsage": "1 ถุง",
+      "productName": "ขาพลาสติก 1\""
+    },
+    {
+      "id": "OUT-0856",
+      "date": "2026-11-25",
+      "type": "OUT",
+      "unit": "คู่",
+      "quantity": 60,
+      "productId": "PROD-039",
+      "dailyUsage": "4 ลัง",
+      "productName": "เกียร์ปรับสายรุ้ง"
+    },
+    {
+      "id": "OUT-0855",
+      "date": "2026-11-25",
+      "type": "OUT",
+      "unit": "ปี๊บ",
+      "quantity": 1,
+      "productId": "PROD-069",
+      "dailyUsage": "",
+      "productName": "กาวพ่น (Toda)"
+    },
+    {
+      "id": "OUT-0854",
+      "date": "2026-11-24",
+      "type": "OUT",
+      "unit": "แผ่น",
+      "quantity": 13,
+      "productId": "PROD-009",
+      "dailyUsage": "",
+      "productName": "ไม้อัดใหญ่"
+    },
+    {
+      "id": "OUT-0853",
+      "date": "2026-11-24",
+      "type": "OUT",
+      "unit": "แผ่น",
+      "quantity": 30,
+      "productId": "PROD-005",
+      "dailyUsage": "",
+      "productName": "ไม้หน้า 3,4"
+    },
+    {
+      "id": "OUT-0852",
+      "date": "2026-11-24",
+      "type": "OUT",
+      "unit": "แผ่น",
+      "quantity": 160,
+      "productId": "PROD-002",
+      "dailyUsage": "",
+      "productName": "ไม้ระแนงยาว 150-200 M"
+    },
+    {
+      "id": "OUT-0851",
+      "date": "2026-11-24",
+      "type": "OUT",
+      "unit": "แผ่น",
+      "quantity": 2840,
+      "productId": "PROD-003",
+      "dailyUsage": "",
+      "productName": "ไม้สะเดา 100-140 M"
+    },
     {
       "id": "OUT-0850",
       "date": "2026-11-24",
@@ -15964,7 +16130,7 @@ window.INITIAL_INVENTORY_DATA = {
       "conversionNote": ""
     }
   ],
-  "updatedAt": "2026-11-24T10:49:36.555Z",
+  "updatedAt": "2026-11-25T10:23:54.832Z",
   "categories": [
     "กลุ่มไม้",
     "กลุ่มฟองน้ำ",
@@ -15993,5 +16159,5 @@ window.INITIAL_INVENTORY_DATA = {
   ],
   "adjustments": [],
   "schemaVersion": 5,
-  "updatedByDevice": "QC-STK-f8zjl23"
+  "updatedByDevice": "QC-STK-nx7m7a1"
 };
