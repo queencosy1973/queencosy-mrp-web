@@ -164,7 +164,7 @@ async function runSync() {
   };
 
   let targetTiktok = chromeLive?.tiktokOrders || 1031;
-  let targetShopee = chromeLive?.shopeeOrders || 275;
+  let targetShopee = chromeLive?.shopeeOrders || 267;
 
   if (pnlResp.ok) {
     const pnlRows = await pnlResp.json();
@@ -172,7 +172,7 @@ async function runSync() {
     const pipe = pj?.platformPipeline || pj;
     if (pipe) {
       const oldTt = [1111, 1125, 1138, 1146, 1095, 1079, 999];
-      const oldSh = [211, 269, 271, 266, 268];
+      const oldSh = [211, 269, 271, 266, 268, 275];
       if (!chromeLive?.tiktokOrders && Number(pipe.tiktokBacklogOrders) > 0 && !oldTt.includes(Number(pipe.tiktokBacklogOrders))) {
         targetTiktok = Number(pipe.tiktokBacklogOrders);
       }

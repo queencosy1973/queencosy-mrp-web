@@ -2025,7 +2025,7 @@
         };
 
         let sellerCenterTiktok = 1031;
-        let sellerCenterShopee = 275;
+        let sellerCenterShopee = 267;
         let sellerCenterSyncAt = null;
         let directChromeItems = null;
         let directChromeMeta = null;
