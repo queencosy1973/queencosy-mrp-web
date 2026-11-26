@@ -2,6 +2,78 @@
 window.INITIAL_INVENTORY_DATA = {
   "inbound": [
     {
+      "id": "IN-0629",
+      "date": "2026-11-26",
+      "note": "",
+      "type": "IN",
+      "quantity": 151,
+      "supplier": "สมไกร",
+      "productId": "PROD-006",
+      "unitPrice": 50,
+      "totalValue": 7550,
+      "productName": "ไม้อัด 50.- (สมไกร)"
+    },
+    {
+      "id": "IN-0628",
+      "date": "2026-11-26",
+      "note": "",
+      "type": "IN",
+      "quantity": 2147,
+      "supplier": "ซัลโพลี",
+      "productId": "PROD-052",
+      "unitPrice": 14.01,
+      "totalValue": 30079.47,
+      "productName": "ผ้าปิดตูด"
+    },
+    {
+      "id": "IN-0627",
+      "date": "2026-11-26",
+      "note": "3 ลัง",
+      "type": "IN",
+      "quantity": 90,
+      "supplier": "MJ",
+      "productId": "PROD-044",
+      "unitPrice": 26.66,
+      "totalValue": 2399.4,
+      "productName": "แม็ก 1008J"
+    },
+    {
+      "id": "IN-0626",
+      "date": "2026-11-26",
+      "note": "",
+      "type": "IN",
+      "quantity": 30,
+      "supplier": "MJ",
+      "productId": "PROD-126",
+      "unitPrice": 149,
+      "totalValue": 4470,
+      "productName": "แม็ก 438K"
+    },
+    {
+      "id": "IN-0625",
+      "date": "2026-11-26",
+      "note": "",
+      "type": "IN",
+      "quantity": 3000,
+      "supplier": "MJ",
+      "productId": "PROD-003",
+      "unitPrice": 7,
+      "totalValue": 21000,
+      "productName": "ไม้สะเดา 100-140 M"
+    },
+    {
+      "id": "IN-0624",
+      "date": "2026-11-26",
+      "note": "",
+      "type": "IN",
+      "quantity": 240,
+      "supplier": "ไทยโฟม",
+      "productId": "PROD-123",
+      "unitPrice": 330,
+      "totalValue": 79200,
+      "productName": "ฟองน้ำ TS21 2นิ้ว (ไทยโฟม)"
+    },
+    {
       "id": "IN-0623",
       "date": "2026-11-25",
       "note": "",
@@ -6543,6 +6615,46 @@ window.INITIAL_INVENTORY_DATA = {
     }
   ],
   "outbound": [
+    {
+      "id": "OUT-0867",
+      "date": "2026-11-25",
+      "type": "OUT",
+      "unit": "แผ่น",
+      "quantity": 320,
+      "productId": "PROD-005",
+      "dailyUsage": "",
+      "productName": "ไม้หน้า 3,4"
+    },
+    {
+      "id": "OUT-0866",
+      "date": "2026-11-25",
+      "type": "OUT",
+      "unit": "แผ่น",
+      "quantity": 1030,
+      "productId": "PROD-002",
+      "dailyUsage": "",
+      "productName": "ไม้ระแนงยาว 150-200 M"
+    },
+    {
+      "id": "OUT-0865",
+      "date": "2026-11-25",
+      "type": "OUT",
+      "unit": "แผ่น",
+      "quantity": 1400,
+      "productId": "PROD-003",
+      "dailyUsage": "",
+      "productName": "ไม้สะเดา 100-140 M"
+    },
+    {
+      "id": "OUT-0864",
+      "date": "2026-11-25",
+      "type": "OUT",
+      "unit": "แผ่น",
+      "quantity": 1440,
+      "productId": "PROD-001",
+      "dailyUsage": "",
+      "productName": "ไม้ระแนง 100-140 M"
+    },
     {
       "id": "OUT-0863",
       "date": "2026-11-25",
@@ -16130,7 +16242,7 @@ window.INITIAL_INVENTORY_DATA = {
       "conversionNote": ""
     }
   ],
-  "updatedAt": "2026-11-25T10:23:54.832Z",
+  "updatedAt": "2026-11-26T06:25:29.756Z",
   "categories": [
     "กลุ่มไม้",
     "กลุ่มฟองน้ำ",
@@ -16159,5 +16271,5 @@ window.INITIAL_INVENTORY_DATA = {
   ],
   "adjustments": [],
   "schemaVersion": 5,
-  "updatedByDevice": "QC-STK-nx7m7a1"
+  "updatedByDevice": "QC-STK-246191j"
 };

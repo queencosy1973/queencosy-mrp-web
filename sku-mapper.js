@@ -66,7 +66,7 @@
     }
 
     // Determine Fabric Code
-    if (explicit736Match) {
+    if (explicit736Match && !/^736b-0$/i.test(explicit736Match[0])) {
       code = explicit736Match[0].toLowerCase();
     } else if (explicit356Match) {
       code = explicit356Match[0].toLowerCase();
