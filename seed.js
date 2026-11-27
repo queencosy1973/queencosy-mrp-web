@@ -2,6 +2,30 @@
 window.INITIAL_INVENTORY_DATA = {
   "inbound": [
     {
+      "id": "IN-0631",
+      "date": "2026-11-27",
+      "note": "10 ตัว",
+      "type": "IN",
+      "quantity": 10,
+      "supplier": "ดี.จี.เอ็ม",
+      "productId": "PROD-111",
+      "unitPrice": 116,
+      "totalValue": 1160,
+      "productName": "ข้อต่อปั๊มลม คู่ (SP+PP)"
+    },
+    {
+      "id": "IN-0630",
+      "date": "2026-11-27",
+      "note": "",
+      "type": "IN",
+      "quantity": 3000,
+      "supplier": "MJ",
+      "productId": "PROD-003",
+      "unitPrice": 7,
+      "totalValue": 21000,
+      "productName": "ไม้สะเดา 100-140 M"
+    },
+    {
       "id": "IN-0629",
       "date": "2026-11-26",
       "note": "",
@@ -6615,6 +6639,426 @@ window.INITIAL_INVENTORY_DATA = {
     }
   ],
   "outbound": [
+    {
+      "id": "OUT-0909",
+      "date": "2026-11-27",
+      "type": "OUT",
+      "unit": "กก.",
+      "quantity": 56,
+      "productId": "PROD-029",
+      "dailyUsage": "8 มัด",
+      "productName": "กระดาษลูกฟูก แผ่น"
+    },
+    {
+      "id": "OUT-0908",
+      "date": "2026-11-27",
+      "type": "OUT",
+      "unit": "กก.",
+      "quantity": 225,
+      "productId": "PROD-028",
+      "dailyUsage": "8 ม้วน",
+      "productName": "กระดาษลูกฟูก ม้วน"
+    },
+    {
+      "id": "OUT-0907",
+      "date": "2026-11-27",
+      "type": "OUT",
+      "unit": "ม้วน",
+      "quantity": 18,
+      "productId": "PROD-068",
+      "dailyUsage": "",
+      "productName": "บับเบิ้ล ( Bubble) กุลนาถ"
+    },
+    {
+      "id": "OUT-0906",
+      "date": "2026-11-27",
+      "type": "OUT",
+      "unit": "ม้วน",
+      "quantity": 144,
+      "productId": "PROD-030",
+      "dailyUsage": "2 ลัง",
+      "productName": "เทปใส"
+    },
+    {
+      "id": "OUT-0905",
+      "date": "2026-11-27",
+      "type": "OUT",
+      "unit": "ม้วน",
+      "quantity": 13,
+      "productId": "PROD-116",
+      "dailyUsage": "",
+      "productName": "ซีลยืด (ไทยสตาร์)"
+    },
+    {
+      "id": "OUT-0904",
+      "date": "2026-11-27",
+      "type": "OUT",
+      "unit": "ตัว",
+      "quantity": 250,
+      "productId": "PROD-033",
+      "dailyUsage": "1 ถ",
+      "productName": "ขาพลาสติก 2\""
+    },
+    {
+      "id": "OUT-0903",
+      "date": "2026-11-27",
+      "type": "OUT",
+      "unit": "ตัว",
+      "quantity": 1000,
+      "productId": "PROD-034",
+      "dailyUsage": "2 ถุง",
+      "productName": "ขาพลาสติก 1\""
+    },
+    {
+      "id": "OUT-0902",
+      "date": "2026-11-27",
+      "type": "OUT",
+      "unit": "กล่อง",
+      "quantity": 30,
+      "productId": "PROD-067",
+      "dailyUsage": "1 ลัง",
+      "productName": "1008J (ToDa)"
+    },
+    {
+      "id": "OUT-0901",
+      "date": "2026-11-27",
+      "type": "OUT",
+      "unit": "กล่อง",
+      "quantity": 60,
+      "productId": "PROD-042",
+      "dailyUsage": "5 ลัง",
+      "productName": "แม็ก F40 (MJ)"
+    },
+    {
+      "id": "OUT-0900",
+      "date": "2026-11-27",
+      "type": "OUT",
+      "unit": "คู่",
+      "quantity": 45,
+      "productId": "PROD-039",
+      "dailyUsage": "3 ลัง",
+      "productName": "เกียร์ปรับสายรุ้ง"
+    },
+    {
+      "id": "OUT-0899",
+      "date": "2026-11-27",
+      "type": "OUT",
+      "unit": "ปี๊บ",
+      "quantity": 1,
+      "productId": "PROD-069",
+      "dailyUsage": "",
+      "productName": "กาวพ่น (Toda)"
+    },
+    {
+      "id": "OUT-0898",
+      "date": "2026-11-27",
+      "type": "OUT",
+      "unit": "ชุด",
+      "quantity": 7,
+      "productId": "PROD-111",
+      "dailyUsage": "ขายหมดแล้ว",
+      "productName": "ข้อต่อปั๊มลม คู่ (SP+PP)"
+    },
+    {
+      "id": "OUT-0893",
+      "date": "2026-11-27",
+      "type": "OUT",
+      "unit": "หลา",
+      "quantity": 124.4,
+      "productId": "PROD-085",
+      "dailyUsage": "ตัดรอบ1 ธ.ค : Pre 1-7/12/69 + L-mini เดท 26/12",
+      "productName": "MJ337-29 (เทาควัน)"
+    },
+    {
+      "id": "OUT-0888",
+      "date": "2026-11-27",
+      "type": "OUT",
+      "unit": "หลา",
+      "quantity": 100,
+      "productId": "PROD-106",
+      "dailyUsage": "ตัดรอบ1 ธ.ค : Pre 1-7/12/69 + L-mini เดท 26/12",
+      "productName": "PQ002C-17 (ดำ)"
+    },
+    {
+      "id": "OUT-0878",
+      "date": "2026-11-27",
+      "type": "OUT",
+      "unit": "กล่อง",
+      "quantity": 18,
+      "productId": "PROD-126",
+      "dailyUsage": "",
+      "productName": "แม็ก 438K"
+    },
+    {
+      "id": "OUT-0877",
+      "date": "2026-11-27",
+      "type": "OUT",
+      "unit": "กก.",
+      "quantity": 112,
+      "productId": "PROD-029",
+      "dailyUsage": "16 มัด",
+      "productName": "กระดาษลูกฟูก แผ่น"
+    },
+    {
+      "id": "OUT-0876",
+      "date": "2026-11-27",
+      "type": "OUT",
+      "unit": "กก.",
+      "quantity": 225,
+      "productId": "PROD-028",
+      "dailyUsage": "9 ม้วน",
+      "productName": "กระดาษลูกฟูก ม้วน"
+    },
+    {
+      "id": "OUT-0875",
+      "date": "2026-11-27",
+      "type": "OUT",
+      "unit": "ชุด",
+      "quantity": 2000,
+      "productId": "PROD-048",
+      "dailyUsage": "2 ถุง",
+      "productName": "กระดุมเบอร์ 36"
+    },
+    {
+      "id": "OUT-0874",
+      "date": "2026-11-27",
+      "type": "OUT",
+      "unit": "ม้วน",
+      "quantity": 10,
+      "productId": "PROD-068",
+      "dailyUsage": "",
+      "productName": "บับเบิ้ล ( Bubble) กุลนาถ"
+    },
+    {
+      "id": "OUT-0873",
+      "date": "2026-11-27",
+      "type": "OUT",
+      "unit": "ม้วน",
+      "quantity": 72,
+      "productId": "PROD-030",
+      "dailyUsage": "",
+      "productName": "เทปใส"
+    },
+    {
+      "id": "OUT-0872",
+      "date": "2026-11-27",
+      "type": "OUT",
+      "unit": "ม้วน",
+      "quantity": 16,
+      "productId": "PROD-116",
+      "dailyUsage": "",
+      "productName": "ซีลยืด (ไทยสตาร์)"
+    },
+    {
+      "id": "OUT-0871",
+      "date": "2026-11-27",
+      "type": "OUT",
+      "unit": "ตัว",
+      "quantity": 500,
+      "productId": "PROD-034",
+      "dailyUsage": "1 ถุง",
+      "productName": "ขาพลาสติก 1\""
+    },
+    {
+      "id": "OUT-0870",
+      "date": "2026-11-27",
+      "type": "OUT",
+      "unit": "กล่อง",
+      "quantity": 30,
+      "productId": "PROD-067",
+      "dailyUsage": "1 ลัง",
+      "productName": "1008J (ToDa)"
+    },
+    {
+      "id": "OUT-0869",
+      "date": "2026-11-27",
+      "type": "OUT",
+      "unit": "คู่",
+      "quantity": 60,
+      "productId": "PROD-039",
+      "dailyUsage": "2 ลัง",
+      "productName": "เกียร์ปรับสายรุ้ง"
+    },
+    {
+      "id": "OUT-0897",
+      "date": "2026-11-26",
+      "type": "OUT",
+      "unit": "หลา",
+      "quantity": 397.5,
+      "productId": "PROD-071",
+      "dailyUsage": "ตัดรอบ1 ธ.ค : Pre 1-7/12/69 + L-mini เดท 26/12",
+      "productName": "MJ736B-4 (นาโนฟ้า)"
+    },
+    {
+      "id": "OUT-0896",
+      "date": "2026-11-26",
+      "type": "OUT",
+      "unit": "หลา",
+      "quantity": 457.9,
+      "productId": "PROD-072",
+      "dailyUsage": "ตัดรอบ1 ธ.ค : Pre 1-7/12/69 + L-mini เดท 26/12",
+      "productName": "MJ736B-2 (นาโนเทา)"
+    },
+    {
+      "id": "OUT-0895",
+      "date": "2026-11-26",
+      "type": "OUT",
+      "unit": "หลา",
+      "quantity": 179.2,
+      "productId": "PROD-073",
+      "dailyUsage": "ตัดรอบ1 ธ.ค : Pre 1-7/12/69 + L-mini เดท 26/12",
+      "productName": "MJ736B-1 (นาโนน้ำตาลทอง)"
+    },
+    {
+      "id": "OUT-0894",
+      "date": "2026-11-26",
+      "type": "OUT",
+      "unit": "หลา",
+      "quantity": 4.1,
+      "productId": "PROD-083",
+      "dailyUsage": "ตัดรอบ1 ธ.ค : Pre 1-7/12/69 + L-mini เดท 26/12",
+      "productName": "MJ337-31 (น้ำเงิน)"
+    },
+    {
+      "id": "OUT-0892",
+      "date": "2026-11-26",
+      "type": "OUT",
+      "unit": "หลา",
+      "quantity": 102.4,
+      "productId": "PROD-096",
+      "dailyUsage": "ตัดรอบ1 ธ.ค : Pre 1-7/12/69 + L-mini เดท 26/12",
+      "productName": "MJ 356-4A (ลูกฟูกน้ำตาล)"
+    },
+    {
+      "id": "OUT-0891",
+      "date": "2026-11-26",
+      "type": "OUT",
+      "unit": "หลา",
+      "quantity": 49.2,
+      "productId": "PROD-099",
+      "dailyUsage": "ตัดรอบ1 ธ.ค : Pre 1-7/12/69 + L-mini เดท 26/12",
+      "productName": "MJ 356-1A (ลูกฟูกครีม)"
+    },
+    {
+      "id": "OUT-0890",
+      "date": "2026-11-26",
+      "type": "OUT",
+      "unit": "หลา",
+      "quantity": 150,
+      "productId": "PROD-102",
+      "dailyUsage": "ตัดรอบ1 ธ.ค : Pre 1-7/12/69 + L-mini เดท 26/12",
+      "productName": "PQ002C-48 (มอคค่า)"
+    },
+    {
+      "id": "OUT-0889",
+      "date": "2026-11-26",
+      "type": "OUT",
+      "unit": "หลา",
+      "quantity": 250,
+      "productId": "PROD-104",
+      "dailyUsage": "ตัดรอบ1 ธ.ค : Pre 1-7/12/69 + L-mini เดท 26/12",
+      "productName": "PQ002C-28 (เทาอ่อน) แทน 46"
+    },
+    {
+      "id": "OUT-0887",
+      "date": "2026-11-26",
+      "type": "OUT",
+      "unit": "หลา",
+      "quantity": 150,
+      "productId": "PROD-107",
+      "dailyUsage": "ตัดรอบ1 ธ.ค : Pre 1-7/12/69 + L-mini เดท 26/12",
+      "productName": "PQ002C-12 (น้ำตาล)"
+    },
+    {
+      "id": "OUT-0886",
+      "date": "2026-11-26",
+      "type": "OUT",
+      "unit": "หลา",
+      "quantity": 100,
+      "productId": "PROD-108",
+      "dailyUsage": "ตัดรอบ1 ธ.ค : Pre 1-7/12/69 + L-mini เดท 26/12",
+      "productName": "PQ002C-06 (ครีม)"
+    },
+    {
+      "id": "OUT-0885",
+      "date": "2026-11-26",
+      "type": "OUT",
+      "unit": "แผ่น",
+      "quantity": 60,
+      "productId": "PROD-012",
+      "dailyUsage": "",
+      "productName": "ไม้ยาว 180 M"
+    },
+    {
+      "id": "OUT-0884",
+      "date": "2026-11-26",
+      "type": "OUT",
+      "unit": "แผ่น",
+      "quantity": 410,
+      "productId": "PROD-011",
+      "dailyUsage": "",
+      "productName": "ไม้ยาว 150 M"
+    },
+    {
+      "id": "OUT-0883",
+      "date": "2026-11-26",
+      "type": "OUT",
+      "unit": "แผ่น",
+      "quantity": 31,
+      "productId": "PROD-006",
+      "dailyUsage": "",
+      "productName": "ไม้อัด 50.- (สมไกร)"
+    },
+    {
+      "id": "OUT-0882",
+      "date": "2026-11-26",
+      "type": "OUT",
+      "unit": "แผ่น",
+      "quantity": 30,
+      "productId": "PROD-009",
+      "dailyUsage": "",
+      "productName": "ไม้อัดใหญ่"
+    },
+    {
+      "id": "OUT-0881",
+      "date": "2026-11-26",
+      "type": "OUT",
+      "unit": "แผ่น",
+      "quantity": 150,
+      "productId": "PROD-005",
+      "dailyUsage": "",
+      "productName": "ไม้หน้า 3,4"
+    },
+    {
+      "id": "OUT-0880",
+      "date": "2026-11-26",
+      "type": "OUT",
+      "unit": "แผ่น",
+      "quantity": 2520,
+      "productId": "PROD-003",
+      "dailyUsage": "",
+      "productName": "ไม้สะเดา 100-140 M"
+    },
+    {
+      "id": "OUT-0879",
+      "date": "2026-11-26",
+      "type": "OUT",
+      "unit": "แผ่น",
+      "quantity": 900,
+      "productId": "PROD-002",
+      "dailyUsage": "",
+      "productName": "ไม้ระแนงยาว 150-200 M"
+    },
+    {
+      "id": "OUT-0868",
+      "date": "2026-11-26",
+      "type": "OUT",
+      "unit": "ปี๊บ",
+      "quantity": 2,
+      "productId": "PROD-069",
+      "dailyUsage": "",
+      "productName": "กาวพ่น (Toda)"
+    },
     {
       "id": "OUT-0867",
       "date": "2026-11-25",
@@ -16242,7 +16686,7 @@ window.INITIAL_INVENTORY_DATA = {
       "conversionNote": ""
     }
   ],
-  "updatedAt": "2026-11-26T06:25:29.756Z",
+  "updatedAt": "2026-11-27T11:07:25.771Z",
   "categories": [
     "กลุ่มไม้",
     "กลุ่มฟองน้ำ",
@@ -16271,5 +16715,5 @@ window.INITIAL_INVENTORY_DATA = {
   ],
   "adjustments": [],
   "schemaVersion": 5,
-  "updatedByDevice": "QC-STK-246191j"
+  "updatedByDevice": "QC-STK-b90v5wl"
 };
